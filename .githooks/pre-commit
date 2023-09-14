@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Check dependencies
+go mod tidy -v || exit
+go mod verify || exit
+
+# Check for errors and warnings
+go vet ./... || exit
+
+# Generate structures
+# go generate ./... || exit
+
+# Format your code
+go fmt ./... || exit
+
+# Format the code
+dirs=$(go list -f {{.Dir}} ./...)
+for d in ${dirs}; do
+	goimports -w "${d}"/*.go || exit;
+done
+
+golangci-lint run || exit
+
+go test -v -cover -test.short -count=1 -race ./... || exit

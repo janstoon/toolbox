@@ -1,0 +1,72 @@
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+env:
+  GH_ACCESS_TOKEN: ${{ secrets.GLOBAL_REPO_TOKEN || github.token }}
+  BADGE_GIST_ID: 69229998008a13b9b87590ebe50ecded
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version:
+          - 1.19
+          - "1.20"
+
+    runs-on: ubuntu-latest
+    name: Run tests on go@${{ matrix.go-version }}
+    steps:
+      - name: Make filename-friendly ref
+        run: |
+          REF=${{ github.ref }}
+          echo "REF=$(echo ${REF//\//_})" >> $GITHUB_ENV
+
+      - name: Install Go@${{ matrix.go-version }}
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Grant private repositories access
+        id: grant-repo-access
+        run: git config --global url."https://${{ env.GH_ACCESS_TOKEN }}@github.com".insteadOf "https://github.com"
+
+      - name: Run tests
+        uses: n8maninger/action-golang-test@v1
+        with:
+          skip-go-install: true
+          args: "-test.short;-count=1;-race;-covermode=atomic;-coverprofile=coverage.out"
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: short
+          env_vars: REF
+
+      - name: Expose code coverage manually
+        run: |
+          go tool cover -func=coverage.out -o=coverage.out
+          COVERAGE="$(cat coverage.out | tail -1 | awk '{print $NF}')"
+          echo "COVERAGE=$(echo ${COVERAGE%\%})" >> $GITHUB_ENV
+
+      - name: Create coverage badge
+        uses: schneegans/dynamic-badges-action@v1.4.0
+        with:
+          auth: ${{ secrets.BADGE_GIST_TOKEN }}
+          gistID: ${{ env.BADGE_GIST_ID }}
+          filename: ${{ github.repository_owner }}_${{ github.event.repository.name }}_${{ env.REF }}.json
+          namedLogo: codecov
+          logoColor: "#F01F7A"
+          label: Test Coverage
+          message: ${{ env.COVERAGE }}%
+          valColorRange: ${{ env.COVERAGE }}
+          maxColorRange: 95
+          minColorRange: 70
