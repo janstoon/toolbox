@@ -86,19 +86,30 @@ type commander1 struct {
 	app commander1App
 }
 
-func newCommander1(ss *kareless.Settings, ib *kareless.InstrumentBank, app commander1App) commander1 {
-	return commander1{
+func newCommander1(ss *kareless.Settings, ib *kareless.InstrumentBank, app commander1App) *commander1 {
+	return &commander1{
 		port: ss.GetInt64("port"),
 		app:  app,
 	}
 }
 
-func (c commander1) Foo(ctx context.Context, msg string) string {
+func (c *commander1) Foo(ctx context.Context, msg string) string {
 	return c.app.Foo(ctx, msg)
 }
 
-func (c commander1) Bar(ctx context.Context, msg string) string {
+func (c *commander1) Bar(ctx context.Context, msg string) string {
 	return c.app.Bar(ctx, msg)
+}
+
+func (c *commander1) Start(ctx context.Context) error {
+	c.running = true
+
+	go func() {
+		<-ctx.Done()
+		c.running = false
+	}()
+
+	return nil
 }
 
 type app1Commander1Adapter struct {
@@ -158,10 +169,9 @@ func TestLifeCycle(t *testing.T) {
 		am avmod
 		a1 app1
 		a2 app2
-		gw commander1
+		gw *commander1
 	)
 
-	ctx, stop := context.WithCancel(context.Background())
 	k := kareless.Compile().
 		Feed(settings{
 			"port":   "123",
@@ -206,14 +216,14 @@ func TestLifeCycle(t *testing.T) {
 			return gw
 		})
 
-	//assert.Nil(t, a1.encryptor)
-	//assert.Nil(t, a2.decrypter)
-	//assert.EqualValues(t, 0, am)
-	//assert.False(t, gw.running)
-	//assert.Nil(t, gw.app)
-	//assert.EqualValues(t, 0, gw.port)
+	assert.Nil(t, gw)
+	assert.Nil(t, a1.encryptor)
+	assert.Nil(t, a2.decrypter)
+	assert.EqualValues(t, 0, am)
 
-	go k.Run(ctx)
+	ctx, stop := context.WithCancel(context.Background())
+	defer stop()
+	_ = k.Run(ctx)
 
 	assert.NotNil(t, a1.encryptor)
 	assert.NotNil(t, a2.decrypter)
@@ -222,10 +232,7 @@ func TestLifeCycle(t *testing.T) {
 	assert.Equal(t, am, a1.encryptor)
 
 	assert.EqualValues(t, 123, gw.port)
-	//assert.True(t, gw.running)
+	assert.True(t, gw.running)
 	assert.NotNil(t, gw.app)
 	assert.Equal(t, "app2.bar app1.foo hello", gw.Bar(ctx, gw.Foo(ctx, "hello")))
-
-	stop()
-	//assert.False(t, gw.running)
 }
