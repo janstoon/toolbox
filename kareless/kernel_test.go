@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -250,7 +251,11 @@ func TestLifeCycle(t *testing.T) {
 	ctx, stop := context.WithCancel(context.Background())
 	go func() { _ = k.Run(ctx) }()
 
-	<-started
+	select {
+	case <-started:
+	case <-time.After(500 * time.Millisecond):
+		assert.Fail(t, "expected post hook to run")
+	}
 	assert.NotNil(t, a1.encryptor)
 	assert.NotNil(t, a2.decrypter)
 	assert.EqualValues(t, 5, am)
@@ -263,6 +268,10 @@ func TestLifeCycle(t *testing.T) {
 	assert.Equal(t, "app2.bar app1.foo hello", gw.Bar(ctx, gw.Foo(ctx, "hello")))
 
 	stop()
-	<-stopped
+	select {
+	case <-stopped:
+	case <-time.After(500 * time.Millisecond):
+		assert.Fail(t, "expected post hook context to get done")
+	}
 	assert.False(t, gw.isRunning())
 }
