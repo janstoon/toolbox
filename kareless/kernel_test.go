@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -80,6 +81,7 @@ type commander1App interface {
 }
 
 type commander1 struct {
+	sync.RWMutex
 	running bool
 	port    int64
 
@@ -101,15 +103,24 @@ func (c *commander1) Bar(ctx context.Context, msg string) string {
 	return c.app.Bar(ctx, msg)
 }
 
-func (c *commander1) Start(ctx context.Context) error {
+func (c *commander1) Run(ctx context.Context) error {
+	c.Lock()
 	c.running = true
+	c.Unlock()
 
-	go func() {
-		<-ctx.Done()
-		c.running = false
-	}()
+	<-ctx.Done()
+	c.Lock()
+	c.running = false
+	c.Unlock()
 
 	return nil
+}
+
+func (c *commander1) isRunning() bool {
+	c.RLock()
+	defer c.RUnlock()
+
+	return c.running
 }
 
 type app1Commander1Adapter struct {
@@ -216,15 +227,30 @@ func TestLifeCycle(t *testing.T) {
 			return gw
 		})
 
+	started, stopped := make(chan bool), make(chan bool)
+	k = k.
+		AfterStart(
+			func(ctx context.Context, ss *kareless.Settings, ib *kareless.InstrumentBank, apps []kareless.Application) error {
+				started <- true
+
+				go func() {
+					<-ctx.Done()
+					stopped <- true
+				}()
+
+				return nil
+			},
+		)
+
 	assert.Nil(t, gw)
 	assert.Nil(t, a1.encryptor)
 	assert.Nil(t, a2.decrypter)
 	assert.EqualValues(t, 0, am)
 
 	ctx, stop := context.WithCancel(context.Background())
-	defer stop()
-	_ = k.Run(ctx)
+	go func() { _ = k.Run(ctx) }()
 
+	<-started
 	assert.NotNil(t, a1.encryptor)
 	assert.NotNil(t, a2.decrypter)
 	assert.EqualValues(t, 5, am)
@@ -232,7 +258,11 @@ func TestLifeCycle(t *testing.T) {
 	assert.Equal(t, am, a1.encryptor)
 
 	assert.EqualValues(t, 123, gw.port)
-	assert.True(t, gw.running)
 	assert.NotNil(t, gw.app)
+	assert.True(t, gw.isRunning())
 	assert.Equal(t, "app2.bar app1.foo hello", gw.Bar(ctx, gw.Foo(ctx, "hello")))
+
+	stop()
+	<-stopped
+	assert.False(t, gw.isRunning())
 }

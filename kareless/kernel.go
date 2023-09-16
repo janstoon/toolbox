@@ -2,6 +2,7 @@ package kareless
 
 import (
 	"context"
+	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -12,6 +13,7 @@ type Kernel struct {
 
 	appsToInstall    []ApplicationConstructor
 	driversToConnect []DriverConstructor
+	postHooks        []Hook
 }
 
 type Option func(k Kernel) Kernel
@@ -35,16 +37,29 @@ func (k Kernel) Run(ctx context.Context) error {
 		apps[i] = constructor(k.ss, k.ib)
 	}
 
-	wg := errgroup.Group{}
+	wgDrivers, wgAll := sync.WaitGroup{}, errgroup.Group{}
 	for _, constructor := range k.driversToConnect {
+		wgDrivers.Add(1)
 		func(constructor DriverConstructor) {
-			wg.Go(func() error {
-				return constructor(k.ss, k.ib, apps).Start(ctx)
+			wgAll.Go(func() error {
+				driver := constructor(k.ss, k.ib, apps)
+				wgDrivers.Done()
+
+				return driver.Run(ctx)
 			})
 		}(constructor)
 	}
 
-	return wg.Wait()
+	wgDrivers.Wait()
+	for _, hook := range k.postHooks {
+		func(hook Hook) {
+			wgAll.Go(func() error {
+				return hook(ctx, k.ss, k.ib, apps)
+			})
+		}(hook)
+	}
+
+	return wgAll.Wait()
 }
 
 func Feeder(ss ...SettingSource) Option {
@@ -82,9 +97,7 @@ func Installer(cc ...ApplicationConstructor) Option {
 }
 
 func (k Kernel) Install(cc ...ApplicationConstructor) Kernel {
-	for _, constructor := range cc {
-		k.appsToInstall = append(k.appsToInstall, constructor)
-	}
+	k.appsToInstall = append(k.appsToInstall, cc...)
 
 	return k
 }
@@ -96,9 +109,21 @@ func Connector(cc ...DriverConstructor) Option {
 }
 
 func (k Kernel) Connect(cc ...DriverConstructor) Kernel {
-	for _, constructor := range cc {
-		k.driversToConnect = append(k.driversToConnect, constructor)
+	k.driversToConnect = append(k.driversToConnect, cc...)
+
+	return k
+}
+
+type Hook func(ctx context.Context, ss *Settings, ib *InstrumentBank, apps []Application) error
+
+func PostHook(hh ...Hook) Option {
+	return func(k Kernel) Kernel {
+		return k.AfterStart(hh...)
 	}
+}
+
+func (k Kernel) AfterStart(hh ...Hook) Kernel {
+	k.postHooks = append(k.postHooks, hh...)
 
 	return k
 }
