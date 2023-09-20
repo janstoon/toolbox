@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/janstoon/abzar/kareless"
+	"github.com/janstoon/toolbox/kareless"
 )
 
 type settings map[string]string

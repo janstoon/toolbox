@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/janstoon/abzar/conv"
+	"github.com/janstoon/toolbox/conv"
 )
 
 type SettingSource interface {
