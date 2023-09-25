@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/janstoon/toolbox/conv"
+	"github.com/janstoon/toolbox/tricks"
 )
 
 type SettingSource interface {
@@ -30,7 +30,7 @@ func (ss *Settings) get(ctx context.Context, key string) string {
 	for _, r := range ss.rr {
 		v, err := r.Get(ctx, key)
 		if err == nil && v != nil {
-			return conv.PtrVal(v)
+			return tricks.PtrVal(v)
 		}
 	}
 
