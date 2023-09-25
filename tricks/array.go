@@ -1,4 +1,4 @@
-package conv
+package tricks
 
 func Filter[T any](match func(src T) bool, tt []T) []T {
 	ftt := make([]T, 0, len(tt))

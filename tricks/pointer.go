@@ -1,4 +1,4 @@
-package conv
+package tricks
 
 func PtrVal[T any](src *T) T {
 	if src == nil {
