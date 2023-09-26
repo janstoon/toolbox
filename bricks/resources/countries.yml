@@ -1,0 +1,10 @@
+countries:
+  - name:
+      short: Iran
+      full: The Islamic Republic of Iran
+    codes:
+      iso: IR
+      iso3: IRN
+      ison: 364
+      ioc: IRI
+      tel: 98
