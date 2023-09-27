@@ -1,4 +1,4 @@
 package bricks
 
-type NationalIdentityNumber interface {
+type NationalIdentityNumber struct {
 }

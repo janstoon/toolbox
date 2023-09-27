@@ -34,6 +34,10 @@ type CountryCode struct {
 	// useful links: https://en.wikipedia.org/wiki/ISO_3166-1 and https://www.iban.com/country-codes
 	IsoNumeric string
 
+	// IocAlphaThree contains international olympic committee alphabetic country code
+	// useful links: https://en.wikipedia.org/wiki/List_of_IOC_country_codes
+	IocAlphaThree string
+
 	// Telephone is the calling code
 	// useful links: https://en.wikipedia.org/wiki/List_of_country_calling_codes
 	Telephone int

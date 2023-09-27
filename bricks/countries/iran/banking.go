@@ -27,6 +27,13 @@ func bbanValidator(basicBankAccountNumber string) error {
 	return nil
 }
 
+type primaryAccountNumber struct {
+	Institute   [6]byte
+	Product     [2]byte
+	Serial      [7]byte
+	CheckDigits [1]byte
+}
+
 func init() {
-	bricks.RegisterBbanValidator("IR", bbanValidator)
+	bricks.RegisterBbanValidator(iran.Codes.IsoAlphaTwo, bbanValidator)
 }

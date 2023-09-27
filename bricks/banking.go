@@ -15,21 +15,21 @@ var (
 	ErrIbanUnknownCountry  = errors.New("iban country unknown")
 	ErrIbanCheckFailure    = errors.New("iban check failure")
 	ErrIbanInvalidBban     = errors.New("iban invalid bban")
+
+	ErrPanIncorrectLength = errors.New("pan length incorrect")
 )
 
 type InternationalBankAccountNumber struct {
+	full                   string
 	countryCode            string
 	checkDigits            string
 	basicBankAccountNumber string
+
+	Country *Country
 }
 
 func (iban InternationalBankAccountNumber) String() string {
-	var sb strings.Builder
-	sb.WriteString(iban.countryCode)
-	sb.WriteString(iban.checkDigits)
-	sb.WriteString(iban.basicBankAccountNumber)
-
-	return sb.String()
+	return iban.full
 }
 
 type (
@@ -66,7 +66,7 @@ var bbanValidators = bbanValidatorBank{
 	normCountryCode: strings.ToUpper,
 }
 
-func ParseInternationalBankAccountNumber(ibanStr string) (*InternationalBankAccountNumber, error) {
+func ParseInternationalBankAccountNumber(iban string) (*InternationalBankAccountNumber, error) {
 	const (
 		ibanMinLength                   = 5
 		ibanMaxLength                   = 34
@@ -77,14 +77,14 @@ func ParseInternationalBankAccountNumber(ibanStr string) (*InternationalBankAcco
 		ibanBasicBankAccountNumberStart = 4
 	)
 
-	if l := len(ibanStr); l < ibanMinLength || l > ibanMaxLength {
+	if l := len(iban); l < ibanMinLength || l > ibanMaxLength {
 		return nil, errors.Join(ErrInvalidInput, ErrIbanIncorrectLength)
 	}
 
-	ibanStr = strings.ToUpper(ibanStr)
-	cc := ibanStr[ibanCountryCodeStart:ibanCountryCodeEnd]
-	cd := ibanStr[ibanCheckDigitsStart:ibanCheckDigitsEnd]
-	bban := ibanStr[ibanBasicBankAccountNumberStart:]
+	iban = strings.ToUpper(iban)
+	cc := iban[ibanCountryCodeStart:ibanCountryCodeEnd]
+	cd := iban[ibanCheckDigitsStart:ibanCheckDigitsEnd]
+	bban := iban[ibanBasicBankAccountNumberStart:]
 
 	if err := validateIban(cc, cd, bban); err != nil {
 		return nil, errors.Join(ErrInvalidInput, err)
@@ -100,9 +100,12 @@ func ParseInternationalBankAccountNumber(ibanStr string) (*InternationalBankAcco
 	}
 
 	return &InternationalBankAccountNumber{
+		full:                   iban,
 		countryCode:            cc,
 		checkDigits:            cd,
 		basicBankAccountNumber: bban,
+
+		Country: LookupCountryByIsoAlphaTwoCode(cc),
 	}, nil
 }
 
@@ -142,34 +145,48 @@ func RegisterBbanValidator(countryCode string, validator BbanValidator) {
 }
 
 type PrimaryAccountNumber struct {
+	full                       string
 	issuerIdentificationNumber string
 	accountNumber              string
+	checkDigit                 string
 }
 
-func ParsePrimaryAccountNumber(str string) (*PrimaryAccountNumber, error) {
-	return nil, ErrNotImplemented
+func (pan PrimaryAccountNumber) String() string {
+	return pan.full
 }
 
-type IranPrimaryAccountNumber struct {
-	Institute   [6]byte
-	Product     [2]byte
-	Serial      [7]byte
-	CheckDigits [1]byte
+func ParsePrimaryAccountNumber(pan string) (*PrimaryAccountNumber, error) {
+	const (
+		panMinLength = 8
+		panMaxLength = 19
+	)
+
+	if l := len(pan); l < panMinLength || l > panMaxLength {
+		return nil, errors.Join(ErrInvalidInput, ErrPanIncorrectLength)
+	}
+
+	// todo: validate pan
+
+	return &PrimaryAccountNumber{
+		full:                       pan,
+		issuerIdentificationNumber: "",
+		accountNumber:              "",
+		checkDigit:                 "",
+	}, nil
 }
 
 type BankAccount struct {
+	bank string
+	name string
+
 	iban InternationalBankAccountNumber
 	pan  PrimaryAccountNumber
-
-	bank string
 }
 
-func bankAccountFromIban(iban InternationalBankAccountNumber) BankAccount {
-	return BankAccount{}
-}
-
-func bankAccountFromPan(pan PrimaryAccountNumber) BankAccount {
-	return BankAccount{}
+func NewBankAccount(name string) BankAccount {
+	return BankAccount{
+		name: name,
+	}
 }
 
 func (ba BankAccount) BankName() string {
