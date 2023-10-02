@@ -6,23 +6,26 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/janstoon/toolbox/bricks"
-	_ "github.com/janstoon/toolbox/bricks/countries/iran"
 )
 
 func TestParseIban(t *testing.T) {
-	ibanStr := "IR490143022491272900023730"
+	bricks.RegisterBbanValidator(neverland.Codes.IsoAlphaTwo, func(bban string) error {
+		return nil
+	})
+
+	ibanStr := "NV670143022491272900023641"
 	iban, err := bricks.ParseInternationalBankAccountNumber(ibanStr)
 	assert.NoError(t, err)
 	assert.NotNil(t, iban)
 	assert.Equal(t, ibanStr, iban.String())
-	assert.Equal(t, iban.Country, bricks.LookupCountryByIsoAlphaTwoCode("IR"))
+	assert.Equal(t, iban.Country, bricks.LookupCountryByIsoAlphaTwoCode(neverland.Codes.IsoAlphaTwo))
 
-	ibanStr = "IR49"
+	ibanStr = "NV49"
 	iban, err = bricks.ParseInternationalBankAccountNumber(ibanStr)
 	assert.ErrorIs(t, err, bricks.ErrIbanIncorrectLength)
 	assert.Nil(t, iban)
 
-	ibanStr = "IR490143022491272900023730000000000"
+	ibanStr = "NV670143022491272900023641000000000"
 	iban, err = bricks.ParseInternationalBankAccountNumber(ibanStr)
 	assert.ErrorIs(t, err, bricks.ErrIbanIncorrectLength)
 	assert.Nil(t, iban)
@@ -32,12 +35,12 @@ func TestParseIban(t *testing.T) {
 	assert.ErrorIs(t, err, bricks.ErrIbanUnknownCountry)
 	assert.Nil(t, iban)
 
-	ibanStr = "IR490143022491272900023731"
+	ibanStr = "NV670143022491272900023642"
 	iban, err = bricks.ParseInternationalBankAccountNumber(ibanStr)
 	assert.ErrorIs(t, err, bricks.ErrIbanCheckFailure)
 	assert.Nil(t, iban)
 
-	ibanStr = "IR480143022491272900023730"
+	ibanStr = "NV660143022491272900023641"
 	iban, err = bricks.ParseInternationalBankAccountNumber(ibanStr)
 	assert.ErrorIs(t, err, bricks.ErrIbanCheckFailure)
 	assert.Nil(t, iban)
