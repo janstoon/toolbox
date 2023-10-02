@@ -3,10 +3,10 @@ package bricks_test
 import (
 	"testing"
 
+	"github.com/janstoon/toolbox/tricks"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/janstoon/toolbox/bricks"
-	"github.com/janstoon/toolbox/tricks"
 )
 
 func TestTreeRetrieval(t *testing.T) {
