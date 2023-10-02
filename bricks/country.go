@@ -40,7 +40,7 @@ type CountryCode struct {
 
 	// Telephone is the calling code
 	// useful links: https://en.wikipedia.org/wiki/List_of_country_calling_codes
-	Telephone int
+	Telephone string
 }
 
 type countryBank struct {
@@ -48,7 +48,7 @@ type countryBank struct {
 
 	byIsoAlphaTwoCode map[string]*Country
 	normIsoAlphaTwo   func(string) string
-	byTelephoneCode   map[int]*Country
+	byTelephoneCode   map[string]*Country
 }
 
 func (bank *countryBank) push(c Country) {
@@ -66,7 +66,7 @@ func (bank *countryBank) lookupByIsoAlphaTwoCode(code string) *Country {
 	return bank.byIsoAlphaTwoCode[bank.normIsoAlphaTwo(code)]
 }
 
-func (bank *countryBank) lookupByTelephoneCode(code int) *Country {
+func (bank *countryBank) lookupByTelephoneCode(code string) *Country {
 	bank.RLock()
 	defer bank.RUnlock()
 
@@ -76,14 +76,14 @@ func (bank *countryBank) lookupByTelephoneCode(code int) *Country {
 var countries = countryBank{
 	byIsoAlphaTwoCode: make(map[string]*Country),
 	normIsoAlphaTwo:   strings.ToUpper,
-	byTelephoneCode:   make(map[int]*Country),
+	byTelephoneCode:   make(map[string]*Country),
 }
 
 func LookupCountryByIsoAlphaTwoCode(code string) *Country {
 	return countries.lookupByIsoAlphaTwoCode(code)
 }
 
-func LookupCountryByTelephoneCode(code int) *Country {
+func LookupCountryByTelephoneCode(code string) *Country {
 	return countries.lookupByTelephoneCode(code)
 }
 

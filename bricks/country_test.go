@@ -12,18 +12,18 @@ import (
 
 func TestLookupCountries(t *testing.T) {
 	assert.Nil(t, bricks.LookupCountryByIsoAlphaTwoCode("X"))
-	assert.Nil(t, bricks.LookupCountryByTelephoneCode(999))
+	assert.Nil(t, bricks.LookupCountryByTelephoneCode("999"))
 
 	assert.NotNil(t, bricks.LookupCountryByIsoAlphaTwoCode("IR"))
-	assert.NotNil(t, bricks.LookupCountryByTelephoneCode(98))
+	assert.NotNil(t, bricks.LookupCountryByTelephoneCode("98"))
 
 	ir := tricks.PtrVal(bricks.LookupCountryByIsoAlphaTwoCode("IR"))
 	assert.Equal(t, "IR", ir.Codes.IsoAlphaTwo)
 	assert.Equal(t, "IRN", ir.Codes.IsoAlphaThree)
-	assert.Equal(t, 98, ir.Codes.Telephone)
+	assert.Equal(t, "98", ir.Codes.Telephone)
 
-	ir = tricks.PtrVal(bricks.LookupCountryByTelephoneCode(98))
+	ir = tricks.PtrVal(bricks.LookupCountryByTelephoneCode("98"))
 	assert.Equal(t, "IR", ir.Codes.IsoAlphaTwo)
 	assert.Equal(t, "IRN", ir.Codes.IsoAlphaThree)
-	assert.Equal(t, 98, ir.Codes.Telephone)
+	assert.Equal(t, "98", ir.Codes.Telephone)
 }

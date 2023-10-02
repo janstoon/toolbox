@@ -12,7 +12,7 @@ var iran = bricks.Country{
 		IsoAlphaThree: "IRN",
 		IsoNumeric:    "364",
 		IocAlphaThree: "IRI",
-		Telephone:     98,
+		Telephone:     "98",
 	},
 }
 
