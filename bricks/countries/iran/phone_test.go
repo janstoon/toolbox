@@ -15,7 +15,7 @@ func TestParsePhoneNumber(t *testing.T) {
 	assert.NotNil(t, pn)
 	assert.Equal(t, "+989123456789", pn.String())
 	assert.Equal(t, bricks.LookupCountryByIsoAlphaTwoCode("IR"), pn.Country)
-	assert.True(t, pn.DefaultOperator.Mobile)
+	assert.True(t, pn.Mobile)
 	assert.False(t, pn.DefaultOperator.Virtual)
 	assert.Equal(t, "MCI", pn.DefaultOperator.Name)
 
@@ -24,7 +24,7 @@ func TestParsePhoneNumber(t *testing.T) {
 	assert.NotNil(t, pn)
 	assert.Equal(t, "+989123456789", pn.String())
 	assert.Equal(t, bricks.LookupCountryByIsoAlphaTwoCode("IR"), pn.Country)
-	assert.True(t, pn.DefaultOperator.Mobile)
+	assert.True(t, pn.Mobile)
 	assert.False(t, pn.DefaultOperator.Virtual)
 	assert.Equal(t, "MCI", pn.DefaultOperator.Name)
 
@@ -33,7 +33,7 @@ func TestParsePhoneNumber(t *testing.T) {
 	assert.NotNil(t, pn)
 	assert.Equal(t, "+989123456789", pn.String())
 	assert.Equal(t, bricks.LookupCountryByIsoAlphaTwoCode("IR"), pn.Country)
-	assert.True(t, pn.DefaultOperator.Mobile)
+	assert.True(t, pn.Mobile)
 	assert.False(t, pn.DefaultOperator.Virtual)
 	assert.Equal(t, "MCI", pn.DefaultOperator.Name)
 
@@ -42,7 +42,7 @@ func TestParsePhoneNumber(t *testing.T) {
 	assert.NotNil(t, pn)
 	assert.Equal(t, "+989123456789", pn.String())
 	assert.Equal(t, bricks.LookupCountryByIsoAlphaTwoCode("IR"), pn.Country)
-	assert.True(t, pn.DefaultOperator.Mobile)
+	assert.True(t, pn.Mobile)
 	assert.False(t, pn.DefaultOperator.Virtual)
 	assert.Equal(t, "MCI", pn.DefaultOperator.Name)
 
@@ -51,7 +51,7 @@ func TestParsePhoneNumber(t *testing.T) {
 	assert.NotNil(t, pn)
 	assert.Equal(t, "+982122334455", pn.String())
 	assert.Equal(t, bricks.LookupCountryByIsoAlphaTwoCode("IR"), pn.Country)
-	assert.False(t, pn.DefaultOperator.Mobile)
+	assert.False(t, pn.Mobile)
 	assert.False(t, pn.DefaultOperator.Virtual)
 	assert.Equal(t, "TCI", pn.DefaultOperator.Name)
 
@@ -60,7 +60,7 @@ func TestParsePhoneNumber(t *testing.T) {
 	assert.NotNil(t, pn)
 	assert.Equal(t, "+982122334455", pn.String())
 	assert.Equal(t, bricks.LookupCountryByIsoAlphaTwoCode("IR"), pn.Country)
-	assert.False(t, pn.DefaultOperator.Mobile)
+	assert.False(t, pn.Mobile)
 	assert.False(t, pn.DefaultOperator.Virtual)
 	assert.Equal(t, "TCI", pn.DefaultOperator.Name)
 
@@ -69,7 +69,7 @@ func TestParsePhoneNumber(t *testing.T) {
 	assert.NotNil(t, pn)
 	assert.Equal(t, "+982122334455", pn.String())
 	assert.Equal(t, bricks.LookupCountryByIsoAlphaTwoCode("IR"), pn.Country)
-	assert.False(t, pn.DefaultOperator.Mobile)
+	assert.False(t, pn.Mobile)
 	assert.False(t, pn.DefaultOperator.Virtual)
 	assert.Equal(t, "TCI", pn.DefaultOperator.Name)
 }

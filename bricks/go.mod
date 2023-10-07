@@ -3,7 +3,7 @@ module github.com/janstoon/toolbox/bricks
 go 1.21.0
 
 require (
-	github.com/janstoon/toolbox/tricks v0.3.0
+	github.com/janstoon/toolbox/tricks v0.4.0
 	github.com/stretchr/testify v1.8.4
 )
 

@@ -17,6 +17,8 @@ var (
 type PhoneNumber struct {
 	full            string
 	Country         *Country
+	Mobile          bool
+	Prepaid         bool
 	DefaultOperator NetworkOperator
 }
 
@@ -26,41 +28,46 @@ func (pn PhoneNumber) String() string {
 
 type NetworkOperator struct {
 	Name    string
-	Mobile  bool
 	Virtual bool
 }
 
-type (
-	PhoneNumberLocator func(localNumber string) (*NetworkOperator, error)
+type PhoneNumberMetadata struct {
+	Mobile   bool
+	Prepaid  bool
+	Operator NetworkOperator
+}
 
-	phoneNumberLocatorCatalogue struct {
+type (
+	PhoneNumberResolver func(localNumber string) (*PhoneNumberMetadata, error)
+
+	phoneNumberResolverCatalogue struct {
 		countryTelCode string
-		locator        PhoneNumberLocator
+		resolver       PhoneNumberResolver
 	}
 )
 
-type phoneNumberLocatorBank struct {
+type phoneNumberResolverBank struct {
 	sync.RWMutex
 
-	byCountryTelCode *TrieNode[string, rune, phoneNumberLocatorCatalogue]
+	byCountryTelCode *TrieNode[string, rune, phoneNumberResolverCatalogue]
 }
 
-func (bank *phoneNumberLocatorBank) push(c phoneNumberLocatorCatalogue) {
+func (bank *phoneNumberResolverBank) push(c phoneNumberResolverCatalogue) {
 	bank.Lock()
 	defer bank.Unlock()
 
 	bank.byCountryTelCode.Put(c.countryTelCode, c)
 }
 
-func (bank *phoneNumberLocatorBank) matchByCountryTelCode(number string) *phoneNumberLocatorCatalogue {
+func (bank *phoneNumberResolverBank) matchByCountryTelCode(number string) *phoneNumberResolverCatalogue {
 	bank.RLock()
 	defer bank.RUnlock()
 
 	return bank.byCountryTelCode.BestMatch(number)
 }
 
-var phoneNumberLocators = phoneNumberLocatorBank{
-	byCountryTelCode: Trie[string, rune, phoneNumberLocatorCatalogue](func(s string) []rune {
+var phoneNumberResolvers = phoneNumberResolverBank{
+	byCountryTelCode: Trie[string, rune, phoneNumberResolverCatalogue](func(s string) []rune {
 		return []rune(s)
 	}),
 }
@@ -68,15 +75,15 @@ var phoneNumberLocators = phoneNumberLocatorBank{
 func ParsePhoneNumber(number string) (*PhoneNumber, error) {
 	number = sanitizePhoneNumber(number)
 
-	var catalogue phoneNumberLocatorCatalogue
-	if c := phoneNumberLocators.matchByCountryTelCode(number); c == nil {
+	var catalogue phoneNumberResolverCatalogue
+	if c := phoneNumberResolvers.matchByCountryTelCode(number); c == nil {
 		return nil, errors.Join(ErrInvalidInput, ErrPhoneNumberUnknownCountry)
 	} else {
 		catalogue = tricks.PtrVal(c)
 	}
 
 	localNumber := strings.TrimPrefix(strings.TrimPrefix(number, catalogue.countryTelCode), "0")
-	operator, err := catalogue.locator(localNumber)
+	meta, err := catalogue.resolver(localNumber)
 	if err != nil {
 		return nil, errors.Join(ErrInvalidInput, err)
 	}
@@ -84,7 +91,8 @@ func ParsePhoneNumber(number string) (*PhoneNumber, error) {
 	return &PhoneNumber{
 		full:            fmt.Sprintf("%s%s", catalogue.countryTelCode, localNumber),
 		Country:         LookupCountryByTelephoneCode(catalogue.countryTelCode),
-		DefaultOperator: tricks.PtrVal(operator),
+		Mobile:          meta.Mobile,
+		DefaultOperator: meta.Operator,
 	}, nil
 }
 
@@ -98,9 +106,9 @@ func sanitizePhoneNumber(src string) string {
 	)
 }
 
-func RegisterPhoneNumberLocator(countryTelCode string, locator PhoneNumberLocator) {
-	phoneNumberLocators.push(phoneNumberLocatorCatalogue{
+func RegisterPhoneNumberResolver(countryTelCode string, resolver PhoneNumberResolver) {
+	phoneNumberResolvers.push(phoneNumberResolverCatalogue{
 		countryTelCode: countryTelCode,
-		locator:        locator,
+		resolver:       resolver,
 	})
 }

@@ -10,9 +10,7 @@ import (
 )
 
 func TestTreeRetrieval(t *testing.T) {
-	trie := bricks.Trie[string, rune, string](func(s string) []rune {
-		return []rune(s)
-	})
+	trie := bricks.Trie[string, rune, string](tricks.StringToRunes)
 
 	assert.Nil(t, trie.Get("1"))
 	assert.Nil(t, trie.Get("18"))

@@ -4,159 +4,730 @@ import (
 	"errors"
 
 	"github.com/janstoon/toolbox/bricks"
+	"github.com/janstoon/toolbox/tricks"
 )
 
-func phoneNumberLocator(localNumber string) (*bricks.NetworkOperator, error) {
-	op := operators.BestMatch(localNumber)
-	if op == nil {
+func phoneNumberResolver(localNumber string) (*bricks.PhoneNumberMetadata, error) {
+	md := phoneNumbersMetadata.BestMatch(localNumber)
+	if md == nil {
 		return nil, errors.Join(bricks.ErrInvalidInput, bricks.ErrUnknownNetworkOperator)
 	}
 
-	return op, nil
+	return md, nil
 }
 
 func init() {
-	setupOperators()
-	bricks.RegisterPhoneNumberLocator(iran.Codes.Telephone, phoneNumberLocator)
+	setupPhoneNumberMetadataTree()
+	bricks.RegisterPhoneNumberResolver(iran.Codes.Telephone, phoneNumberResolver)
 }
 
-var (
-	operators = bricks.Trie[string, rune, bricks.NetworkOperator](func(s string) []rune {
-		return []rune(s)
-	})
+var phoneNumbersMetadata = bricks.Trie[string, rune, bricks.PhoneNumberMetadata](tricks.StringToRunes)
 
-	oprTci = bricks.NetworkOperator{
-		Name:    "TCI",
-		Mobile:  false,
-		Virtual: false,
+type phoneNumberMetadata struct {
+	operatorSlug string
+	mobile       bool
+	prepaid      bool
+
+	// provinceCodes keeps iso 3166-2 subdivision codes.
+	// useful links: https://en.wikipedia.org/wiki/ISO_3166-2:IR
+	provinceCodes []string
+
+	countyName string
+}
+
+func setupPhoneNumberMetadataTree() {
+	operatorsBySlug := map[string]bricks.NetworkOperator{
+		"tci": {
+			Name:    "TCI",
+			Virtual: false,
+		},
+		"asiatech": {
+			Name:    "AsiaTech",
+			Virtual: false,
+		},
+
+		"mci": {
+			Name:    "MCI",
+			Virtual: false,
+		},
+		"mtn": {
+			Name:    "MTN",
+			Virtual: false,
+		},
+		"rightel": {
+			Name:    "Rightel",
+			Virtual: false,
+		},
+		"taliya": {
+			Name:    "Taliya",
+			Virtual: false,
+		},
+
+		// regional
+		"spadan": {
+			Name:    "MTCE",
+			Virtual: false,
+		},
+		"telekish": {
+			Name:    "TeleKish",
+			Virtual: false,
+		},
+
+		// virtual
+		"shatel": {
+			Name:    "Shatel",
+			Virtual: true,
+		},
+		"aptel": {
+			Name:    "ApTel",
+			Virtual: true,
+		},
+		"samantel": {
+			Name:    "SamanTel",
+			Virtual: true,
+		},
+		"lotustel": {
+			Name:    "LotusTel",
+			Virtual: true,
+		},
+		"ariantel": {
+			Name:    "ArianTel",
+			Virtual: true,
+		},
 	}
-	oprMci = bricks.NetworkOperator{
-		Name:    "MCI",
-		Mobile:  true,
-		Virtual: false,
+
+	metadataByPrefix := map[string]phoneNumberMetadata{
+		"11": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: []string{"02"},
+			countyName:    "",
+		},
+		"13": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"17": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"21": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: []string{"23"},
+			countyName:    "",
+		},
+		"23": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"24": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"25": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"26": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"28": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"31": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: []string{"10"},
+			countyName:    "",
+		},
+		"34": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"35": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"38": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"41": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"44": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"45": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"51": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"54": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"56": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"58": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"61": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"66": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"71": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"74": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"76": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"77": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"81": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"83": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"84": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"86": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+		"87": {
+			operatorSlug:  "tci",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil, // todo
+			countyName:    "",
+		},
+
+		"900": {
+			operatorSlug:  "mtn",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"901": {
+			operatorSlug:  "mtn",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"902": {
+			operatorSlug:  "mtn",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"903": {
+			operatorSlug:  "mtn",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"904": {
+			operatorSlug:  "mtn",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"905": {
+			operatorSlug:  "mtn",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+
+		"910": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"911": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: []string{"02"},
+			countyName:    "",
+		},
+		"912": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: []string{"23"},
+			countyName:    "",
+		},
+		"913": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: []string{"10"},
+			countyName:    "",
+		},
+		"914": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: []string{"03"},
+			countyName:    "",
+		},
+		"915": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: []string{"09"},
+			countyName:    "",
+		},
+		"916": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: []string{"06"},
+			countyName:    "",
+		},
+		"917": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: []string{"07"},
+			countyName:    "",
+		},
+		"918": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: []string{"13"},
+			countyName:    "",
+		},
+		"919": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: []string{"23"},
+			countyName:    "",
+		},
+
+		"920": {
+			operatorSlug:  "rightel",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"921": {
+			operatorSlug:  "rightel",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"922": {
+			operatorSlug:  "rightel",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"923": {
+			operatorSlug:  "rightel",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+
+		"930": {
+			operatorSlug:  "mtn",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+
+		"931": {
+			operatorSlug:  "spadan",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: []string{"10"},
+			countyName:    "Isfahan",
+		},
+
+		"932": {
+			operatorSlug:  "taliya",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+
+		"933": {
+			operatorSlug:  "mtn",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+
+		"934": {
+			operatorSlug:  "telekish",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: []string{"22"},
+			countyName:    "Kish",
+		},
+
+		"935": {
+			operatorSlug:  "mtn",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"936": {
+			operatorSlug:  "mtn",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"937": {
+			operatorSlug:  "mtn",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"938": {
+			operatorSlug:  "mtn",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"939": {
+			operatorSlug:  "mtn",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+
+		"941": {
+			operatorSlug:  "mtn",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+
+		"990": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"991": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"992": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"993": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"994": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"995": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"996": {
+			operatorSlug:  "mci",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+
+		"9422": {
+			operatorSlug:  "asiatech",
+			mobile:        false,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+
+		"99810": {
+			operatorSlug:  "shatel",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"99811": {
+			operatorSlug:  "shatel",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"99812": {
+			operatorSlug:  "shatel",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"99813": {
+			operatorSlug:  "shatel",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"99814": {
+			operatorSlug:  "shatel",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"99815": {
+			operatorSlug:  "shatel",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"99816": {
+			operatorSlug:  "shatel",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"99817": {
+			operatorSlug:  "shatel",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+
+		"99910": {
+			operatorSlug:  "aptel",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"99911": {
+			operatorSlug:  "aptel",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"99913": {
+			operatorSlug:  "aptel",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"99914": {
+			operatorSlug:  "aptel",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+
+		"9990": {
+			operatorSlug:  "lotustel",
+			mobile:        true,
+			prepaid:       true,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+
+		"9998": {
+			operatorSlug:  "ariantel",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+
+		"9999": {
+			operatorSlug:  "samantel",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
+		"99999": {
+			operatorSlug:  "samantel",
+			mobile:        true,
+			prepaid:       false,
+			provinceCodes: nil,
+			countyName:    "",
+		},
 	}
-	oprMtnIrancellMobile = bricks.NetworkOperator{
-		Name:    "MTN",
-		Mobile:  true,
-		Virtual: false,
+
+	for prefix, meta := range metadataByPrefix {
+		op, ok := operatorsBySlug[meta.operatorSlug]
+		if !ok {
+			panic(bricks.ErrUnknownNetworkOperator)
+		}
+
+		phoneNumbersMetadata.Put(prefix, bricks.PhoneNumberMetadata{
+			Mobile:   meta.mobile,
+			Prepaid:  meta.prepaid,
+			Operator: op,
+		})
 	}
-	oprMtnIrancellTdLte = bricks.NetworkOperator{
-		Name:    "MTN",
-		Mobile:  false,
-		Virtual: false,
-	}
-	oprRightel = bricks.NetworkOperator{
-		Name:    "Rightel",
-		Mobile:  true,
-		Virtual: false,
-	}
-	oprTaliya = bricks.NetworkOperator{
-		Name:    "Talia",
-		Mobile:  true,
-		Virtual: false,
-	}
-	oprSpadan = bricks.NetworkOperator{
-		Name:    "Spadan",
-		Mobile:  true,
-		Virtual: false,
-	}
-	oprTeleKish = bricks.NetworkOperator{
-		Name:    "Kish",
-		Mobile:  true,
-		Virtual: false,
-	}
-	oprShatel = bricks.NetworkOperator{
-		Name:    "Shatel",
-		Mobile:  true,
-		Virtual: true,
-	}
-	oprApTel = bricks.NetworkOperator{
-		Name:    "ApTel",
-		Mobile:  true,
-		Virtual: true,
-	}
-	oprSamanTel = bricks.NetworkOperator{
-		Name:    "SamanTel",
-		Mobile:  true,
-		Virtual: true,
-	}
-	oprLotusTel = bricks.NetworkOperator{
-		Name:    "LotusTel",
-		Mobile:  true,
-		Virtual: true,
-	}
-	oprArianTel = bricks.NetworkOperator{
-		Name:    "ArianTel",
-		Mobile:  true,
-		Virtual: true,
-	}
-)
-
-func setupOperators() {
-	operators.Put("21", oprTci)
-
-	operators.Put("911", oprMci)
-	operators.Put("912", oprMci)
-	operators.Put("913", oprMci)
-	operators.Put("914", oprMci)
-	operators.Put("915", oprMci)
-	operators.Put("916", oprMci)
-	operators.Put("917", oprMci)
-	operators.Put("918", oprMci)
-	operators.Put("919", oprMci)
-
-	operators.Put("990", oprMci)
-	operators.Put("991", oprMci)
-	operators.Put("992", oprMci)
-	operators.Put("993", oprMci)
-	operators.Put("994", oprMci)
-	operators.Put("995", oprMci)
-	operators.Put("996", oprMci)
-
-	operators.Put("930", oprMtnIrancellMobile)
-	operators.Put("933", oprMtnIrancellMobile)
-	operators.Put("935", oprMtnIrancellMobile)
-	operators.Put("936", oprMtnIrancellMobile)
-	operators.Put("937", oprMtnIrancellMobile)
-	operators.Put("938", oprMtnIrancellMobile)
-	operators.Put("939", oprMtnIrancellMobile)
-	operators.Put("901", oprMtnIrancellMobile)
-	operators.Put("902", oprMtnIrancellMobile)
-	operators.Put("903", oprMtnIrancellMobile)
-	operators.Put("904", oprMtnIrancellMobile)
-	operators.Put("905", oprMtnIrancellMobile)
-
-	operators.Put("941", oprMtnIrancellTdLte)
-
-	operators.Put("920", oprRightel)
-	operators.Put("921", oprRightel)
-	operators.Put("922", oprRightel)
-	operators.Put("923", oprRightel)
-
-	operators.Put("932", oprTaliya)
-
-	operators.Put("931", oprSpadan)
-
-	operators.Put("934", oprTeleKish)
-
-	operators.Put("99810", oprShatel)
-	operators.Put("99811", oprShatel)
-	operators.Put("99812", oprShatel)
-	operators.Put("99813", oprShatel)
-	operators.Put("99814", oprShatel)
-	operators.Put("99815", oprShatel)
-	operators.Put("99816", oprShatel)
-	operators.Put("99817", oprShatel)
-
-	operators.Put("99910", oprApTel)
-	operators.Put("99911", oprApTel)
-	operators.Put("99913", oprApTel)
-	operators.Put("99914", oprApTel)
-
-	operators.Put("99999", oprSamanTel)
-	operators.Put("9999", oprSamanTel)
-
-	operators.Put("9990", oprLotusTel)
-
-	operators.Put("9998", oprArianTel)
 }
