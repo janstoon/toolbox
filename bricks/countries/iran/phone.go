@@ -8,6 +8,10 @@ import (
 )
 
 func phoneNumberResolver(localNumber string) (*bricks.PhoneNumberMetadata, error) {
+	if len(localNumber) != 10 {
+		return nil, errors.Join(bricks.ErrInvalidInput, errors.New("local number length incorrect"))
+	}
+
 	md := phoneNumbersMetadata.BestMatch(localNumber)
 	if md == nil {
 		return nil, errors.Join(bricks.ErrInvalidInput, bricks.ErrUnknownNetworkOperator)
@@ -108,14 +112,14 @@ func setupPhoneNumberMetadataTree() {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"01"},
 			countyName:    "",
 		},
 		"17": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"27"},
 			countyName:    "",
 		},
 		"21": {
@@ -129,35 +133,35 @@ func setupPhoneNumberMetadataTree() {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"20"},
 			countyName:    "",
 		},
 		"24": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"19"},
 			countyName:    "",
 		},
 		"25": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"25"},
 			countyName:    "",
 		},
 		"26": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"30"},
 			countyName:    "",
 		},
 		"28": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"26"},
 			countyName:    "",
 		},
 		"31": {
@@ -171,147 +175,147 @@ func setupPhoneNumberMetadataTree() {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"08"},
 			countyName:    "",
 		},
 		"35": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"21"},
 			countyName:    "",
 		},
 		"38": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"14"},
 			countyName:    "",
 		},
 		"41": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"03"},
 			countyName:    "",
 		},
 		"44": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"04"},
 			countyName:    "",
 		},
 		"45": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"24"},
 			countyName:    "",
 		},
 		"51": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"09"},
 			countyName:    "",
 		},
 		"54": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"11"},
 			countyName:    "",
 		},
 		"56": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"29"},
 			countyName:    "",
 		},
 		"58": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"28"},
 			countyName:    "",
 		},
 		"61": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"06"},
 			countyName:    "",
 		},
 		"66": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"15"},
 			countyName:    "",
 		},
 		"71": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"07"},
 			countyName:    "",
 		},
 		"74": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"17"},
 			countyName:    "",
 		},
 		"76": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"22"},
 			countyName:    "",
 		},
 		"77": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"18"},
 			countyName:    "",
 		},
 		"81": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"13"},
 			countyName:    "",
 		},
 		"83": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"05"},
 			countyName:    "",
 		},
 		"84": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"16"},
 			countyName:    "",
 		},
 		"86": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"00"},
 			countyName:    "",
 		},
 		"87": {
 			operatorSlug:  "tci",
 			mobile:        false,
 			prepaid:       false,
-			provinceCodes: nil, // todo
+			provinceCodes: []string{"12"},
 			countyName:    "",
 		},
 
@@ -536,7 +540,7 @@ func setupPhoneNumberMetadataTree() {
 
 		"941": {
 			operatorSlug:  "mtn",
-			mobile:        false,
+			mobile:        false, // fixme: it's td-lte but it's rechargeable
 			prepaid:       false,
 			provinceCodes: nil,
 			countyName:    "",
