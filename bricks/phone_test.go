@@ -33,6 +33,10 @@ func TestParsePhoneNumber(t *testing.T) {
 		"+999123456789",
 		"999123456789",
 		"+999 123 45 67 89",
+		"999 123-456-789",
+		"+999(123) 456-789",
+		"999(123) 456-789",
+		"999(123) 456 789",
 	}
 	for _, number := range validNumbers {
 		pn, err := bricks.ParsePhoneNumber(number)

@@ -3,6 +3,7 @@ package bricks
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -96,14 +97,10 @@ func ParsePhoneNumber(number string) (*PhoneNumber, error) {
 	}, nil
 }
 
+var ptnNonDigits = regexp.MustCompile(`\D`)
+
 func sanitizePhoneNumber(src string) string {
-	return strings.TrimPrefix(
-		strings.TrimPrefix(
-			strings.NewReplacer(" ", "", "-", "", "(", "", ")", "").Replace(src),
-			"+",
-		),
-		"00",
-	)
+	return strings.TrimPrefix(ptnNonDigits.ReplaceAllString(src, ""), "00")
 }
 
 func RegisterPhoneNumberResolver(countryTelCode string, resolver PhoneNumberResolver) {
