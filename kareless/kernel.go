@@ -31,6 +31,7 @@ func Compile(oo ...Option) Kernel {
 	return k
 }
 
+// Run creates installed applications and connected drivers and waits until drivers and hooks are all finished running
 func (k Kernel) Run(ctx context.Context) error {
 	apps := make([]Application, len(k.appsToInstall))
 	for i, constructor := range k.appsToInstall {
@@ -68,6 +69,7 @@ func Feeder(ss ...SettingSource) Option {
 	}
 }
 
+// Feed injects setting sources to be fed into configurable units like instruments, applications and drivers
 func (k Kernel) Feed(ss ...SettingSource) Kernel {
 	for _, source := range ss {
 		k.ss.append(source)
@@ -82,6 +84,7 @@ func Equipment(cc ...InstrumentCatalogue) Option {
 	}
 }
 
+// Equip plugs instruments which can get resolved by the instrument bank that is passed to unit constructors
 func (k Kernel) Equip(cc ...InstrumentCatalogue) Kernel {
 	for _, catalogue := range cc {
 		k.ib.register(catalogue)
@@ -96,6 +99,7 @@ func Installer(cc ...ApplicationConstructor) Option {
 	}
 }
 
+// Install appends installable applications to the list which become created on Run
 func (k Kernel) Install(cc ...ApplicationConstructor) Kernel {
 	k.appsToInstall = append(k.appsToInstall, cc...)
 
@@ -108,6 +112,7 @@ func Connector(cc ...DriverConstructor) Option {
 	}
 }
 
+// Connect binds driver(s) to the Kernel in order to invoke use-cases on (drive) installed applications
 func (k Kernel) Connect(cc ...DriverConstructor) Kernel {
 	k.driversToConnect = append(k.driversToConnect, cc...)
 
