@@ -37,15 +37,9 @@ type app1 struct {
 }
 
 func newApp1(ss *kareless.Settings, ib *kareless.InstrumentBank) app1 {
-	var app app1
-
-	app.encryptor = ib.Resolve("encryptor", func(v any) bool {
-		_, ok := v.(encryptor)
-
-		return ok
-	}).(encryptor)
-
-	return app
+	return app1{
+		encryptor: kareless.ResolveInstrumentByType[encryptor](ib, "encryptor"),
+	}
 }
 
 func (a app1) Foo(ctx context.Context, msg message) string {
@@ -61,15 +55,9 @@ type app2 struct {
 }
 
 func newApp2(ss *kareless.Settings, ib *kareless.InstrumentBank) app2 {
-	var app app2
-
-	app.decrypter = ib.Resolve("decrypter", func(v any) bool {
-		_, ok := v.(decrypter)
-
-		return ok
-	}).(decrypter)
-
-	return app
+	return app2{
+		decrypter: kareless.ResolveInstrumentByType[decrypter](ib, "decrypter"),
+	}
 }
 
 func (a app2) Bar(ctx context.Context, msg message) string {

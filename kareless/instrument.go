@@ -76,3 +76,13 @@ func (ib *InstrumentBank) Resolve(name string, tester func(v any) bool) Instrume
 
 	return ins
 }
+
+func ResolveInstrumentByType[T any](ib *InstrumentBank, name string) T {
+	return ib.Resolve(name, InstrumentTesterByTypeAssertion[T]).(T)
+}
+
+func InstrumentTesterByTypeAssertion[T any](v any) bool {
+	_, ok := v.(T)
+
+	return ok
+}
