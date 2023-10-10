@@ -52,6 +52,8 @@ func TestParsePhoneNumber(t *testing.T) {
 	unregisteredNumbers := []string{
 		"+9718005625926",
 		"+97125236227",
+		"(123) 456-789",
+		"123456789",
 	}
 	for _, number := range unregisteredNumbers {
 		pn, err := bricks.ParsePhoneNumber(number)
