@@ -13,6 +13,106 @@ import (
 	"github.com/janstoon/toolbox/kareless"
 )
 
+func TestLifeCycle(t *testing.T) {
+	var (
+		am avmod
+		a1 app1
+		a2 app2
+		gw *commander1
+	)
+
+	k := kareless.Compile().
+		Feed(settings{
+			"port":   "123",
+			"avstep": "5",
+		}).
+		Equip(func() ([]string, kareless.InstrumentConstructor) {
+			return strings.Split("encryptor|decrypter", "|"),
+				func(ss *kareless.Settings, ib *kareless.InstrumentBank) kareless.Instrument {
+					am = newAvModifier(ss, ib)
+
+					return am
+				}
+		}).
+		Install(
+			func(ss *kareless.Settings, ib *kareless.InstrumentBank) kareless.Application {
+				a1 = newApp1(ss, ib)
+
+				return a1
+			},
+			func(ss *kareless.Settings, ib *kareless.InstrumentBank) kareless.Application {
+				a2 = newApp2(ss, ib)
+
+				return a2
+			},
+		).
+		Connect(func(ss *kareless.Settings, ib *kareless.InstrumentBank, apps []kareless.Application) kareless.Driver {
+			adapter := struct {
+				app1Commander1Adapter
+				app2Commander1Adapter
+			}{}
+			for _, v := range apps {
+				switch app := v.(type) {
+				case app1:
+					adapter.app1Commander1Adapter = newApp1Commander1Adapter(app)
+				case app2:
+					adapter.app2Commander1Adapter = newApp2Commander1Adapter(app)
+				}
+			}
+
+			gw = newCommander1(ss, ib, adapter)
+
+			return gw
+		})
+
+	started, stopped := make(chan bool), make(chan bool)
+	k = k.
+		AfterStart(
+			func(ctx context.Context, ss *kareless.Settings, ib *kareless.InstrumentBank, apps []kareless.Application) error {
+				started <- true
+
+				go func() {
+					<-ctx.Done()
+					stopped <- true
+				}()
+
+				return nil
+			},
+		)
+
+	assert.Nil(t, gw)
+	assert.Nil(t, a1.encryptor)
+	assert.Nil(t, a2.decrypter)
+	assert.EqualValues(t, 0, am)
+
+	ctx, stop := context.WithCancel(context.Background())
+	go func() { _ = k.Run(ctx) }()
+
+	select {
+	case <-started:
+	case <-time.After(500 * time.Millisecond):
+		assert.Fail(t, "expected post hook to run")
+	}
+	assert.NotNil(t, a1.encryptor)
+	assert.NotNil(t, a2.decrypter)
+	assert.EqualValues(t, 5, am)
+	assert.Equal(t, am, a2.decrypter)
+	assert.Equal(t, am, a1.encryptor)
+
+	assert.EqualValues(t, 123, gw.port)
+	assert.NotNil(t, gw.app)
+	assert.True(t, gw.isRunning())
+	assert.Equal(t, "app2.bar app1.foo hello", gw.Bar(ctx, gw.Foo(ctx, "hello")))
+
+	stop()
+	select {
+	case <-stopped:
+	case <-time.After(500 * time.Millisecond):
+		assert.Fail(t, "expected post hook context to get done")
+	}
+	assert.False(t, gw.isRunning())
+}
+
 type settings map[string]string
 
 func (ss settings) Get(_ context.Context, key string) (*string, error) {
@@ -162,104 +262,4 @@ func (h avmod) Decrypt(src string) string {
 	}
 
 	return dst.String()
-}
-
-func TestLifeCycle(t *testing.T) {
-	var (
-		am avmod
-		a1 app1
-		a2 app2
-		gw *commander1
-	)
-
-	k := kareless.Compile().
-		Feed(settings{
-			"port":   "123",
-			"avstep": "5",
-		}).
-		Equip(func() ([]string, kareless.InstrumentConstructor) {
-			return strings.Split("encryptor|decrypter", "|"),
-				func(ss *kareless.Settings, ib *kareless.InstrumentBank) kareless.Instrument {
-					am = newAvModifier(ss, ib)
-
-					return am
-				}
-		}).
-		Install(
-			func(ss *kareless.Settings, ib *kareless.InstrumentBank) kareless.Application {
-				a1 = newApp1(ss, ib)
-
-				return a1
-			},
-			func(ss *kareless.Settings, ib *kareless.InstrumentBank) kareless.Application {
-				a2 = newApp2(ss, ib)
-
-				return a2
-			},
-		).
-		Connect(func(ss *kareless.Settings, ib *kareless.InstrumentBank, apps []kareless.Application) kareless.Driver {
-			adapter := struct {
-				app1Commander1Adapter
-				app2Commander1Adapter
-			}{}
-			for _, v := range apps {
-				switch app := v.(type) {
-				case app1:
-					adapter.app1Commander1Adapter = newApp1Commander1Adapter(app)
-				case app2:
-					adapter.app2Commander1Adapter = newApp2Commander1Adapter(app)
-				}
-			}
-
-			gw = newCommander1(ss, ib, adapter)
-
-			return gw
-		})
-
-	started, stopped := make(chan bool), make(chan bool)
-	k = k.
-		AfterStart(
-			func(ctx context.Context, ss *kareless.Settings, ib *kareless.InstrumentBank, apps []kareless.Application) error {
-				started <- true
-
-				go func() {
-					<-ctx.Done()
-					stopped <- true
-				}()
-
-				return nil
-			},
-		)
-
-	assert.Nil(t, gw)
-	assert.Nil(t, a1.encryptor)
-	assert.Nil(t, a2.decrypter)
-	assert.EqualValues(t, 0, am)
-
-	ctx, stop := context.WithCancel(context.Background())
-	go func() { _ = k.Run(ctx) }()
-
-	select {
-	case <-started:
-	case <-time.After(500 * time.Millisecond):
-		assert.Fail(t, "expected post hook to run")
-	}
-	assert.NotNil(t, a1.encryptor)
-	assert.NotNil(t, a2.decrypter)
-	assert.EqualValues(t, 5, am)
-	assert.Equal(t, am, a2.decrypter)
-	assert.Equal(t, am, a1.encryptor)
-
-	assert.EqualValues(t, 123, gw.port)
-	assert.NotNil(t, gw.app)
-	assert.True(t, gw.isRunning())
-	assert.Equal(t, "app2.bar app1.foo hello", gw.Bar(ctx, gw.Foo(ctx, "hello")))
-
-	stop()
-	select {
-	case <-stopped:
-	case <-time.After(500 * time.Millisecond):
-		assert.Fail(t, "expected post hook context to get done")
-	}
-	assert.False(t, gw.isRunning())
 }
