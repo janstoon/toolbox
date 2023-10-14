@@ -1,6 +1,16 @@
 package kareless
 
-import "sync"
+import (
+	"errors"
+	"fmt"
+	"sync"
+)
+
+var (
+	ErrAlreadyRegisteredInstrument = errors.New("instrument already registered")
+	ErrUnresolvedDependency        = errors.New("dependency not resolved")
+	ErrUnacceptableDependency      = errors.New("dependency not acceptable")
+)
 
 type (
 	Instrument            interface{}
@@ -46,7 +56,7 @@ func (ib *InstrumentBank) register(catalogue InstrumentCatalogue) {
 	defer ib.lock.Unlock()
 	for _, name := range names {
 		if _, registered := ib.factories[name]; registered {
-			panic("instrument already registered")
+			panic(errors.Join(ErrAlreadyRegisteredInstrument, fmt.Errorf("duplicate entry for: %s", name)))
 		}
 
 		ib.factories[name] = fkt
@@ -67,11 +77,11 @@ func (ib *InstrumentBank) resolve(name string) Instrument {
 func (ib *InstrumentBank) Resolve(name string, tester func(v any) bool) Instrument {
 	ins := ib.resolve(name)
 	if ins == nil {
-		panic("dependency not resolved")
+		panic(errors.Join(ErrUnresolvedDependency, fmt.Errorf("no instrument provided: %s", name)))
 	}
 
 	if !tester(ins) {
-		panic("dependency unacceptable")
+		panic(errors.Join(ErrUnacceptableDependency, fmt.Errorf("test failed dor instrument(%s): %T", name, ins)))
 	}
 
 	return ins
