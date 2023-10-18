@@ -14,27 +14,28 @@ import (
 
 func TestHttpMiddlewareStackFunctionality(t *testing.T) {
 	var mws handywares.HttpMiddlewareStack
-	mws.Push(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			_, _ = rw.Write([]byte("top middleware."))
+	mws.
+		Push(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+				_, _ = rw.Write([]byte("top middleware."))
 
-			next.ServeHTTP(rw, req)
-		})
-	})
-	mws.Push(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			_, _ = rw.Write([]byte("middle middleware."))
+				next.ServeHTTP(rw, req)
+			})
+		}).
+		Push(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+				_, _ = rw.Write([]byte("middle middleware."))
 
-			next.ServeHTTP(rw, req)
-		})
-	})
-	mws.Push(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			_, _ = rw.Write([]byte("bottom middleware."))
+				next.ServeHTTP(rw, req)
+			})
+		}).
+		Push(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+				_, _ = rw.Write([]byte("bottom middleware."))
 
-			next.ServeHTTP(rw, req)
+				next.ServeHTTP(rw, req)
+			})
 		})
-	})
 
 	srv := httptest.NewServer(mws(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		rw.WriteHeader(http.StatusOK)
