@@ -81,6 +81,10 @@ func (stk *HttpMiddlewareStack) Push(mw middleware.Builder) *HttpMiddlewareStack
 	return stk
 }
 
-func (stk *HttpMiddlewareStack) Propagate() {
+func (stk *HttpMiddlewareStack) NotNil() middleware.Builder {
+	if *stk == nil {
+		return middleware.PassthroughBuilder
+	}
 
+	return middleware.Builder(*stk)
 }
