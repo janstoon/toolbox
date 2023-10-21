@@ -11,24 +11,9 @@ import (
 
 type HttpMiddlewareStack middleware.Builder
 
-type (
-	pr                            func()
-	PanicRecoverHttpMiddlewareOpt = tricks.InPlaceOption[pr]
-)
-
-func PrhmoWrapInError(err error) PanicRecoverHttpMiddlewareOpt {
-	return func(s *pr) {
-
-	}
-}
+type PanicRecoverHttpMiddlewareOpt = tricks.InPlaceOption[any]
 
 func (stk *HttpMiddlewareStack) PushPanicRecover(options ...PanicRecoverHttpMiddlewareOpt) *HttpMiddlewareStack {
-	//var x pr
-	//x = func() {}
-	//tricks.ApplyOptions(&x, tricks.Map(func(src PanicRecoverHttpMiddlewareOpt) tricks.Option[pr] {
-	//	return src
-	//}, options)...)
-
 	return stk.Push(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			defer func() {

@@ -13,8 +13,8 @@ func bbanValidator(basicBankAccountNumber string) error {
 	}
 
 	bankIdentifier := basicBankAccountNumber[0:3]
-	//accountType := basicBankAccountNumber[3]
-	//accountNumber := basicBankAccountNumber[4:]
+	// accountType := basicBankAccountNumber[3]
+	// accountNumber := basicBankAccountNumber[4:]
 
 	const biCbi = 10
 

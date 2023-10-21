@@ -1,24 +1,35 @@
 #!/bin/bash
 
-# Check dependencies
-go mod tidy -v || exit
-go mod verify || exit
+check () {
+	root="${1}"
 
-# Check for errors and warnings
-go vet ./... || exit
+	# Check dependencies
+  go mod tidy -v || exit
+  go mod verify || exit
 
-# Generate structures
-# go generate ./... || exit
+  # Check for errors and warnings
+  go vet ./... || exit
 
-# Format your code
-go fmt ./... || exit
+  # Format your code
+  go fmt ./... || exit
 
-# Format the code
-dirs=$(go list -f {{.Dir}} ./...)
-for d in ${dirs}; do
-	goimports -w "${d}"/*.go || exit;
+  # Format the code
+  dirs=$(go list -f {{.Dir}} ./...)
+  for d in ${dirs}; do
+  	goimports -w "${d}"/*.go || exit
+  done
+
+  golangci-lint run -c "${root}"/.golangci.yml || exit
+
+  go test -v -cover -test.short -count=1 -race ./... || exit
+}
+
+modules=$(find . -name "go.mod" -exec dirname {} \;)
+for module in ${modules}
+do
+	echo "${module}"
+	pwd=$(pwd)
+	cd "${module}" || exit
+	check "${pwd}"
+	cd "${pwd}" || exit
 done
-
-golangci-lint run || exit
-
-go test -v -cover -test.short -count=1 -race ./... || exit

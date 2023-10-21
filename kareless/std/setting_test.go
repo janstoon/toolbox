@@ -11,18 +11,19 @@ import (
 	"github.com/janstoon/toolbox/bricks"
 	"github.com/janstoon/toolbox/tricks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/janstoon/toolbox/kareless/std"
 )
 
 func TestLocalSettings_Get(t *testing.T) {
 	dir, err := os.MkdirTemp("", "kareless-std-local-settings-")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer func() { _ = os.RemoveAll(dir) }()
 
 	fname := "tconf"
 	fh, err := os.Create(path.Join(dir, fmt.Sprintf("%s.json", fname)))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer func() { _ = fh.Close() }()
 
 	enc := json.NewEncoder(fh)
@@ -31,7 +32,7 @@ func TestLocalSettings_Get(t *testing.T) {
 	ss := std.LocalEarlyLoadedSettingSource("")
 	v, err := ss.Get(ctx, "c1")
 	assert.Empty(t, v)
-	assert.ErrorIs(t, err, bricks.ErrNotFound)
+	require.ErrorIs(t, err, bricks.ErrNotFound)
 
 	cfgOne := struct {
 		C1 string `json:"c1"`
@@ -39,27 +40,26 @@ func TestLocalSettings_Get(t *testing.T) {
 		C1: "ValueFromFile",
 	}
 	err = enc.Encode(cfgOne)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = fh.Sync()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	ss = std.LocalEarlyLoadedSettingSource(fname, dir)
 	v, err = ss.Get(ctx, "c1")
 	assert.Equal(t, "ValueFromFile", tricks.PtrVal(v))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
-	err = os.Setenv("C1", "ValueFromEnv")
-	assert.NoError(t, err)
+	t.Setenv("C1", "ValueFromEnv")
 	ss = std.LocalEarlyLoadedSettingSource(fname, dir)
 	v, err = ss.Get(ctx, "c1")
 	assert.Equal(t, "ValueFromEnv", tricks.PtrVal(v))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = os.Unsetenv("C1")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	ss = std.LocalEarlyLoadedSettingSource(fname, dir)
 	v, err = ss.Get(ctx, "c1")
 	assert.Equal(t, "ValueFromFile", tricks.PtrVal(v))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	cfgTwo := struct {
 		C2 string `json:"c2"`
@@ -67,15 +67,15 @@ func TestLocalSettings_Get(t *testing.T) {
 		C2: "AnotheValueInFile",
 	}
 	err = fh.Truncate(0)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	_, err = fh.Seek(0, 0)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = enc.Encode(cfgTwo)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = fh.Sync()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	ss = std.LocalEarlyLoadedSettingSource(fname, dir)
 	v, err = ss.Get(ctx, "c1")
 	assert.Empty(t, v)
-	assert.ErrorIs(t, err, bricks.ErrNotFound)
+	require.ErrorIs(t, err, bricks.ErrNotFound)
 }

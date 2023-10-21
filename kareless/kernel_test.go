@@ -129,7 +129,7 @@ type message struct {
 }
 
 type encryptor interface {
-	Encrypt(string) string
+	Encrypt(src string) string
 }
 
 type app1 struct {
@@ -147,7 +147,7 @@ func (a app1) Foo(ctx context.Context, msg message) string {
 }
 
 type decrypter interface {
-	Decrypt(string) string
+	Decrypt(src string) string
 }
 
 type app2 struct {

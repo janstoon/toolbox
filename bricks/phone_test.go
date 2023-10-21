@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/janstoon/toolbox/bricks"
 )
@@ -40,7 +41,7 @@ func TestParsePhoneNumber(t *testing.T) {
 	}
 	for _, number := range validNumbers {
 		pn, err := bricks.ParsePhoneNumber(number)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, pn)
 		assert.Equal(t, "+999123456789", pn.String())
 		assert.Equal(t, bricks.LookupCountryByIsoAlphaTwoCode(neverland.Codes.IsoAlphaTwo), pn.Country)
@@ -57,7 +58,7 @@ func TestParsePhoneNumber(t *testing.T) {
 	}
 	for _, number := range unregisteredNumbers {
 		pn, err := bricks.ParsePhoneNumber(number)
-		assert.ErrorIs(t, err, bricks.ErrPhoneNumberUnknownCountry)
+		require.ErrorIs(t, err, bricks.ErrPhoneNumberUnknownCountry)
 		assert.Nil(t, pn)
 	}
 
@@ -77,7 +78,7 @@ func TestParsePhoneNumber(t *testing.T) {
 	}
 	for _, number := range invalidNumbers {
 		pn, err := bricks.ParsePhoneNumber(number)
-		assert.ErrorIs(t, err, bricks.ErrInvalidInput)
+		require.ErrorIs(t, err, bricks.ErrInvalidInput)
 		assert.Nil(t, pn)
 	}
 }

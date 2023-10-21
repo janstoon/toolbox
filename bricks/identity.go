@@ -1,4 +1,3 @@
 package bricks
 
-type NationalIdentityNumber struct {
-}
+type NationalIdentityNumber struct{}

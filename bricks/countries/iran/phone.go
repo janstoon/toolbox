@@ -39,6 +39,7 @@ type phoneNumberMetadata struct {
 	countyName string
 }
 
+//nolint:maintidx
 func setupPhoneNumberMetadataTree() {
 	operatorsBySlug := map[string]bricks.NetworkOperator{
 		"tci": {

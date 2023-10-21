@@ -88,7 +88,9 @@ func (ib *InstrumentBank) Resolve(name string, tester func(v any) bool) Instrume
 }
 
 func ResolveInstrumentByType[T any](ib *InstrumentBank, name string) T {
-	return ib.Resolve(name, InstrumentTesterByTypeAssertion[T]).(T)
+	i, _ := ib.Resolve(name, InstrumentTesterByTypeAssertion[T]).(T)
+
+	return i
 }
 
 func InstrumentTesterByTypeAssertion[T any](v any) bool {
