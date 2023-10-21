@@ -11,6 +11,17 @@ import (
 	"github.com/janstoon/toolbox/kareless"
 )
 
+type MapSettingSource map[string]string
+
+func (ss MapSettingSource) Get(_ context.Context, key string) (*string, error) {
+	v, ok := ss[key]
+	if ok {
+		return &v, nil
+	}
+
+	return nil, bricks.ErrNotFound
+}
+
 type localEarlySettings struct {
 	v *viper.Viper
 }
