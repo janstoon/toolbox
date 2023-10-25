@@ -57,3 +57,12 @@ func (ss *Settings) GetInt64(key string) int64 {
 func (ss *Settings) GetByte(key string) byte {
 	return byte(ss.GetInt(key))
 }
+
+func (ss *Settings) GetBool(key string) bool {
+	v, err := strconv.ParseBool(ss.GetString(key))
+	if err != nil {
+		return false
+	}
+
+	return v
+}
