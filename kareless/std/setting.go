@@ -3,7 +3,6 @@ package std
 import (
 	"context"
 	"errors"
-
 	"github.com/janstoon/toolbox/bricks"
 	"github.com/janstoon/toolbox/tricks"
 	"github.com/spf13/viper"
@@ -36,7 +35,9 @@ func LocalEarlyLoadedSettingSource(name string, paths ...string) kareless.Settin
 
 	if len(paths) > 0 {
 		if err := v.ReadInConfig(); err != nil {
-			panic(errors.Join(bricks.ErrNotFound, err))
+			if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+				panic(errors.Join(bricks.ErrNotFound, err))
+			}
 		}
 	}
 
