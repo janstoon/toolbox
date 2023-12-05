@@ -1,0 +1,183 @@
+operators:
+  # Landline
+  tci:
+    name: TCI
+    subscribers:
+      - prefixes: [ 11 ]
+        provinces: [ mazandaran ]
+      - prefixes: [ 13 ]
+        provinces: [ gilan ]
+      - prefixes: [ 17 ]
+        provinces: [ golestan ]
+      - prefixes: [ 21 ]
+        provinces: [ tehran ]
+      - prefixes: [ 23 ]
+        provinces: [ semnan ]
+      - prefixes: [ 24 ]
+        provinces: [ zanjan ]
+      - prefixes: [ 25 ]
+        provinces: [ qom ]
+      - prefixes: [ 26 ]
+        provinces: [ alborz ]
+      - prefixes: [ 28 ]
+        provinces: [ qazvin ]
+      - prefixes: [ 31 ]
+        provinces: [ esfahan ]
+      - prefixes: [ 34 ]
+        provinces: [ kerman ]
+      - prefixes: [ 35 ]
+        provinces: [ yazd ]
+      - prefixes: [ 38 ]
+        provinces: [ chahar mahal va bakhtiari ]
+      - prefixes: [ 41 ]
+        provinces: [ azarbayjan-e sharqi ]
+      - prefixes: [ 44 ]
+        provinces: [ azarbayjan-e gharbi ]
+      - prefixes: [ 45 ]
+        provinces: [ ardabil ]
+      - prefixes: [ 51 ]
+        provinces: [ khorasan-e razavi ]
+      - prefixes: [ 54 ]
+        provinces: [ sistan va baluchestan ]
+      - prefixes: [ 56 ]
+        provinces: [ khorasan-e jonubi ]
+      - prefixes: [ 58 ]
+        provinces: [ khorasan-e shomali ]
+      - prefixes: [ 61 ]
+        provinces: [ khuzestan ]
+      - prefixes: [ 66 ]
+        provinces: [ lorestan ]
+      - prefixes: [ 71 ]
+        provinces: [ fars ]
+      - prefixes: [ 74 ]
+        provinces: [ kohgiluyeh va bowyer ahmad ]
+      - prefixes: [ 76 ]
+        provinces: [ hormozgan ]
+      - prefixes: [ 77 ]
+        provinces: [ bushehr ]
+      - prefixes: [ 81 ]
+        provinces: [ hamadan ]
+      - prefixes: [ 83 ]
+        provinces: [ kermanshah ]
+      - prefixes: [ 84 ]
+        provinces: [ ilam ]
+      - prefixes: [ 86 ]
+        provinces: [ markazi ]
+      - prefixes: [ 87 ]
+        provinces: [ kordestan ]
+  asiatech:
+    name: AsiaTech
+    subscribers:
+      - prefixes: [ 9422 ]
+
+  # Mobile
+  mci:
+    name: MCI
+    subscribers:
+      - prefixes: [ 910 ]
+        mobile: true
+      - prefixes: [ 911 ]
+        mobile: true
+        provinces: [ mazandaran, golestan, gilan ]
+      - prefixes: [ 912 ]
+        mobile: true
+        provinces: [ tehran, semnan, zanjan, qom, markazi, alborz, qazvin ]
+      - prefixes: [ 913 ]
+        mobile: true
+        provinces: [ esfahan, yazd, kerman, chahar mahal va bakhtiari ]
+      - prefixes: [ 914 ]
+        mobile: true
+        provinces: [ azarbayjan-e sharqi, azarbayjan-e gharbi, ardabil ]
+      - prefixes: [ 915 ]
+        mobile: true
+        provinces: [ khorasan-e razavi, khorasan-e shomali, khorasan-e jonubi, sistan va baluchestan ]
+      - prefixes: [ 916 ]
+        mobile: true
+        provinces: [ khuzestan, lorestan ]
+      - prefixes: [ 917 ]
+        mobile: true
+        provinces: [ fars, bushehr, kohgiluyeh va bowyer ahmad, hormozgan ]
+      - prefixes: [ 918 ]
+        mobile: true
+        provinces: [ hamadan, kordestan, ilam, kermanshah, markazi ]
+      - prefixes: [ 919 ]
+        mobile: true
+        prepaid: true
+        provinces: [ tehran, qazvin, zanjan, semnan, alborz, qom, markazi ]
+      - prefixes: [ 990, 991, 992, 993, 994, 995, 996 ]
+        mobile: true
+        prepaid: true
+  mtn:
+    name: MTN
+    subscribers:
+      - prefixes: [ 900, 901, 902, 903, 904, 905, 930, 933, 935, 936, 937, 938, 939 ]
+        mobile: true
+      - prefixes: [ 941 ] # TD-LTE. Rechargeable
+  rightel:
+    name: Rightel
+    subscribers:
+      - prefixes: [ 920 ]
+        mobile: true
+        prepaid: true
+      - prefixes: [ 921, 922, 923 ]
+        mobile: true
+  taliya:
+    name: Taliya
+    subscribers:
+      - prefixes: [ 932 ]
+        mobile: true
+        prepaid: true
+
+  # Regional
+  spadan:
+    name: MTCE
+    subscribers:
+      - prefixes: [ 931 ]
+        mobile: true
+        prepaid: true
+        provinces: [ esfahan ]
+        counties: [ Isfahan ]
+  telekish:
+    name: TeleKish
+    subscribers:
+      - prefixes: [ 934 ]
+        mobile: true
+        provinces: [ hormozgan ]
+        counties: [ Kish ]
+
+  # Virtual
+  shatel:
+    name: Shatel
+    virtual: true
+    subscribers:
+      - prefixes: [ 99810, 99811, 99812, 99813, 99814, 99815, 99816, 99817 ]
+        mobile: true
+        prepaid: true
+  aptel:
+    name: ApTel
+    virtual: true
+    subscribers:
+      - prefixes: [ 99910, 99911, 99913 ]
+        mobile: true
+      - prefixes: [ 99914 ]
+        mobile: true
+        prepaid: true
+  samantel:
+    name: SamanTel
+    virtual: true
+    subscribers:
+      - prefixes: [ 9999, 99999 ]
+        mobile: true
+  lotustel:
+    name: LotusTel
+    virtual: true
+    subscribers:
+      - prefixes: [ 9990 ]
+        mobile: true
+        prepaid: true
+  ariantel:
+    name: ArianTel
+    virtual: true
+    subscribers:
+      - prefixes: [ 9998 ]
+        mobile: true

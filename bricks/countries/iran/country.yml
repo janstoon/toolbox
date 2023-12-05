@@ -1,0 +1,139 @@
+provinces:
+  - code: 00
+    name: Markazi
+    counties:
+      - name: Arak
+      - name: Ashtian
+      - name: Delijan
+      - name: Farahan
+      - name: Khomeyn
+      - name: Khondab
+      - name: Komijan
+      - name: Mahallat
+      - name: Saveh
+      - name: Shazand
+      - name: Tafresh
+      - name: Zarandieh
+  - code: 01
+    name: Gilan
+    counties:
+      - name: Amlash
+      - name: Astaneh-ye Ashrafiyeh
+      - name: Astara
+      - name: Bandar-e Anzali
+      - name: Fuman
+      - name: Khomam
+      - name: Lahijan
+      - name: Langarud
+      - name: Masal
+      - name: Rasht
+      - name: Rezvanshahr
+      - name: Rudbar
+      - name: Rudsar
+      - name: Shaft
+      - name: Siahkal
+      - name: Sowme'eh Sara
+      - name: Talesh
+  - code: 02
+    name: Mazandaran
+  - code: 03
+    name: Azarbayjan-e Sharqi
+  - code: 04
+    name: Azarbayjan-e Gharbi
+  - code: 05
+    name: Kermanshah
+  - code: 06
+    name: Khuzestan
+  - code: 07
+    name: Fars
+  - code: 08
+    name: Kerman
+  - code: 09
+    name: Khorasan-e Razavi
+  - code: 10
+    name: Esfahan
+  - code: 11
+    name: Sistan va Baluchestan
+  - code: 12
+    name: Kordestan
+  - code: 13
+    name: Hamadan
+  - code: 14
+    name: Chahar Mahal va Bakhtiari
+    counties:
+      - name: Ardal
+      - name: Ben
+      - name: Borujen
+      - name: Falard
+      - name: Farsan
+      - name: Khanmirza
+      - name: Kiar
+      - name: Kuhrang
+      - name: Lordegan
+      - name: Saman
+      - name: Shahrekord
+        districts:
+          - name: Central
+          - name: Farrokhshahr
+          - name: Laran
+  - code: 15
+    name: Lorestan
+  - code: 16
+    name: Ilam
+  - code: 17
+    name: Kohgiluyeh va Bowyer Ahmad
+  - code: 18
+    name: Bushehr
+  - code: 19
+    name: Zanjan
+  - code: 20
+    name: Semnan
+  - code: 21
+    name: Yazd
+  - code: 22
+    name: Hormozgan
+  - code: 23
+    name: Tehran
+    counties:
+      - name: Baharestan
+      - name: Damavand
+      - name: Eslamshahr
+      - name: Firuzkuh
+      - name: Malard
+      - name: Pakdasht
+      - name: Pardis
+      - name: Pishva
+      - name: Qarchak
+      - name: Qods
+      - name: Ray
+      - name: Robat Karim
+      - name: Shahriar
+      - name: Shemiranat
+      - name: Tehran
+        districts:
+          - name: Central
+          - name: Aftab
+          - name: Kan
+      - name: Varamin
+  - code: 24
+    name: Ardabil
+  - code: 25
+    name: Qom
+  - code: 26
+    name: Qazvin
+  - code: 27
+    name: Golestan
+  - code: 28
+    name: Khorasan-e Shomali
+  - code: 29
+    name: Khorasan-e Jonubi
+  - code: 30
+    name: Alborz
+    counties:
+      - name: Chaharbagh
+      - name: Eshtehard
+      - name: Fardis
+      - name: Karaj
+      - name: Nazarabad
+      - name: Savojbolagh
+      - name: Taleqan

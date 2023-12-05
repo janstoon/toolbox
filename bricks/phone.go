@@ -97,6 +97,15 @@ func ParsePhoneNumber(number string) (*PhoneNumber, error) {
 	}, nil
 }
 
+func MustParsePhoneNumber(number string) PhoneNumber {
+	pn, err := ParsePhoneNumber(number)
+	if err != nil {
+		panic(err)
+	}
+
+	return tricks.PtrVal(pn)
+}
+
 var ptnNonDigits = regexp.MustCompile(`\D`)
 
 func sanitizePhoneNumber(src string) string {
