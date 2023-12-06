@@ -35,5 +35,5 @@ type primaryAccountNumber struct {
 }
 
 func init() {
-	bricks.RegisterBbanValidator(iran.Codes.IsoAlphaTwo, bbanValidator)
+	bricks.RegisterBbanValidator(Iran.Codes.IsoAlphaTwo, bbanValidator)
 }

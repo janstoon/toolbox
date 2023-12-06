@@ -2,7 +2,7 @@ package iran
 
 import "github.com/janstoon/toolbox/bricks"
 
-var iran = bricks.Country{
+var Iran = bricks.Country{
 	EnglishName: bricks.CountryName{
 		Short: "Iran",
 		Full:  "The Islamic Republic of Iran",
@@ -17,5 +17,5 @@ var iran = bricks.Country{
 }
 
 func init() {
-	bricks.RegisterCountry(iran)
+	bricks.RegisterCountry(Iran)
 }

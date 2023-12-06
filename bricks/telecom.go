@@ -32,6 +32,48 @@ type NetworkOperator struct {
 	Virtual bool
 }
 
+type networkOperatorBank struct {
+	sync.RWMutex
+
+	byCountryIsoAlphaTwoCode map[string][]NetworkOperator
+}
+
+func (bank *networkOperatorBank) push(c *Country, nn ...NetworkOperator) {
+	bank.Lock()
+	defer bank.Unlock()
+
+	if c == nil {
+		panic(ErrNotFound)
+	}
+
+	bank.byCountryIsoAlphaTwoCode[c.Codes.IsoAlphaTwo] = append(bank.byCountryIsoAlphaTwoCode[c.Codes.IsoAlphaTwo], nn...)
+}
+
+func (bank *networkOperatorBank) lookupByCountryIsoAlphaTwoCode(code string) []NetworkOperator {
+	bank.RLock()
+	defer bank.RUnlock()
+
+	country := LookupCountryByIsoAlphaTwoCode(code)
+	if nil == country {
+		return nil
+	}
+
+	return bank.byCountryIsoAlphaTwoCode[country.Codes.IsoAlphaTwo]
+}
+
+var networkOperators = networkOperatorBank{
+	byCountryIsoAlphaTwoCode: make(map[string][]NetworkOperator),
+}
+
+func RegisterNetworkOperators(countryIsoAlphaTwoCode string, nn ...NetworkOperator) {
+	networkOperators.push(LookupCountryByIsoAlphaTwoCode(countryIsoAlphaTwoCode), nn...)
+}
+
+// NetworkOperatorsByCountryCode Lists registered NetworkOperator(s) of a country where code is iso alpha-2 code
+func NetworkOperatorsByCountryCode(code string) []NetworkOperator {
+	return networkOperators.lookupByCountryIsoAlphaTwoCode(code)
+}
+
 type PhoneNumberMetadata struct {
 	Mobile   bool
 	Prepaid  bool

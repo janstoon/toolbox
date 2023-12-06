@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/janstoon/toolbox/bricks"
-	_ "github.com/janstoon/toolbox/bricks/countries/iran"
+	"github.com/janstoon/toolbox/bricks/countries/iran"
 )
 
 func TestParseBban(t *testing.T) {
@@ -17,7 +17,7 @@ func TestParseBban(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, iban)
 	assert.Equal(t, ibanStr, iban.String())
-	assert.Equal(t, iban.Country, bricks.LookupCountryByIsoAlphaTwoCode("IR"))
+	assert.Equal(t, iban.Country, bricks.LookupCountryByIsoAlphaTwoCode(iran.Iran.Codes.IsoAlphaTwo))
 
 	// correct iban - bban length = 21
 	ibanStr = "IR07014582656540804450248"

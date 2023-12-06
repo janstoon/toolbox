@@ -11,6 +11,46 @@ import (
 	"github.com/janstoon/toolbox/bricks"
 )
 
+func TestNetworkOperatorsByCountryIsoAlphaTwoCode(t *testing.T) {
+	bricks.RegisterNetworkOperators(neverland.Codes.IsoAlphaTwo, bricks.NetworkOperator{
+		Name:    "NeverTel",
+		Virtual: false,
+	})
+	bricks.RegisterNetworkOperators(neverland.Codes.IsoAlphaTwo,
+		bricks.NetworkOperator{
+			Name:    "ZeroTel",
+			Virtual: false,
+		},
+		bricks.NetworkOperator{
+			Name:    "NilTel",
+			Virtual: true,
+		},
+	)
+
+	nn := bricks.NetworkOperatorsByCountryCode(neverland.Codes.IsoAlphaTwo)
+	assert.Len(t, nn, 3)
+	assert.Contains(t, nn, bricks.NetworkOperator{
+		Name:    "NeverTel",
+		Virtual: false,
+	})
+	assert.Contains(t, nn, bricks.NetworkOperator{
+		Name:    "ZeroTel",
+		Virtual: false,
+	})
+	assert.Contains(t, nn, bricks.NetworkOperator{
+		Name:    "NilTel",
+		Virtual: true,
+	})
+
+	assert.PanicsWithValue(t, bricks.ErrNotFound, func() {
+		bricks.RegisterNetworkOperators("XY", bricks.NetworkOperator{
+			Name:    "PanicTel",
+			Virtual: false,
+		})
+	})
+	assert.Nil(t, bricks.NetworkOperatorsByCountryCode("XY"))
+}
+
 func TestParsePhoneNumber(t *testing.T) {
 	bricks.RegisterPhoneNumberResolver(
 		neverland.Codes.Telephone,

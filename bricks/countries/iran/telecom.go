@@ -10,14 +10,14 @@ import (
 	"github.com/janstoon/toolbox/bricks"
 )
 
-//go:embed phone.yml
-var ymlPhoneNumbersPolicy string
+//go:embed telecom.yml
+var ymlTelecomPolicy string
 
 func init() {
-	bricks.RegisterPhoneNumberResolver(iran.Codes.Telephone, phoneNumberResolver([]byte(ymlPhoneNumbersPolicy)))
+	registerTelecom([]byte(ymlTelecomPolicy))
 }
 
-func phoneNumberResolver(ymlPolicy []byte) bricks.PhoneNumberResolver {
+func registerTelecom(ymlPolicy []byte) {
 	var policy struct {
 		Operators map[string]struct {
 			Name        string `yaml:"name"`
@@ -38,11 +38,13 @@ func phoneNumberResolver(ymlPolicy []byte) bricks.PhoneNumberResolver {
 	}
 
 	p2m := bricks.Trie[string, rune, bricks.PhoneNumberMetadata](tricks.StringToRunes)
+	operators := make([]bricks.NetworkOperator, 0)
 	for _, op := range policy.Operators {
 		no := bricks.NetworkOperator{
 			Name:    op.Name,
 			Virtual: op.Virtual,
 		}
+		operators = append(operators, no)
 
 		for _, subs := range op.Subscribers {
 			meta := bricks.PhoneNumberMetadata{
@@ -57,16 +59,19 @@ func phoneNumberResolver(ymlPolicy []byte) bricks.PhoneNumberResolver {
 		}
 	}
 
-	return func(localNumber string) (*bricks.PhoneNumberMetadata, error) {
-		if len(localNumber) != 10 {
-			return nil, errors.Join(bricks.ErrInvalidInput, errors.New("local number length incorrect"))
-		}
+	bricks.RegisterNetworkOperators(Iran.Codes.IsoAlphaTwo, operators...)
+	bricks.RegisterPhoneNumberResolver(Iran.Codes.Telephone,
+		func(localNumber string) (*bricks.PhoneNumberMetadata, error) {
+			if len(localNumber) != 10 {
+				return nil, errors.Join(bricks.ErrInvalidInput, errors.New("local number length incorrect"))
+			}
 
-		md := p2m.BestMatch(localNumber)
-		if md == nil {
-			return nil, errors.Join(bricks.ErrInvalidInput, bricks.ErrUnknownNetworkOperator)
-		}
+			meta := p2m.BestMatch(localNumber)
+			if meta == nil {
+				return nil, errors.Join(bricks.ErrInvalidInput, bricks.ErrUnknownNetworkOperator)
+			}
 
-		return md, nil
-	}
+			return meta, nil
+		},
+	)
 }
