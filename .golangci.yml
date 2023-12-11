@@ -48,4 +48,5 @@ linters:
     - tagalign
     - gosec
     - thelper
+    - makezero
   fast: false
