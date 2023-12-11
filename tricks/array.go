@@ -28,3 +28,27 @@ func Reduce[T, R any](reducer func(r R, t T) R, tt []T) R {
 
 	return r
 }
+
+func Find[T any](match func(src T) bool, tt []T) *T {
+	for _, t := range tt {
+		if match(t) {
+			return ValPtr(t)
+		}
+	}
+
+	return nil
+}
+
+func FindIndex[T any](match func(src T) bool, tt []T) int {
+	for i, t := range tt {
+		if match(t) {
+			return i
+		}
+	}
+
+	return -1
+}
+
+func IndexOf[T comparable](expected T, tt []T) int {
+	return FindIndex(MatchEqual(expected), tt)
+}
