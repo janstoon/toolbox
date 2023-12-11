@@ -11,31 +11,31 @@ import (
 )
 
 func TestNetworkOperatorsList(t *testing.T) {
-	nn := bricks.NetworkOperatorsByCountryCode(iran.Iran.Codes.IsoAlphaTwo)
-	assert.Len(t, nn, 13)
-	assert.Contains(t, nn, bricks.NetworkOperator{
+	oo := bricks.NetworkOperatorsByCountryCode(iran.Iran.Codes.IsoAlphaTwo)
+	assert.Len(t, oo, 13)
+	assert.Contains(t, oo, bricks.NetworkOperator{
 		Name:    "MCI",
 		Virtual: false,
 	})
-	assert.Contains(t, nn, bricks.NetworkOperator{
+	assert.Contains(t, oo, bricks.NetworkOperator{
 		Name:    "MTN",
 		Virtual: false,
 	})
-	assert.Contains(t, nn, bricks.NetworkOperator{
+	assert.Contains(t, oo, bricks.NetworkOperator{
 		Name:    "Rightel",
 		Virtual: false,
 	})
-	assert.Contains(t, nn, bricks.NetworkOperator{
+	assert.Contains(t, oo, bricks.NetworkOperator{
 		Name:    "Taliya",
 		Virtual: false,
 	})
 
-	assert.Contains(t, nn, bricks.NetworkOperator{
+	assert.Contains(t, oo, bricks.NetworkOperator{
 		Name:    "TCI",
 		Virtual: false,
 	})
 
-	assert.Contains(t, nn, bricks.NetworkOperator{
+	assert.Contains(t, oo, bricks.NetworkOperator{
 		Name:    "Shatel",
 		Virtual: true,
 	})
