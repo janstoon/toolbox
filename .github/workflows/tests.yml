@@ -17,6 +17,11 @@ jobs:
         go-version:
           - "1.20"
           - "1.21"
+        module:
+          - bricks
+          - tricks
+          - kareless
+          - handywares
 
     runs-on: ubuntu-latest
     name: Run tests on go@${{ matrix.go-version }}
@@ -38,9 +43,10 @@ jobs:
         id: grant-repo-access
         run: git config --global url."https://${{ env.GH_ACCESS_TOKEN }}@github.com".insteadOf "https://github.com"
 
-      - name: Run tests
+      - name: Run tests for ${{ matrix.module }}
         uses: n8maninger/action-golang-test@v1
         with:
+          package: ./${{ matrix.module }}/...
           skip-go-install: true
           args: "-test.short;-count=1;-race;-covermode=atomic;-coverprofile=coverage.out"
 
@@ -62,7 +68,7 @@ jobs:
         with:
           auth: ${{ secrets.BADGE_GIST_TOKEN }}
           gistID: ${{ env.BADGE_GIST_ID }}
-          filename: ${{ github.repository_owner }}_${{ github.event.repository.name }}_${{ env.REF }}.json
+          filename: ${{ github.repository_owner }}_${{ github.event.repository.name }}_${{ matrix.module }}_${{ env.REF }}.json
           namedLogo: codecov
           logoColor: "#F01F7A"
           label: Test Coverage
