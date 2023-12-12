@@ -24,31 +24,39 @@ jobs:
           - handywares
 
     runs-on: ubuntu-latest
-    name: Run tests on go@${{ matrix.go-version }}
+    name: Run tests of ${{ matrix.module }} using go v${{ matrix.go-version }}
+    env:
+      covfile: coverage_${{ matrix.module }}.out
     steps:
       - name: Make filename-friendly ref
         run: |
           REF=${{ github.ref }}
           echo "REF=$(echo ${REF//\//_})" >> $GITHUB_ENV
 
-      - name: Install Go@${{ matrix.go-version }}
-        uses: actions/setup-go@v2
+      - name: Install go v${{ matrix.go-version }}
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Grant private repositories access
         id: grant-repo-access
         run: git config --global url."https://${{ env.GH_ACCESS_TOKEN }}@github.com".insteadOf "https://github.com"
 
+      - name: Create go work
+        run: |
+          [ -f go.work ] || go work init
+          go work use ${{ matrix.module }}
+
       - name: Run tests for ${{ matrix.module }}
         uses: n8maninger/action-golang-test@v1
         with:
+          args: "-test.short;-count=1;-race;-covermode=atomic;-coverprofile=${{ env.covfile }}"
           package: ./${{ matrix.module }}/...
           skip-go-install: true
-          args: "-test.short;-count=1;-race;-covermode=atomic;-coverprofile=coverage.out"
+          show-stdout: true
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -59,8 +67,8 @@ jobs:
 
       - name: Expose code coverage manually
         run: |
-          go tool cover -func=coverage.out -o=coverage.out
-          COVERAGE="$(cat coverage.out | tail -1 | awk '{print $NF}')"
+          go tool cover -func=${{ env.covfile }} -o=${{ env.covfile }}
+          COVERAGE="$(cat ${{ env.covfile }} | tail -1 | awk '{print $NF}')"
           echo "COVERAGE=$(echo ${COVERAGE%\%})" >> $GITHUB_ENV
 
       - name: Create coverage badge
