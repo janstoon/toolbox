@@ -13,7 +13,7 @@ This repository consists of some (go) modules, each providing related functional
 * Kareless [![Coverage Badge][bdg-cov-kareless]][action-tests]: Thin dependency injector which tries not to be a dependency injector at all.
 
 [action-tests]: https://github.com/janstoon/toolbox/actions?query=branch%3Amaster+workflow%3Atests
-[bdg-build-status]: https://github.com/janstoon/toolbox/workflows/tests/badge.svg?branch=master
+[bdg-build-status]: https://github.com/janstoon/toolbox/actions/workflows/tests.yml/badge.svg?branch=master
 [bdg-cov-tricks]: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pouyanh/69229998008a13b9b87590ebe50ecded/raw/janstoon_toolbox_tricks_refs_heads_master.json
 [bdg-cov-bricks]: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pouyanh/69229998008a13b9b87590ebe50ecded/raw/janstoon_toolbox_bricks_refs_heads_master.json
 [bdg-cov-handywares]: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pouyanh/69229998008a13b9b87590ebe50ecded/raw/janstoon_toolbox_handywares_refs_heads_master.json
