@@ -5,14 +5,18 @@ Golang specially in early stages. They're designed with **Open-closed principle*
 for extension and customization by others from outside. Most of them introduce and work with interfaces or data types
 which are implemented for specific use-cases while can become implemented and extended in external packages.
 
-This repository consists of some (go) modules, each providing related functionalities:
-## Bricks [![Coverage Badge][bdg-cov-bricks]][action-tests]
+This repository is a monorepo which consists of some (go) modules, each providing related functionalities:
+
+## [Bricks][mod-bricks] [![Coverage Badge][bdg-cov-bricks]][action-tests]
 Models of real world basic entities like phone number and iban.
-## Tricks [![Coverage Badge][bdg-cov-tricks]][action-tests]
+
+## [Tricks][mod-tricks] [![Coverage Badge][bdg-cov-tricks]][action-tests]
 Frequent low-level functionalities like conversions or functional paradigm missing utilities.
-## Handywares [![Coverage Badge][bdg-cov-handywares]][action-tests]
+
+## [Handywares][mod-handywares] [![Coverage Badge][bdg-cov-handywares]][action-tests]
 Mid-level requirements designed in a reusable manner like general http middlewares.
-## Kareless [![Coverage Badge][bdg-cov-kareless]][action-tests]
+
+## [Kareless][mod-kareless] [![Coverage Badge][bdg-cov-kareless]][action-tests]
 Thin dependency injector which tries not to be a dependency injector at all.
 
 [action-tests]: https://github.com/janstoon/toolbox/actions?query=branch%3Amaster+workflow%3Atests
@@ -21,3 +25,7 @@ Thin dependency injector which tries not to be a dependency injector at all.
 [bdg-cov-bricks]: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pouyanh/69229998008a13b9b87590ebe50ecded/raw/janstoon_toolbox_bricks_refs_heads_master.json
 [bdg-cov-handywares]: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pouyanh/69229998008a13b9b87590ebe50ecded/raw/janstoon_toolbox_handywares_refs_heads_master.json
 [bdg-cov-kareless]: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pouyanh/69229998008a13b9b87590ebe50ecded/raw/janstoon_toolbox_kareless_refs_heads_master.json
+[mod-bricks]: bricks
+[mod-tricks]: tricks
+[mod-handywares]: handywares
+[mod-kareless]: kareless

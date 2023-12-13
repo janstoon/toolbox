@@ -3,6 +3,10 @@ Includes international data types and primitive data structures known for humans
 
 # Usage
 
+```shell
+go get github.com/janstoon/toolbox/bricks
+```
+
 ## Utils
 Resolvers, Parsers
 
