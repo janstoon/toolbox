@@ -1,6 +1,4 @@
-# Kareless
-[![Coverage Badge][bdg-cov-kareless]][action-tests]
-
+# Kareless [![Coverage Badge][bdg-cov-kareless]][action-tests]
 A pico-framework to glue building blocks of a long-running software together.
 
 [action-tests]: https://github.com/janstoon/toolbox/actions?query=branch%3Amaster+workflow%3Atests

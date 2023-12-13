@@ -1,6 +1,4 @@
-# Tricks
-[![Coverage Badge][bdg-cov-tricks]][action-tests]
-
+# Tricks [![Coverage Badge][bdg-cov-tricks]][action-tests]
 Frequent magics every developer may need
 
 [action-tests]: https://github.com/janstoon/toolbox/actions?query=branch%3Amaster+workflow%3Atests

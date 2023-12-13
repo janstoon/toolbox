@@ -1,5 +1,4 @@
-# Toolbox
-[![Build Status][bdg-build-status]][action-tests]
+# Toolbox [![Build Status][bdg-build-status]][action-tests]
 
 A bunch of converters, data structures, parsers, validators, middlewares and injectors useful when crafting software in
 Golang specially in early stages. They're designed with **Open-closed principle** in mind; In other words they are open
@@ -7,10 +6,14 @@ for extension and customization by others from outside. Most of them introduce a
 which are implemented for specific use-cases while can become implemented and extended in external packages.
 
 This repository consists of some (go) modules, each providing related functionalities:
-* Tricks [![Coverage Badge][bdg-cov-tricks]][action-tests]: Frequent low-level functionalities like conversions or functional paradigm missing utilities.
-* Bricks [![Coverage Badge][bdg-cov-bricks]][action-tests]: Models of real world basic entities like phone number and iban.
-* Handywares [![Coverage Badge][bdg-cov-handywares]][action-tests]: Mid-level requirements designed in a reusable manner like general http middlewares.
-* Kareless [![Coverage Badge][bdg-cov-kareless]][action-tests]: Thin dependency injector which tries not to be a dependency injector at all.
+## Bricks [![Coverage Badge][bdg-cov-bricks]][action-tests]
+Models of real world basic entities like phone number and iban.
+## Tricks [![Coverage Badge][bdg-cov-tricks]][action-tests]
+Frequent low-level functionalities like conversions or functional paradigm missing utilities.
+## Handywares [![Coverage Badge][bdg-cov-handywares]][action-tests]
+Mid-level requirements designed in a reusable manner like general http middlewares.
+## Kareless [![Coverage Badge][bdg-cov-kareless]][action-tests]
+Thin dependency injector which tries not to be a dependency injector at all.
 
 [action-tests]: https://github.com/janstoon/toolbox/actions?query=branch%3Amaster+workflow%3Atests
 [bdg-build-status]: https://github.com/janstoon/toolbox/actions/workflows/tests.yml/badge.svg?branch=master

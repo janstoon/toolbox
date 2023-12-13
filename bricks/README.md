@@ -1,6 +1,4 @@
-# Bricks
-[![Coverage Badge][bdg-cov-bricks]][action-tests]
-
+# Bricks [![Coverage Badge][bdg-cov-bricks]][action-tests]
 Includes international data types and primitive data structures known for humans and required by developers.
 
 # Usage
