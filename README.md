@@ -7,10 +7,10 @@ for extension and customization by others from outside. Most of them introduce a
 which are implemented for specific use-cases while can become implemented and extended in external packages.
 
 This repository consists of some (go) modules, each providing related functionalities:
-* Tricks ![Coverage Badge][bdg-cov-tricks]: Frequent low-level functionalities like conversions or functional paradigm missing utilities.
-* Bricks ![Coverage Badge][bdg-cov-bricks]: Models of real world basic entities like phone number and iban.
-* Handywares ![Coverage Badge][bdg-cov-handywares]: Mid-level requirements designed in a reusable manner like general http middlewares.
-* Kareless ![Coverage Badge][bdg-cov-kareless]: Thin dependency injector which tries not to be a dependency injector at all.
+* Tricks [![Coverage Badge][bdg-cov-tricks]][action-tests]: Frequent low-level functionalities like conversions or functional paradigm missing utilities.
+* Bricks [![Coverage Badge][bdg-cov-bricks]][action-tests]: Models of real world basic entities like phone number and iban.
+* Handywares [![Coverage Badge][bdg-cov-handywares]][action-tests]: Mid-level requirements designed in a reusable manner like general http middlewares.
+* Kareless [![Coverage Badge][bdg-cov-kareless]][action-tests]: Thin dependency injector which tries not to be a dependency injector at all.
 
 [action-tests]: https://github.com/janstoon/toolbox/actions?query=branch%3Amaster+workflow%3Atests
 [bdg-build-status]: https://github.com/janstoon/toolbox/workflows/tests/badge.svg?branch=master
