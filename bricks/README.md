@@ -1,4 +1,6 @@
 # Bricks
+![Coverage Badge][bdg-cov-bricks]
+
 Includes international data types and primitive data structures known for humans and required by developers.
 
 # Usage
@@ -39,3 +41,5 @@ Includes Abstract Data Types
 Portable data
 ### Error
 ### Number
+
+[bdg-cov-bricks]: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pouyanh/69229998008a13b9b87590ebe50ecded/raw/janstoon_toolbox_bricks_refs_heads_master.json
