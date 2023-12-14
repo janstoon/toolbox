@@ -11,7 +11,7 @@ func Filter[T any](match func(src T) bool, tt []T) []T {
 	return ftt[:len(ftt):len(ftt)]
 }
 
-func Map[S, D any](transformer func(src S) D, ss []S) []D {
+func Map[S, D any](transformer Transformer[S, D], ss []S) []D {
 	dd := make([]D, len(ss))
 	for k, src := range ss {
 		dd[k] = transformer(src)
