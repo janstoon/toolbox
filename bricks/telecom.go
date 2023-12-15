@@ -15,6 +15,8 @@ var (
 	ErrUnknownNetworkOperator    = errors.New("network operator unknown")
 )
 
+var EmptyPhoneNumber = PhoneNumber{}
+
 type PhoneNumber struct {
 	full            string
 	Country         *Country
