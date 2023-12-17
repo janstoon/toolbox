@@ -137,6 +137,7 @@ func ParsePhoneNumber(number string) (*PhoneNumber, error) {
 		full:            fmt.Sprintf("%s%s", catalogue.countryTelCode, localNumber),
 		Country:         LookupCountryByTelephoneCode(catalogue.countryTelCode),
 		Mobile:          meta.Mobile,
+		Prepaid:         meta.Prepaid,
 		DefaultOperator: meta.Operator,
 	}, nil
 }

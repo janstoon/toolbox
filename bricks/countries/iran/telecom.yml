@@ -112,6 +112,7 @@ operators:
     subscribers:
       - prefixes: [ 900, 901, 902, 903, 904, 905, 930, 933, 935, 936, 937, 938, 939 ]
         mobile: true
+        prepaid: true
       - prefixes: [ 941 ] # TD-LTE. Rechargeable
   rightel:
     name: Rightel
