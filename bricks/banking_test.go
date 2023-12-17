@@ -1,6 +1,7 @@
 package bricks_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,6 +12,10 @@ import (
 
 func TestParseIban(t *testing.T) {
 	bricks.RegisterBbanValidator(neverland.Codes.IsoAlphaTwo, func(bban string) error {
+		if !strings.HasPrefix(bban, "014") {
+			return bricks.ErrIbanInvalidBban
+		}
+
 		return nil
 	})
 
@@ -31,11 +36,6 @@ func TestParseIban(t *testing.T) {
 	require.ErrorIs(t, err, bricks.ErrIbanIncorrectLength)
 	assert.Nil(t, iban)
 
-	ibanStr = "XY870143022491272900023730"
-	iban, err = bricks.ParseInternationalBankAccountNumber(ibanStr)
-	require.ErrorIs(t, err, bricks.ErrIbanUnknownCountry)
-	assert.Nil(t, iban)
-
 	ibanStr = "NV670143022491272900023642"
 	iban, err = bricks.ParseInternationalBankAccountNumber(ibanStr)
 	require.ErrorIs(t, err, bricks.ErrIbanCheckFailure)
@@ -44,6 +44,16 @@ func TestParseIban(t *testing.T) {
 	ibanStr = "NV660143022491272900023641"
 	iban, err = bricks.ParseInternationalBankAccountNumber(ibanStr)
 	require.ErrorIs(t, err, bricks.ErrIbanCheckFailure)
+	assert.Nil(t, iban)
+
+	ibanStr = "XY870143022491272900023730"
+	iban, err = bricks.ParseInternationalBankAccountNumber(ibanStr)
+	require.ErrorIs(t, err, bricks.ErrIbanUnknownCountry)
+	assert.Nil(t, iban)
+
+	ibanStr = "NV860113022491272900023641"
+	iban, err = bricks.ParseInternationalBankAccountNumber(ibanStr)
+	require.ErrorIs(t, err, bricks.ErrIbanInvalidBban)
 	assert.Nil(t, iban)
 }
 
