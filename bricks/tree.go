@@ -52,7 +52,7 @@ func (t *TrieNode[_, KeyAtom, Value]) get(route []KeyAtom) *Value {
 	defer t.lock.RUnlock()
 
 	if len(route) == 0 {
-		return &t.value
+		return t.val()
 	}
 
 	if child, ok := t.children[route[0]]; ok {
@@ -92,5 +92,22 @@ func (t *TrieNode[_, KeyAtom, Value]) bestMatch(route []KeyAtom) *Value {
 }
 
 func (t *TrieNode[Key, _, _]) Delete(key Key) {
-	panic("not implemented")
+	t.delete(t.atomizer(key))
+}
+
+func (t *TrieNode[_, KeyAtom, Value]) delete(route []KeyAtom) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+
+	if len(route) == 0 {
+		var zero Value
+		t.full = false
+		t.value = zero
+
+		return
+	}
+
+	if child, ok := t.children[route[0]]; ok {
+		child.delete(route[1:])
+	}
 }

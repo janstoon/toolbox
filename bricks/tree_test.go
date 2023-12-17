@@ -68,4 +68,18 @@ func TestTreeRetrieval(t *testing.T) {
 	assert.Nilf(t, trie.BestMatch("8"), "got: %+v", tricks.PtrVal(trie.BestMatch("8")))
 	assert.Nilf(t, trie.BestMatch("80"), "got: %+v", tricks.PtrVal(trie.BestMatch("80")))
 	assert.Nilf(t, trie.BestMatch("81"), "got: %+v", tricks.PtrVal(trie.BestMatch("81")))
+
+	trie.Delete("1800")
+
+	assert.Equalf(t, tricks.ValPtr("b"), trie.BestMatch("1800"), "got: %+v", tricks.PtrVal(trie.BestMatch("1800")))
+	assert.Equalf(t, tricks.ValPtr("d"), trie.BestMatch("181"), "got: %+v", tricks.PtrVal(trie.BestMatch("181")))
+	assert.Equalf(t, tricks.ValPtr("b"), trie.BestMatch("18"), "got: %+v", tricks.PtrVal(trie.BestMatch("18")))
+	assert.Equalf(t, tricks.ValPtr("a"), trie.BestMatch("1"), "got: %+v", tricks.PtrVal(trie.BestMatch("1")))
+
+	trie.Put("1800", "c2")
+
+	assert.Equalf(t, tricks.ValPtr("c2"), trie.BestMatch("1800"), "got: %+v", tricks.PtrVal(trie.BestMatch("1800")))
+	assert.Equalf(t, tricks.ValPtr("d"), trie.BestMatch("181"), "got: %+v", tricks.PtrVal(trie.BestMatch("181")))
+	assert.Equalf(t, tricks.ValPtr("b"), trie.BestMatch("18"), "got: %+v", tricks.PtrVal(trie.BestMatch("18")))
+	assert.Equalf(t, tricks.ValPtr("a"), trie.BestMatch("1"), "got: %+v", tricks.PtrVal(trie.BestMatch("1")))
 }
