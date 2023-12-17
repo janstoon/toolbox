@@ -87,6 +87,7 @@ func TestParsePhoneNumber(t *testing.T) {
 		assert.Equal(t, "+999123456789", pn.String())
 		assert.Equal(t, bricks.LookupCountryByIsoAlphaTwoCode(neverland.Codes.IsoAlphaTwo), pn.Country)
 		assert.True(t, pn.Mobile)
+		assert.False(t, pn.Prepaid)
 		assert.False(t, pn.DefaultOperator.Virtual)
 		assert.Equal(t, "NeverTel", pn.DefaultOperator.Name)
 
