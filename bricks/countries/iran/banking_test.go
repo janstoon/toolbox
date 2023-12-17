@@ -34,6 +34,13 @@ func TestParseBban(t *testing.T) {
 	assert.Nil(t, iban)
 
 	// correct iban - invalid bi
+	ibanStr = "IR57AB95826565408044502441"
+	iban, err = bricks.ParseInternationalBankAccountNumber(ibanStr)
+	require.ErrorIs(t, err, bricks.ErrIbanInvalidBban)
+	require.ErrorContains(t, err, "invalid syntax")
+	assert.Nil(t, iban)
+
+	// correct iban - invalid bi
 	ibanStr = "IR670095826565408044502441"
 	iban, err = bricks.ParseInternationalBankAccountNumber(ibanStr)
 	require.ErrorIs(t, err, bricks.ErrIbanInvalidBban)

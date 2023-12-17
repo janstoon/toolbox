@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/janstoon/toolbox/tricks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -88,6 +89,8 @@ func TestParsePhoneNumber(t *testing.T) {
 		assert.True(t, pn.Mobile)
 		assert.False(t, pn.DefaultOperator.Virtual)
 		assert.Equal(t, "NeverTel", pn.DefaultOperator.Name)
+
+		assert.Equal(t, tricks.PtrVal(pn), bricks.MustParsePhoneNumber(number))
 	}
 
 	unregisteredNumbers := []string{
@@ -100,6 +103,10 @@ func TestParsePhoneNumber(t *testing.T) {
 		pn, err := bricks.ParsePhoneNumber(number)
 		require.ErrorIs(t, err, bricks.ErrPhoneNumberUnknownCountry)
 		assert.Nil(t, pn)
+
+		require.Panics(t, func() {
+			bricks.MustParsePhoneNumber(number)
+		})
 	}
 
 	// invalid numbers
@@ -120,5 +127,9 @@ func TestParsePhoneNumber(t *testing.T) {
 		pn, err := bricks.ParsePhoneNumber(number)
 		require.ErrorIs(t, err, bricks.ErrInvalidInput)
 		assert.Nil(t, pn)
+
+		require.Panics(t, func() {
+			bricks.MustParsePhoneNumber(number)
+		})
 	}
 }

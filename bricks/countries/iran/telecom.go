@@ -60,9 +60,11 @@ func registerTelecom(ymlPolicy []byte) {
 	}
 
 	bricks.RegisterNetworkOperators(Iran.Codes.IsoAlphaTwo, operators...)
+
+	const localNumberLength = 10
 	bricks.RegisterPhoneNumberResolver(Iran.Codes.Telephone,
 		func(localNumber string) (*bricks.PhoneNumberMetadata, error) {
-			if len(localNumber) != 10 {
+			if len(localNumber) != localNumberLength {
 				return nil, errors.Join(bricks.ErrInvalidInput, errors.New("local number length incorrect"))
 			}
 

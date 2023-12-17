@@ -104,4 +104,19 @@ func TestParsePhoneNumber(t *testing.T) {
 	assert.False(t, pn.Mobile)
 	assert.False(t, pn.DefaultOperator.Virtual)
 	assert.Equal(t, "TCI", pn.DefaultOperator.Name)
+
+	pn, err = bricks.ParsePhoneNumber("989123456")
+	require.ErrorIs(t, err, bricks.ErrInvalidInput)
+	require.ErrorContains(t, err, "local number length incorrect")
+	assert.Nil(t, pn)
+
+	pn, err = bricks.ParsePhoneNumber("9891234567890")
+	require.ErrorIs(t, err, bricks.ErrInvalidInput)
+	require.ErrorContains(t, err, "local number length incorrect")
+	assert.Nil(t, pn)
+
+	pn, err = bricks.ParsePhoneNumber("981023456789")
+	require.ErrorIs(t, err, bricks.ErrInvalidInput)
+	require.ErrorIs(t, err, bricks.ErrUnknownNetworkOperator)
+	assert.Nil(t, pn)
 }
