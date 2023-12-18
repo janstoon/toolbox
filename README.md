@@ -1,4 +1,4 @@
-# Toolbox [![Build Status][bdg-build-status]][action-tests]
+# Janstun Toolbox [![Build Status][bdg-build-status]][action-tests]
 
 A bunch of converters, data structures, parsers, validators, middlewares and injectors useful when crafting software in
 Golang specially in early stages. They're designed with **Open-closed principle** in mind; In other words they are open
@@ -19,6 +19,9 @@ Mid-level requirements designed in a reusable manner like general http middlewar
 ## [Kareless][mod-kareless] [![Coverage Badge][bdg-cov-kareless]][action-tests]
 Thin dependency injector which tries not to be a dependency injector at all.
 
+# License
+This library is [licensed](LICENSE) under the [GPL v3 License][gpl]. © 2023 [Janstun][janstun]
+
 [action-tests]: https://github.com/janstoon/toolbox/actions?query=branch%3Amaster+workflow%3Atests
 [bdg-build-status]: https://github.com/janstoon/toolbox/actions/workflows/tests.yml/badge.svg?branch=master
 [bdg-cov-tricks]: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pouyanh/69229998008a13b9b87590ebe50ecded/raw/janstoon_toolbox_tricks_refs_heads_master.json
@@ -29,3 +32,5 @@ Thin dependency injector which tries not to be a dependency injector at all.
 [mod-tricks]: tricks
 [mod-handywares]: handywares
 [mod-kareless]: kareless
+[gpl]: https://www.gnu.org/licenses/gpl-3.0.en.html
+[janstun]: http://janstun.com
