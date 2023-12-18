@@ -28,6 +28,7 @@ func (cc coalesceTestCases[T]) meet(t *testing.T) {
 
 func TestCoalesce(t *testing.T) {
 	coalesceTestCases[int]{
+		{in: []int{}, out: 0},
 		{in: []int{0}, out: 0},
 		{in: []int{1}, out: 1},
 		{in: []int{0, 0}, out: 0},
@@ -45,12 +46,14 @@ func TestCoalesce(t *testing.T) {
 	}.meet(t)
 
 	coalesceTestCases[*int]{
+		{in: []*int{}, out: nil},
 		{in: []*int{nil}, out: nil},
 		{in: []*int{nil, tricks.ValPtr(5)}, out: tricks.ValPtr(5)},
 		{in: []*int{nil, nil, tricks.ValPtr(5)}, out: tricks.ValPtr(5)},
 	}.meet(t)
 
 	coalesceTestCases[string]{
+		{in: []string{}, out: ""},
 		{in: []string{""}, out: ""},
 		{in: []string{"1st"}, out: "1st"},
 		{in: []string{"", ""}, out: ""},
@@ -68,6 +71,7 @@ func TestCoalesce(t *testing.T) {
 	}.meet(t)
 
 	coalesceTestCases[time.Duration]{
+		{in: []time.Duration{}, out: 0 * time.Second},
 		{in: []time.Duration{0 * time.Second}, out: 0 * time.Second},
 		{in: []time.Duration{1 * time.Second}, out: 1 * time.Second},
 		{in: []time.Duration{0 * time.Second, 0 * time.Second}, out: 0 * time.Second},
