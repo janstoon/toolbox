@@ -52,3 +52,16 @@ func FindIndex[T any](match func(src T) bool, tt []T) int {
 func IndexOf[T comparable](expected T, tt []T) int {
 	return FindIndex(MatchEqual(expected), tt)
 }
+
+func Flat[T any](slices ...[]T) []T {
+	length := Reduce(func(r int, tt []T) int {
+		return r + len(tt)
+	}, slices)
+
+	flat := make([]T, 0, length)
+	for _, slice := range slices {
+		flat = append(flat, slice...)
+	}
+
+	return flat
+}
