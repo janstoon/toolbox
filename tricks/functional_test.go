@@ -9,51 +9,51 @@ import (
 )
 
 func TestFilter(t *testing.T) {
-	assert.Nil(t, tricks.Filter(tricks.MatchEqual(2), []int{1, 3, 4, 5}))
-	assert.Nil(t, tricks.Filter(func(src int) bool {
+	assert.Nil(t, tricks.Filter([]int{1, 3, 4, 5}, tricks.MatchEqual(2)))
+	assert.Nil(t, tricks.Filter([]int{1, 2, 4, 5, 7, 8}, func(src int) bool {
 		return src%3 == 0
-	}, []int{1, 2, 4, 5, 7, 8}))
+	}))
 
-	assert.Equal(t, []int{2, 4, 6}, tricks.Filter(func(src int) bool {
+	assert.Equal(t, []int{2, 4, 6}, tricks.Filter([]int{1, 2, 3, 4, 5, 6}, func(src int) bool {
 		return src%2 == 0
-	}, []int{1, 2, 3, 4, 5, 6}))
+	}))
 }
 
 func TestMap(t *testing.T) {
-	assert.Nil(t, tricks.Map(func(src any) any {
+	assert.Nil(t, tricks.Map(nil, func(src any) any {
 		return src
-	}, nil))
-	assert.Equal(t, []int{}, tricks.Map(func(src int) int {
+	}))
+	assert.Equal(t, []int{}, tricks.Map([]int{}, func(src int) int {
 		return src
-	}, []int{}))
+	}))
 
-	assert.Equal(t, []int{2, 4, 6, 8, 10, 12}, tricks.Map(func(src int) int {
+	assert.Equal(t, []int{2, 4, 6, 8, 10, 12}, tricks.Map([]int{1, 2, 3, 4, 5, 6}, func(src int) int {
 		return src * 2
-	}, []int{1, 2, 3, 4, 5, 6}))
+	}))
 }
 
 func TestReduce(t *testing.T) {
-	assert.Equal(t, 720, tricks.Reduce(func(r int, n int) int {
+	assert.Equal(t, 720, tricks.Reduce([]int{1, 2, 3, 4, 5, 6}, func(r int, n int) int {
 		if r == 0 {
 			return n
 		}
 
 		return r * n
-	}, []int{1, 2, 3, 4, 5, 6}))
+	}))
 
-	assert.Equal(t, 7, tricks.Reduce(func(r int, slice []int) int {
+	assert.Equal(t, 7, tricks.Reduce([][]int{{1, 2}, {1, 2, 3}, {1, 2}}, func(r int, slice []int) int {
 		return r + len(slice)
-	}, [][]int{{1, 2}, {1, 2, 3}, {1, 2}}))
+	}))
 }
 
 func TestFind(t *testing.T) {
-	assert.Equal(t, tricks.ValPtr(5), tricks.Find(tricks.MatchEqual(5), []int{1, 2, 3, 4, 5, 6}))
-	assert.Nil(t, tricks.Find(tricks.MatchEqual(50), []int{1, 2, 3, 4, 5, 6}))
+	assert.Equal(t, tricks.ValPtr(5), tricks.Find([]int{1, 2, 3, 4, 5, 6}, tricks.MatchEqual(5)))
+	assert.Nil(t, tricks.Find([]int{1, 2, 3, 4, 5, 6}, tricks.MatchEqual(50)))
 }
 
 func TestFindIndex(t *testing.T) {
-	assert.Equal(t, 4, tricks.FindIndex(tricks.MatchEqual(5), []int{1, 2, 3, 4, 5, 6}))
-	assert.Equal(t, -1, tricks.FindIndex(tricks.MatchEqual(50), []int{1, 2, 3, 4, 5, 6}))
+	assert.Equal(t, 4, tricks.FindIndex([]int{1, 2, 3, 4, 5, 6}, tricks.MatchEqual(5)))
+	assert.Equal(t, -1, tricks.FindIndex([]int{1, 2, 3, 4, 5, 6}, tricks.MatchEqual(50)))
 }
 
 func TestIndexOf(t *testing.T) {

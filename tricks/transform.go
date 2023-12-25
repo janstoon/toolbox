@@ -19,7 +19,7 @@ func ValPtr[T any](src T) *T {
 }
 
 // PtrPtr transforms pointer of type S to pointer of type D. If src is nil it returns nil
-func PtrPtr[S, D any](transformer Transformer[S, D], src *S) *D {
+func PtrPtr[S, D any](src *S, transformer Transformer[S, D]) *D {
 	if src == nil {
 		return nil
 	}
