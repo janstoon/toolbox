@@ -9,12 +9,21 @@ import (
 )
 
 func TestFilter(t *testing.T) {
+	assert.Nil(t, tricks.Filter(tricks.MatchEqual(2), []int{1, 3, 4, 5}))
+	assert.Nil(t, tricks.Filter(func(src int) bool {
+		return src%3 == 0
+	}, []int{1, 2, 4, 5, 7, 8}))
+
 	assert.Equal(t, []int{2, 4, 6}, tricks.Filter(func(src int) bool {
 		return src%2 == 0
 	}, []int{1, 2, 3, 4, 5, 6}))
 }
 
 func TestMap(t *testing.T) {
+	assert.Nil(t, tricks.Map(func(src any) any {
+		return src
+	}, nil))
+
 	assert.Equal(t, []int{2, 4, 6, 8, 10, 12}, tricks.Map(func(src int) int {
 		return src * 2
 	}, []int{1, 2, 3, 4, 5, 6}))
@@ -50,6 +59,11 @@ func TestIndexOf(t *testing.T) {
 }
 
 func TestFlat(t *testing.T) {
+	assert.Nil(t, tricks.Flat[any]())
+
 	assert.Equal(t, []int{1, 2, 1, 3, 4, 2, 3, 4, 1, 7},
 		tricks.Flat([]int{1, 2}, []int{1, 3, 4}, []int{2, 3, 4}, []int{1, 7}))
+
+	assert.Equal(t, []int{1, 2, 1, 3, 4, 2, 3, 4, 1, 7},
+		tricks.Flat([][]int{{1, 2}, {1, 3, 4}, {2, 3, 4}, {1, 7}}...))
 }

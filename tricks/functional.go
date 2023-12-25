@@ -8,10 +8,18 @@ func Filter[T any](match func(src T) bool, tt []T) []T {
 		}
 	}
 
+	if len(ftt) == 0 {
+		return nil
+	}
+
 	return ftt[:len(ftt):len(ftt)]
 }
 
 func Map[S, D any](transformer Transformer[S, D], ss []S) []D {
+	if ss == nil {
+		return nil
+	}
+
 	dd := make([]D, len(ss))
 	for k, src := range ss {
 		dd[k] = transformer(src)
@@ -57,6 +65,10 @@ func Flat[T any](slices ...[]T) []T {
 	length := Reduce(func(r int, tt []T) int {
 		return r + len(tt)
 	}, slices)
+
+	if length == 0 {
+		return nil
+	}
 
 	flat := make([]T, 0, length)
 	for _, slice := range slices {
