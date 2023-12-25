@@ -19,8 +19,8 @@ go get github.com/janstoon/toolbox/kareless
 package main
 
 import (
-	"log"
 	"context"
+	"log"
 
 	"github.com/janstoon/toolbox/kareless"
 	"github.com/janstoon/toolbox/kareless/std"
