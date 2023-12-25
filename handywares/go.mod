@@ -4,7 +4,7 @@ go 1.21.0
 
 require (
 	github.com/go-openapi/runtime v0.26.0
-	github.com/janstoon/toolbox/tricks v0.5.1
+	github.com/janstoon/toolbox/tricks v0.8.0
 	github.com/rs/cors v1.10.1
 	github.com/stretchr/testify v1.8.4
 )

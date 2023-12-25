@@ -75,8 +75,8 @@ github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
-github.com/janstoon/toolbox/tricks v0.5.1 h1:UnA0Hvc3CPHefCZ6IRA7Hnvdb+v/R/K7APn9/VLjlmg=
-github.com/janstoon/toolbox/tricks v0.5.1/go.mod h1:TB7Cn727lv+QerRLMzwl4Exz8ijPicFb9Uwmdh0dwWo=
+github.com/janstoon/toolbox/tricks v0.8.0 h1:1ycyCCNYGWdJEc8l6eS0qsZiflkbl2P68wNamilaDEc=
+github.com/janstoon/toolbox/tricks v0.8.0/go.mod h1:TB7Cn727lv+QerRLMzwl4Exz8ijPicFb9Uwmdh0dwWo=
 github.com/joho/godotenv v1.3.0/go.mod h1:7hK45KPybAkOC6peb+G5yklZfMxEjkZhHbwpqxOKXbg=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=

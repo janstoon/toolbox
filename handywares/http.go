@@ -46,9 +46,10 @@ func (stk *HttpMiddlewareStack) PushCrossOriginResourceSharingPolicy(
 ) *HttpMiddlewareStack {
 	// todo: headers, methods, origins
 	cfg := cors.Options{}
-	cfg = tricks.PtrVal(tricks.ApplyOptions(&cfg, tricks.Map(func(src CorsHttpMiddlewareOpt) tricks.Option[cors.Options] {
-		return src
-	}, options)...))
+	cfg = tricks.PtrVal(tricks.ApplyOptions(&cfg,
+		tricks.Map(options, func(src CorsHttpMiddlewareOpt) tricks.Option[cors.Options] {
+			return src
+		})...))
 
 	return stk.Push(cors.New(cfg).Handler)
 }
