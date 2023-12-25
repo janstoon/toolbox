@@ -5,18 +5,17 @@ import (
 	"errors"
 
 	"github.com/janstoon/toolbox/bricks"
-	"github.com/janstoon/toolbox/tricks"
 	"github.com/spf13/viper"
 
 	"github.com/janstoon/toolbox/kareless"
 )
 
-type MapSettingSource map[string]string
+type MapSettingSource map[string]any
 
-func (ss MapSettingSource) Get(_ context.Context, key string) (*string, error) {
+func (ss MapSettingSource) Get(_ context.Context, key string) (any, error) {
 	v, ok := ss[key]
 	if ok {
-		return &v, nil
+		return v, nil
 	}
 
 	return nil, bricks.ErrNotFound
@@ -47,9 +46,9 @@ func LocalEarlyLoadedSettingSource(name string, paths ...string) kareless.Settin
 	}
 }
 
-func (ss localEarlySettings) Get(_ context.Context, key string) (*string, error) {
+func (ss localEarlySettings) Get(_ context.Context, key string) (any, error) {
 	if ss.v.IsSet(key) {
-		return tricks.ValPtr(ss.v.GetString(key)), nil
+		return ss.v.Get(key), nil
 	}
 
 	return nil, bricks.ErrNotFound

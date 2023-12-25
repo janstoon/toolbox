@@ -26,6 +26,8 @@ type instrumentFactory struct {
 
 func (fkt *instrumentFactory) create(ss *Settings, ib *InstrumentBank) Instrument {
 	fkt.Do(func() {
+		// recover possible panic
+
 		fkt.cached = fkt.constructor(ss, ib)
 	})
 

@@ -2,14 +2,13 @@ package kareless
 
 import (
 	"context"
-	"strconv"
 	"sync"
 
-	"github.com/janstoon/toolbox/tricks"
+	"github.com/spf13/cast"
 )
 
 type SettingSource interface {
-	Get(ctx context.Context, key string) (*string, error)
+	Get(ctx context.Context, key string) (any, error)
 }
 
 type Settings struct {
@@ -23,35 +22,30 @@ func (ss *Settings) append(source SettingSource) {
 	ss.rr = append(ss.rr, source)
 }
 
-func (ss *Settings) get(ctx context.Context, key string) string {
+func (ss *Settings) get(ctx context.Context, key string) any {
 	ss.lock.RLock()
 	defer ss.lock.RUnlock()
 
 	for _, r := range ss.rr {
 		v, err := r.Get(ctx, key)
 		if err == nil && v != nil {
-			return tricks.PtrVal(v)
+			return v
 		}
 	}
 
-	return ""
+	return nil
 }
 
 func (ss *Settings) GetString(key string) string {
-	return ss.get(context.Background(), key)
+	return cast.ToString(ss.get(context.Background(), key))
 }
 
 func (ss *Settings) GetInt(key string) int {
-	v, err := strconv.Atoi(ss.GetString(key))
-	if err != nil {
-		return 0
-	}
-
-	return v
+	return cast.ToInt(ss.get(context.Background(), key))
 }
 
 func (ss *Settings) GetInt64(key string) int64 {
-	return int64(ss.GetInt(key))
+	return cast.ToInt64(ss.get(context.Background(), key))
 }
 
 func (ss *Settings) GetByte(key string) byte {
@@ -59,10 +53,28 @@ func (ss *Settings) GetByte(key string) byte {
 }
 
 func (ss *Settings) GetBool(key string) bool {
-	v, err := strconv.ParseBool(ss.GetString(key))
-	if err != nil {
-		return false
+	return cast.ToBool(ss.get(context.Background(), key))
+}
+
+func (ss *Settings) Children(key string) []string {
+	v := ss.get(context.Background(), key)
+	if aa, err := cast.ToSliceE(v); err == nil {
+		kk := make([]string, len(aa))
+		for k := range aa {
+			kk[k] = cast.ToString(k)
+		}
+
+		return kk
 	}
 
-	return v
+	if aa, err := cast.ToStringMapE(v); err == nil {
+		kk := make([]string, 0, len(aa))
+		for k := range aa {
+			kk = append(kk, k)
+		}
+
+		return kk
+	}
+
+	return nil
 }

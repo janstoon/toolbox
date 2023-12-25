@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/janstoon/toolbox/bricks"
-	"github.com/janstoon/toolbox/tricks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -45,20 +44,20 @@ func TestLocalSettings_Get(t *testing.T) {
 	require.NoError(t, err)
 	ss = std.LocalEarlyLoadedSettingSource(fname, dir)
 	v, err = ss.Get(ctx, "c1")
-	assert.Equal(t, "ValueFromFile", tricks.PtrVal(v))
+	assert.Equal(t, "ValueFromFile", v)
 	require.NoError(t, err)
 
 	t.Setenv("C1", "ValueFromEnv")
 	ss = std.LocalEarlyLoadedSettingSource(fname, dir)
 	v, err = ss.Get(ctx, "c1")
-	assert.Equal(t, "ValueFromEnv", tricks.PtrVal(v))
+	assert.Equal(t, "ValueFromEnv", v)
 	require.NoError(t, err)
 
 	err = os.Unsetenv("C1")
 	require.NoError(t, err)
 	ss = std.LocalEarlyLoadedSettingSource(fname, dir)
 	v, err = ss.Get(ctx, "c1")
-	assert.Equal(t, "ValueFromFile", tricks.PtrVal(v))
+	assert.Equal(t, "ValueFromFile", v)
 	require.NoError(t, err)
 
 	cfgTwo := struct {

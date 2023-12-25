@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/janstoon/toolbox/bricks"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/janstoon/toolbox/kareless"
@@ -110,18 +111,18 @@ func TestLifeCycle(t *testing.T) {
 	case <-time.After(500 * time.Millisecond):
 		assert.Fail(t, "expected post hook context to get done")
 	}
-	assert.False(t, gw.isRunning())
+	assert.Eventually(t, func() bool { return !gw.isRunning() }, 500*time.Millisecond, 10*time.Millisecond)
 }
 
 type settings map[string]string
 
-func (ss settings) Get(_ context.Context, key string) (*string, error) {
+func (ss settings) Get(_ context.Context, key string) (any, error) {
 	v, ok := ss[key]
 	if ok {
-		return &v, nil
+		return v, nil
 	}
 
-	return nil, fmt.Errorf("not found")
+	return nil, bricks.ErrNotFound
 }
 
 type message struct {
