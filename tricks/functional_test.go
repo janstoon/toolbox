@@ -23,6 +23,9 @@ func TestMap(t *testing.T) {
 	assert.Nil(t, tricks.Map(func(src any) any {
 		return src
 	}, nil))
+	assert.Equal(t, []int{}, tricks.Map(func(src int) int {
+		return src
+	}, []int{}))
 
 	assert.Equal(t, []int{2, 4, 6, 8, 10, 12}, tricks.Map(func(src int) int {
 		return src * 2
@@ -60,6 +63,8 @@ func TestIndexOf(t *testing.T) {
 
 func TestFlat(t *testing.T) {
 	assert.Nil(t, tricks.Flat[any]())
+	assert.Nil(t, tricks.Flat([]int{}))
+	assert.Nil(t, tricks.Flat([]int{}, []int{}))
 
 	assert.Equal(t, []int{1, 2, 1, 3, 4, 2, 3, 4, 1, 7},
 		tricks.Flat([]int{1, 2}, []int{1, 3, 4}, []int{2, 3, 4}, []int{1, 7}))
