@@ -15,7 +15,7 @@ var (
 type (
 	Instrument            interface{}
 	InstrumentConstructor func(ss *Settings, ib *InstrumentBank) Instrument
-	InstrumentCatalogue   func() ([]string, InstrumentConstructor)
+	InstrumentCatalogue   func(ss *Settings, ib *InstrumentBank) ([]string, InstrumentConstructor)
 )
 
 type instrumentFactory struct {
@@ -35,8 +35,9 @@ func (fkt *instrumentFactory) create(ss *Settings, ib *InstrumentBank) Instrumen
 }
 
 type InstrumentBank struct {
-	lock      sync.RWMutex
-	factories map[string]*instrumentFactory
+	lock       sync.RWMutex
+	catalogues []InstrumentCatalogue
+	factories  map[string]*instrumentFactory
 
 	settings *Settings
 }
@@ -48,21 +49,33 @@ func newInstrumentBank(ss *Settings) *InstrumentBank {
 	}
 }
 
-func (ib *InstrumentBank) register(catalogue InstrumentCatalogue) {
-	names, ic := catalogue()
-	fkt := &instrumentFactory{
-		constructor: ic,
-	}
-
+func (ib *InstrumentBank) register(cc ...InstrumentCatalogue) {
 	ib.lock.Lock()
 	defer ib.lock.Unlock()
-	for _, name := range names {
-		if _, registered := ib.factories[name]; registered {
-			panic(errors.Join(ErrAlreadyRegisteredInstrument, fmt.Errorf("duplicate entry for: %s", name)))
+
+	ib.catalogues = append(ib.catalogues, cc...)
+}
+
+func (ib *InstrumentBank) openCatalogues(ss *Settings) error {
+	ib.lock.Lock()
+	defer ib.lock.Unlock()
+
+	for _, catalogue := range ib.catalogues {
+		names, ic := catalogue(ss, ib)
+		fkt := &instrumentFactory{
+			constructor: ic,
 		}
 
-		ib.factories[name] = fkt
+		for _, name := range names {
+			if _, registered := ib.factories[name]; registered {
+				return errors.Join(ErrAlreadyRegisteredInstrument, fmt.Errorf("duplicate entry for: %s", name))
+			}
+
+			ib.factories[name] = fkt
+		}
 	}
+
+	return nil
 }
 
 func (ib *InstrumentBank) resolve(name string) Instrument {

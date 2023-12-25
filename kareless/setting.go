@@ -40,6 +40,10 @@ func (ss *Settings) GetString(key string) string {
 	return cast.ToString(ss.get(context.Background(), key))
 }
 
+func (ss *Settings) GetStringSlice(key string) []string {
+	return cast.ToStringSlice(ss.get(context.Background(), key))
+}
+
 func (ss *Settings) GetInt(key string) int {
 	return cast.ToInt(ss.get(context.Background(), key))
 }

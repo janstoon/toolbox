@@ -33,6 +33,10 @@ func Compile(oo ...Option) Kernel {
 
 // Run creates installed applications and connected drivers and waits until drivers and hooks are all finished running
 func (k Kernel) Run(ctx context.Context) error {
+	if err := k.ib.openCatalogues(k.ss); err != nil {
+		return err
+	}
+
 	apps := make([]Application, len(k.appsToInstall))
 	for i, constructor := range k.appsToInstall {
 		apps[i] = constructor(k.ss, k.ib)
@@ -86,9 +90,7 @@ func Equipment(cc ...InstrumentCatalogue) Option {
 
 // Equip plugs instruments which can get resolved by the instrument bank that is passed to unit constructors
 func (k Kernel) Equip(cc ...InstrumentCatalogue) Kernel {
-	for _, catalogue := range cc {
-		k.ib.register(catalogue)
-	}
+	k.ib.register(cc...)
 
 	return k
 }

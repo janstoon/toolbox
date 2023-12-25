@@ -7,6 +7,7 @@ These are the reasons why I need another _di_, while there are great solutions l
 In other words, the dependant tries to cast the available dependency, which is resolved by name, to the desirable type
 and can use it in case of success.
 * Multi-tier settings storage is a first-class citizen.
+* Put restriction on cross-layer dependency to prevent making a mesh.
 
 # Usage
 
