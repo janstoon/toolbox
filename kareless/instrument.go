@@ -15,7 +15,12 @@ var (
 type (
 	Instrument            interface{}
 	InstrumentConstructor func(ss *Settings, ib *InstrumentBank) Instrument
-	InstrumentCatalogue   func(ss *Settings, ib *InstrumentBank) ([]string, InstrumentConstructor)
+	InstrumentInjector    func(ss *Settings, ib *InstrumentBank) []InstrumentCatalogue
+
+	InstrumentCatalogue struct {
+		Names   []string
+		Builder InstrumentConstructor
+	}
 )
 
 type instrumentFactory struct {
@@ -35,9 +40,9 @@ func (fkt *instrumentFactory) create(ss *Settings, ib *InstrumentBank) Instrumen
 }
 
 type InstrumentBank struct {
-	lock       sync.RWMutex
-	catalogues []InstrumentCatalogue
-	factories  map[string]*instrumentFactory
+	lock      sync.RWMutex
+	injectors []InstrumentInjector
+	factories map[string]*instrumentFactory
 
 	settings *Settings
 }
@@ -49,29 +54,31 @@ func newInstrumentBank(ss *Settings) *InstrumentBank {
 	}
 }
 
-func (ib *InstrumentBank) register(cc ...InstrumentCatalogue) {
+func (ib *InstrumentBank) register(cc ...InstrumentInjector) {
 	ib.lock.Lock()
 	defer ib.lock.Unlock()
 
-	ib.catalogues = append(ib.catalogues, cc...)
+	ib.injectors = append(ib.injectors, cc...)
 }
 
 func (ib *InstrumentBank) openCatalogues(ss *Settings) error {
 	ib.lock.Lock()
 	defer ib.lock.Unlock()
 
-	for _, catalogue := range ib.catalogues {
-		names, ic := catalogue(ss, ib)
-		fkt := &instrumentFactory{
-			constructor: ic,
-		}
-
-		for _, name := range names {
-			if _, registered := ib.factories[name]; registered {
-				return errors.Join(ErrAlreadyRegisteredInstrument, fmt.Errorf("duplicate entry for: %s", name))
+	for _, injector := range ib.injectors {
+		catalogues := injector(ss, ib)
+		for _, catalogue := range catalogues {
+			fkt := &instrumentFactory{
+				constructor: catalogue.Builder,
 			}
 
-			ib.factories[name] = fkt
+			for _, name := range catalogue.Names {
+				if _, registered := ib.factories[name]; registered {
+					return errors.Join(ErrAlreadyRegisteredInstrument, fmt.Errorf("duplicate entry for: %s", name))
+				}
+
+				ib.factories[name] = fkt
+			}
 		}
 	}
 
