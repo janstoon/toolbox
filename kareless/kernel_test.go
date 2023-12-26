@@ -27,13 +27,17 @@ func TestLifeCycle(t *testing.T) {
 			"port":   "123",
 			"avstep": "5",
 		}).
-		Equip(func(_ *kareless.Settings, _ *kareless.InstrumentBank) ([]string, kareless.InstrumentConstructor) {
-			return strings.Split("encryptor|decrypter", "|"),
-				func(ss *kareless.Settings, ib *kareless.InstrumentBank) kareless.Instrument {
-					am = newAvModifier(ss, ib)
+		Equip(func(_ *kareless.Settings, _ *kareless.InstrumentBank) []kareless.InstrumentCatalogue {
+			return []kareless.InstrumentCatalogue{
+				{
+					Names: strings.Split("encryptor|decrypter", "|"),
+					Builder: func(ss *kareless.Settings, ib *kareless.InstrumentBank) kareless.Instrument {
+						am = newAvModifier(ss, ib)
 
-					return am
-				}
+						return am
+					},
+				},
+			}
 		}).
 		Install(
 			func(ss *kareless.Settings, ib *kareless.InstrumentBank) kareless.Application {

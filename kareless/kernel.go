@@ -82,14 +82,14 @@ func (k Kernel) Feed(ss ...SettingSource) Kernel {
 	return k
 }
 
-func Equipment(cc ...InstrumentCatalogue) Option {
+func Equipment(cc ...InstrumentInjector) Option {
 	return func(k Kernel) Kernel {
 		return k.Equip(cc...)
 	}
 }
 
 // Equip plugs instruments which can get resolved by the instrument bank that is passed to unit constructors
-func (k Kernel) Equip(cc ...InstrumentCatalogue) Kernel {
+func (k Kernel) Equip(cc ...InstrumentInjector) Kernel {
 	k.ib.register(cc...)
 
 	return k

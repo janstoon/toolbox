@@ -39,16 +39,20 @@ func main() {
 		}).
 		Feed( /* Default Settings Source as a Fallback */).
 		Equip( /* Instruments as dependencies resolvable by name */).
-		Equip(func(ss *kareless.Settings, ib *kareless.InstrumentBank) ([]string, kareless.InstrumentConstructor) {
-			return []string{"redis", "infra/redis"},
-				func(ss *kareless.Settings, ib *kareless.InstrumentBank) kareless.Instrument {
-					oo, err := redis.ParseURL(ss.GetString("redis.address"))
-					if err != nil {
-						panic(err)
-					}
+		Equip(func(ss *kareless.Settings, ib *kareless.InstrumentBank) []kareless.InstrumentCatalogue {
+			return []kareless.InstrumentCatalogue{
+				{
+					Names: []string{"redis", "infra/redis"},
+					Builder: func(ss *kareless.Settings, ib *kareless.InstrumentBank) kareless.Instrument {
+						oo, err := redis.ParseURL(ss.GetString("redis.address"))
+						if err != nil {
+							panic(err)
+						}
 
-					return redis.NewClient(oo)
-				}
+						return redis.NewClient(oo)
+					},
+				},
+			}
 		}).
 		Equip( /* Instruments as dependencies resolvable by name */).
 		Install( /* Applications as dependencies available in a slice */).
