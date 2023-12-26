@@ -8,6 +8,8 @@ In other words, the dependant tries to cast the available dependency, which is r
 and can use it in case of success.
 * Multi-tier settings storage is a first-class citizen.
 * Put restriction on cross-layer dependency to prevent making a mesh.
+* Reflection-free dependency resolution using string names and typecasts
+* Flexible dependency graph using settings to reduce code changes and re-deployments
 
 # Usage
 
