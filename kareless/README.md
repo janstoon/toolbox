@@ -9,7 +9,7 @@ and can use it in case of success.
 * Multi-tier settings storage is a first-class citizen.
 * Put restriction on cross-layer dependency to prevent making a mesh.
 * Reflection-free dependency resolution using string names and typecasts
-* Flexible dependency graph using settings to reduce code changes and re-deployments
+* Flexible dependency graph using settings to reduce unnecessary code changes and rebuilds
 
 # Usage
 

@@ -34,9 +34,11 @@ func TestLocalSettings_Get(t *testing.T) {
 	require.ErrorIs(t, err, bricks.ErrNotFound)
 
 	cfgOne := struct {
-		C1 string `json:"c1"`
+		C1 string `json:"C1"`
+		C2 string `json:"c2"`
 	}{
-		C1: "ValueFromFile",
+		C1: "Conf1ValueFromFile",
+		C2: "Conf2ValueFromFile",
 	}
 	err = enc.Encode(cfgOne)
 	require.NoError(t, err)
@@ -44,26 +46,53 @@ func TestLocalSettings_Get(t *testing.T) {
 	require.NoError(t, err)
 	ss = std.LocalEarlyLoadedSettingSource(fname, dir)
 	v, err = ss.Get(ctx, "c1")
-	assert.Equal(t, "ValueFromFile", v)
+	assert.Equal(t, "Conf1ValueFromFile", v)
+	require.NoError(t, err)
+	v, err = ss.Get(ctx, "C1")
+	assert.Equal(t, "Conf1ValueFromFile", v)
+	require.NoError(t, err)
+	v, err = ss.Get(ctx, "c2")
+	assert.Equal(t, "Conf2ValueFromFile", v)
+	require.NoError(t, err)
+	v, err = ss.Get(ctx, "C2")
+	assert.Equal(t, "Conf2ValueFromFile", v)
 	require.NoError(t, err)
 
-	t.Setenv("C1", "ValueFromEnv")
+	t.Setenv("C1", "Conf1ValueFromEnv")
 	ss = std.LocalEarlyLoadedSettingSource(fname, dir)
 	v, err = ss.Get(ctx, "c1")
-	assert.Equal(t, "ValueFromEnv", v)
+	assert.Equal(t, "Conf1ValueFromEnv", v)
+	require.NoError(t, err)
+	v, err = ss.Get(ctx, "C1")
+	assert.Equal(t, "Conf1ValueFromEnv", v)
+	require.NoError(t, err)
+	v, err = ss.Get(ctx, "c2")
+	assert.Equal(t, "Conf2ValueFromFile", v)
+	require.NoError(t, err)
+	v, err = ss.Get(ctx, "C2")
+	assert.Equal(t, "Conf2ValueFromFile", v)
 	require.NoError(t, err)
 
 	err = os.Unsetenv("C1")
 	require.NoError(t, err)
 	ss = std.LocalEarlyLoadedSettingSource(fname, dir)
 	v, err = ss.Get(ctx, "c1")
-	assert.Equal(t, "ValueFromFile", v)
+	assert.Equal(t, "Conf1ValueFromFile", v)
+	require.NoError(t, err)
+	v, err = ss.Get(ctx, "C1")
+	assert.Equal(t, "Conf1ValueFromFile", v)
+	require.NoError(t, err)
+	v, err = ss.Get(ctx, "c2")
+	assert.Equal(t, "Conf2ValueFromFile", v)
+	require.NoError(t, err)
+	v, err = ss.Get(ctx, "C2")
+	assert.Equal(t, "Conf2ValueFromFile", v)
 	require.NoError(t, err)
 
 	cfgTwo := struct {
-		C2 string `json:"c2"`
+		C3 string `json:"c3"`
 	}{
-		C2: "AnotheValueInFile",
+		C3: "Conf3ValueFromFile",
 	}
 	err = fh.Truncate(0)
 	require.NoError(t, err)
@@ -77,4 +106,19 @@ func TestLocalSettings_Get(t *testing.T) {
 	v, err = ss.Get(ctx, "c1")
 	assert.Empty(t, v)
 	require.ErrorIs(t, err, bricks.ErrNotFound)
+	v, err = ss.Get(ctx, "C1")
+	assert.Empty(t, v)
+	require.ErrorIs(t, err, bricks.ErrNotFound)
+	v, err = ss.Get(ctx, "c2")
+	assert.Empty(t, v)
+	require.ErrorIs(t, err, bricks.ErrNotFound)
+	v, err = ss.Get(ctx, "C2")
+	assert.Empty(t, v)
+	require.ErrorIs(t, err, bricks.ErrNotFound)
+	v, err = ss.Get(ctx, "c3")
+	assert.Equal(t, "Conf3ValueFromFile", v)
+	require.NoError(t, err)
+	v, err = ss.Get(ctx, "C3")
+	assert.Equal(t, "Conf3ValueFromFile", v)
+	require.NoError(t, err)
 }

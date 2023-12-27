@@ -25,6 +25,9 @@ type localEarlySettings struct {
 	v *viper.Viper
 }
 
+// LocalEarlyLoadedSettingSource provides a setting source fed from files. Keys are case-insensitive.
+// paths are directories and name is filename without extension. Files can be in any supported formats including
+// json, yaml and toml with appropriate extension (.json, .yml, .yaml, .toml).
 func LocalEarlyLoadedSettingSource(name string, paths ...string) kareless.SettingSource {
 	v := viper.New()
 	v.AutomaticEnv()
