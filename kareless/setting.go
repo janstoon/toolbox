@@ -16,9 +16,17 @@ type Settings struct {
 	rr   []SettingSource
 }
 
-func (ss *Settings) append(source SettingSource) {
+func (ss *Settings) Prepend(source SettingSource) {
 	ss.lock.Lock()
 	defer ss.lock.Unlock()
+
+	ss.rr = append([]SettingSource{source}, ss.rr...)
+}
+
+func (ss *Settings) Append(source SettingSource) {
+	ss.lock.Lock()
+	defer ss.lock.Unlock()
+
 	ss.rr = append(ss.rr, source)
 }
 

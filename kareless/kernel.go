@@ -76,7 +76,7 @@ func Feeder(ss ...SettingSource) Option {
 // Feed injects setting sources to be fed into configurable units like instruments, applications and drivers
 func (k Kernel) Feed(ss ...SettingSource) Kernel {
 	for _, source := range ss {
-		k.ss.append(source)
+		k.ss.Append(source)
 	}
 
 	return k
