@@ -13,14 +13,13 @@ var (
 )
 
 type (
-	Instrument            interface{}
-	InstrumentConstructor func(ss *Settings, ib *InstrumentBank) Instrument
-	InstrumentInjector    func(ss *Settings, ib *InstrumentBank) []InstrumentCatalogue
-
+	InstrumentInjector  func(ss *Settings) []InstrumentCatalogue
 	InstrumentCatalogue struct {
 		Names   []string
 		Builder InstrumentConstructor
 	}
+	InstrumentConstructor func(ss *Settings, ib *InstrumentBank) Instrument
+	Instrument            interface{}
 )
 
 type instrumentFactory struct {
@@ -66,7 +65,7 @@ func (ib *InstrumentBank) openCatalogues(ss *Settings) error {
 	defer ib.lock.Unlock()
 
 	for _, injector := range ib.injectors {
-		catalogues := injector(ss, ib)
+		catalogues := injector(ss)
 		for _, catalogue := range catalogues {
 			fkt := &instrumentFactory{
 				constructor: catalogue.Builder,

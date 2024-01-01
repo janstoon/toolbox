@@ -27,7 +27,7 @@ func TestLifeCycle(t *testing.T) {
 			"port":   "123",
 			"avstep": "5",
 		}).
-		Equip(func(_ *kareless.Settings, _ *kareless.InstrumentBank) []kareless.InstrumentCatalogue {
+		Equip(func(_ *kareless.Settings) []kareless.InstrumentCatalogue {
 			return []kareless.InstrumentCatalogue{
 				{
 					Names: strings.Split("encryptor|decrypter", "|"),
