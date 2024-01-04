@@ -3,6 +3,7 @@ package kareless
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/spf13/cast"
 )
@@ -66,6 +67,10 @@ func (ss *Settings) GetByte(key string) byte {
 
 func (ss *Settings) GetBool(key string) bool {
 	return cast.ToBool(ss.get(context.Background(), key))
+}
+
+func (ss *Settings) GetDuration(key string) time.Duration {
+	return cast.ToDuration(ss.get(context.Background(), key))
 }
 
 func (ss *Settings) Children(key string) []string {
