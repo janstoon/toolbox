@@ -26,3 +26,13 @@ func PtrPtr[S, D any](src *S, transformer Transformer[S, D]) *D {
 
 	return ValPtr(transformer(PtrVal(src)))
 }
+
+func ToAny[T any](src T) any {
+	return src
+}
+
+func FromAny[T any](src any) T {
+	dst, _ := src.(T)
+
+	return dst
+}
