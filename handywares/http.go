@@ -27,7 +27,7 @@ func (stk *HttpMiddlewareStack) PushPanicRecover(options ...PanicRecoverHttpMidd
 	})
 }
 
-type BlindLoggerHttpMiddlewareOpt = tricks.InPlaceOption[int]
+type BlindLoggerHttpMiddlewareOpt = tricks.InPlaceOption[any]
 
 func (stk *HttpMiddlewareStack) PushBlindLogger(options ...BlindLoggerHttpMiddlewareOpt) *HttpMiddlewareStack {
 	return stk.Push(func(next http.Handler) http.Handler {
@@ -44,7 +44,6 @@ type CorsHttpMiddlewareOpt = tricks.InPlaceOption[cors.Options]
 func (stk *HttpMiddlewareStack) PushCrossOriginResourceSharingPolicy(
 	options ...CorsHttpMiddlewareOpt,
 ) *HttpMiddlewareStack {
-	// todo: headers, methods, origins
 	cfg := cors.Options{}
 	cfg = tricks.PtrVal(tricks.ApplyOptions(&cfg,
 		tricks.Map(options, func(src CorsHttpMiddlewareOpt) tricks.Option[cors.Options] {
@@ -52,6 +51,30 @@ func (stk *HttpMiddlewareStack) PushCrossOriginResourceSharingPolicy(
 		})...))
 
 	return stk.Push(cors.New(cfg).Handler)
+}
+
+var CorsAllowOrigins = func(origins ...string) CorsHttpMiddlewareOpt {
+	return func(s *cors.Options) {
+		s.AllowedOrigins = origins
+	}
+}
+
+var CorsAllowMethods = func(methods ...string) CorsHttpMiddlewareOpt {
+	return func(s *cors.Options) {
+		s.AllowedMethods = methods
+	}
+}
+
+var CorsAllowHeaders = func(headers ...string) CorsHttpMiddlewareOpt {
+	return func(s *cors.Options) {
+		s.AllowedHeaders = headers
+	}
+}
+
+var CorsDebug = func(debug bool) CorsHttpMiddlewareOpt {
+	return func(s *cors.Options) {
+		s.Debug = debug
+	}
 }
 
 func (stk *HttpMiddlewareStack) Push(mw middleware.Builder) *HttpMiddlewareStack {
