@@ -64,6 +64,7 @@ func (ib *InstrumentBank) openCatalogues(ss *Settings) error {
 	ib.lock.Lock()
 	defer ib.lock.Unlock()
 
+	ib.factories = make(map[string]*instrumentFactory)
 	for _, injector := range ib.injectors {
 		catalogues := injector(ss)
 		for _, catalogue := range catalogues {
