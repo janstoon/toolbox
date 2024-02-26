@@ -1,12 +1,14 @@
 package handywares
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/janstoon/toolbox/tricks"
 	"github.com/rs/cors"
+	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -85,8 +87,12 @@ func (stk *HttpMiddlewareStack) PushOpenTelemetry(
 ) *HttpMiddlewareStack {
 	return stk.Push(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			ctx, span := tracer.Start(req.Context(), "http/middleware")
+			ctx, span := tracer.Start(req.Context(), fmt.Sprintf("[%s] %s", req.Method, req.URL.String()))
 			defer span.End()
+
+			span.SetAttributes(
+				semconv.HTTPRequestMethodKey.String(req.Method),
+			)
 
 			traceableReq := req.WithContext(ctx)
 			next.ServeHTTP(rw, traceableReq)
