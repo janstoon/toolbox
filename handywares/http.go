@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/janstoon/toolbox/tricks"
 	"github.com/rs/cors"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type HttpMiddlewareStack middleware.Builder
@@ -75,6 +76,22 @@ var CorsDebug = func(debug bool) CorsHttpMiddlewareOpt {
 	return func(s *cors.Options) {
 		s.Debug = debug
 	}
+}
+
+type OpenTelemetryHttpMiddlewareOpt = tricks.Option[any]
+
+func (stk *HttpMiddlewareStack) PushOpenTelemetry(
+	tracer trace.Tracer, options ...OpenTelemetryHttpMiddlewareOpt,
+) *HttpMiddlewareStack {
+	return stk.Push(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+			ctx, span := tracer.Start(req.Context(), "http/middleware")
+			defer span.End()
+
+			traceableReq := req.WithContext(ctx)
+			next.ServeHTTP(rw, traceableReq)
+		})
+	})
 }
 
 func (stk *HttpMiddlewareStack) Push(mw middleware.Builder) *HttpMiddlewareStack {

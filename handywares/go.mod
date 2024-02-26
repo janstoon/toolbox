@@ -7,6 +7,7 @@ require (
 	github.com/janstoon/toolbox/tricks v0.8.0
 	github.com/rs/cors v1.10.1
 	github.com/stretchr/testify v1.8.4
+	go.opentelemetry.io/otel/trace v1.14.0
 )
 
 require (
@@ -27,5 +28,6 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	go.mongodb.org/mongo-driver v1.11.3 // indirect
+	go.opentelemetry.io/otel v1.14.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
