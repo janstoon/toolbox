@@ -87,15 +87,14 @@ func (stk *HttpMiddlewareStack) PushOpenTelemetry(
 ) *HttpMiddlewareStack {
 	return stk.Push(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			ctx, span := tracer.Start(req.Context(), fmt.Sprintf("[%s] %s", req.Method, req.URL.String()))
+			ctx, span := tracer.Start(req.Context(), fmt.Sprintf("[%s] %s", req.Method, req.URL.Path))
 			defer span.End()
 
 			span.SetAttributes(
 				semconv.HTTPRequestMethodKey.String(req.Method),
 			)
 
-			traceableReq := req.WithContext(ctx)
-			next.ServeHTTP(rw, traceableReq)
+			next.ServeHTTP(rw, req.WithContext(ctx))
 		})
 	})
 }
