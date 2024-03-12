@@ -114,6 +114,8 @@ operators:
         mobile: true
         prepaid: true
       - prefixes: [ 941 ] # TD-LTE. Rechargeable
+        mobile: true
+        prepaid: true
   rightel:
     name: Rightel
     subscribers:
