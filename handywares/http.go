@@ -1,9 +1,9 @@
 package handywares
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/janstoon/toolbox/tricks"
@@ -32,7 +32,9 @@ func (stk *HttpMiddlewareStack) PushPanicRecover(options ...PanicRecoverHttpMidd
 
 type BlindLoggerHttpMiddlewareOpt = tricks.InPlaceOption[any]
 
-func (stk *HttpMiddlewareStack) PushBlindLogger(options ...BlindLoggerHttpMiddlewareOpt) *HttpMiddlewareStack {
+func (stk *HttpMiddlewareStack) PushBlindLogger(
+	mctx *middleware.Context, options ...BlindLoggerHttpMiddlewareOpt,
+) *HttpMiddlewareStack {
 	return stk.Push(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			log.Printf("requested %s", req.URL)
@@ -80,23 +82,107 @@ var CorsDebug = func(debug bool) CorsHttpMiddlewareOpt {
 	}
 }
 
-type OpenTelemetryHttpMiddlewareOpt = tricks.Option[any]
+type HttpRouteTester func(route *middleware.MatchedRoute) bool
+
+func PassthroughHttpRouteTester(success bool) HttpRouteTester {
+	return func(_ *middleware.MatchedRoute) bool {
+		return success
+	}
+}
+
+func CombineHttpRouteTesters(tt ...HttpRouteTester) HttpRouteTester {
+	switch len(tt) {
+	case 1:
+		return tt[0]
+
+	case 0:
+		return PassthroughHttpRouteTester(true)
+	}
+
+	return func(route *middleware.MatchedRoute) bool {
+		return tt[0](route) && CombineHttpRouteTesters(tt[1:]...)(route)
+	}
+}
+
+type OtelHmw struct {
+	tracer trace.Tracer
+	mctx   *middleware.Context
+
+	namePrefix  string
+	routeTester HttpRouteTester
+}
+
+type OpenTelemetryHttpMiddlewareOpt = tricks.Option[OtelHmw]
+
+func OtelHttpSpanNamePrefix(prefix string) OpenTelemetryHttpMiddlewareOpt {
+	return tricks.OutOfPlaceOption[OtelHmw](func(hmw OtelHmw) OtelHmw {
+		hmw.namePrefix = prefix
+
+		return hmw
+	})
+}
+
+func OtelHttpRouteTester(tester HttpRouteTester) OpenTelemetryHttpMiddlewareOpt {
+	return tricks.OutOfPlaceOption[OtelHmw](func(hmw OtelHmw) OtelHmw {
+		hmw.routeTester = tester
+
+		return hmw
+	})
+}
+
+func OtelHttpOperationIdException(oids ...string) OpenTelemetryHttpMiddlewareOpt {
+	return OtelHttpRouteTester(func(route *middleware.MatchedRoute) bool {
+		return tricks.IndexOf(route.Operation.ID, oids) < 0
+	})
+}
 
 func (stk *HttpMiddlewareStack) PushOpenTelemetry(
-	tracer trace.Tracer, options ...OpenTelemetryHttpMiddlewareOpt,
+	tracer trace.Tracer, mctx *middleware.Context, options ...OpenTelemetryHttpMiddlewareOpt,
 ) *HttpMiddlewareStack {
-	return stk.Push(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			ctx, span := tracer.Start(req.Context(), fmt.Sprintf("[%s] %s", req.Method, req.URL.Path))
+	hmw := &OtelHmw{
+		tracer: tracer,
+		mctx:   mctx,
+	}
+	hmw = tricks.ApplyOptions(hmw, options...)
+
+	return stk.Push(hmw.builder)
+}
+
+func (hmw OtelHmw) builder(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		ctx := req.Context()
+		if route, match := hmw.match(req); match {
+			var span trace.Span
+			ctx, span = hmw.tracer.Start(req.Context(), hmw.spanName(route.Operation.ID))
 			defer span.End()
 
 			span.SetAttributes(
 				semconv.HTTPRequestMethodKey.String(req.Method),
 			)
+		}
 
-			next.ServeHTTP(rw, req.WithContext(ctx))
-		})
+		next.ServeHTTP(rw, req.WithContext(ctx))
 	})
+}
+
+func (hmw OtelHmw) match(req *http.Request) (*middleware.MatchedRoute, bool) {
+	if route, matched := hmw.mctx.LookupRoute(req); matched && hmw.routeTester(route) {
+		return route, true
+	}
+
+	return nil, false
+}
+
+func (hmw OtelHmw) spanName(opId string) string {
+	sb := strings.Builder{}
+	if len(strings.TrimSpace(hmw.namePrefix)) > 0 {
+		sb.WriteString(hmw.namePrefix)
+		sb.WriteRune('/')
+	}
+
+	sb.WriteString(opId)
+
+	return sb.String()
 }
 
 func (stk *HttpMiddlewareStack) Push(mw middleware.Builder) *HttpMiddlewareStack {
