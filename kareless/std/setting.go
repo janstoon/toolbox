@@ -3,6 +3,7 @@ package std
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/janstoon/toolbox/bricks"
 	"github.com/spf13/viper"
@@ -29,7 +30,7 @@ type localEarlySettings struct {
 // paths are directories and name is filename without extension. Files can be in any supported formats including
 // json, yaml and toml with appropriate extension (.json, .yml, .yaml, .toml).
 func LocalEarlyLoadedSettingSource(name string, paths ...string) kareless.SettingSource {
-	v := viper.New()
+	v := viper.NewWithOptions(viper.EnvKeyReplacer(strings.NewReplacer(".", "_")))
 	v.AutomaticEnv()
 	v.SetConfigName(name)
 	for _, p := range paths {
