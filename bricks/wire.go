@@ -3,9 +3,13 @@ package bricks
 import "errors"
 
 var (
-	ErrNotImplemented = errors.New("not implemented")
-	ErrInvalidInput   = errors.New("invalid input")
-	ErrNotFound       = errors.New("not found")
+	ErrReachedEnd = errors.New("reached end")
+
+	ErrInvalidInput       = errors.New("invalid input")
+	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrPermissionDenied   = errors.New("permission denied")
+	ErrNotFound           = errors.New("not found")
+
 	ErrInfrastructure = errors.New("infrastructure error")
-	ErrReachedEnd     = errors.New("reached end")
+	ErrNotImplemented = errors.New("not implemented")
 )
