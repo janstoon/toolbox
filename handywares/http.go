@@ -3,6 +3,7 @@ package handywares
 import (
 	"log"
 	"net/http"
+	"runtime/debug"
 	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -21,6 +22,9 @@ func (stk *HttpMiddlewareStack) PushPanicRecover(options ...PanicRecoverHttpMidd
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			defer func() {
 				if r := recover(); r != nil {
+					log.Printf("paniced %+v\n", r)
+					debug.PrintStack()
+
 					rw.WriteHeader(http.StatusInternalServerError)
 				}
 			}()
@@ -37,7 +41,7 @@ func (stk *HttpMiddlewareStack) PushBlindLogger(
 ) *HttpMiddlewareStack {
 	return stk.Push(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			log.Printf("requested %s", req.URL)
+			log.Printf("requested %s\n", req.URL)
 
 			next.ServeHTTP(rw, req)
 		})
