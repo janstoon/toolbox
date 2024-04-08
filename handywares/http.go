@@ -41,7 +41,16 @@ func (stk *HttpMiddlewareStack) PushBlindLogger(
 ) *HttpMiddlewareStack {
 	return stk.Push(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			log.Printf("requested %s\n", req.URL)
+			log.Printf(
+				"HTTP|%s/%s %s [%s] %s %s %s\n",
+				req.RemoteAddr,
+				req.Referer(),
+				req.UserAgent(),
+				req.Method,
+				req.Host,
+				req.URL,
+				req.Proto,
+			)
 
 			next.ServeHTTP(rw, req)
 		})
