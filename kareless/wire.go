@@ -29,19 +29,19 @@ type Unmarshaler interface {
 	Unmarshal(data []byte) any
 }
 
-type UnmarshalerFunc func([]byte) any
+type UnmarshalerFunc func(data []byte) any
 
-func (f UnmarshalerFunc) Unmarshal(bb []byte) any {
-	return f(bb)
+func (f UnmarshalerFunc) Unmarshal(data []byte) any {
+	return f(data)
 }
 
 type Encapsulator[M any] interface {
 	Encapsulate(route Route, data []byte) M
 }
 
-type PackerFunc[M any] func(route Route, data []byte) M
+type EncapsulatorFunc[M any] func(route Route, data []byte) M
 
-func (f PackerFunc[M]) Encapsulate(route Route, data []byte) M {
+func (f EncapsulatorFunc[M]) Encapsulate(route Route, data []byte) M {
 	return f(route, data)
 }
 
