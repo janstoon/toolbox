@@ -2,7 +2,11 @@ package kareless
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -33,6 +37,11 @@ func Compile(oo ...Option) Kernel {
 
 // Run creates installed applications and connected drivers and waits until drivers and hooks are all finished running
 func (k Kernel) Run(ctx context.Context) error {
+	ctx, cancel := context.WithCancelCause(ctx)
+	bindSignals(func(sig os.Signal) {
+		cancel(fmt.Errorf("signal caught: %s. context canceled", sig))
+	}, syscall.SIGTERM, syscall.SIGINT) // todo: reload on interrupt
+
 	if err := k.ib.openCatalogues(k.ss); err != nil {
 		return err
 	}
@@ -65,6 +74,15 @@ func (k Kernel) Run(ctx context.Context) error {
 	}
 
 	return wgAll.Wait()
+}
+
+func bindSignals(fn func(sig os.Signal), ss ...os.Signal) {
+	ntfy := make(chan os.Signal, 1)
+	signal.Notify(ntfy, ss...)
+
+	go func() {
+		fn(<-ntfy)
+	}()
 }
 
 func Feeder(ss ...SettingSource) Option {
