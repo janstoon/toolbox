@@ -21,12 +21,7 @@ var JsonMarshaler = kareless.MarshalerFunc(func(payload any) []byte {
 	return bb
 })
 
-var JsonUnmarshaler = kareless.UnmarshalerFunc(func(data []byte) any {
-	dst := make(map[string]any)
-	_ = json.Unmarshal(data, &dst)
-
-	return dst
-})
+var JsonUnmarshaler = kareless.UnmarshalerFunc(json.Unmarshal)
 
 func NoopEncapsulator[M any]() kareless.Encapsulator[M] {
 	return kareless.EncapsulatorFunc[M](func(route kareless.Route, data []byte) (m M) {

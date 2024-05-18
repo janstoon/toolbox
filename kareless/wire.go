@@ -26,13 +26,13 @@ func (f MarshalerFunc) Marshal(payload any) []byte {
 }
 
 type Unmarshaler interface {
-	Unmarshal(data []byte) any
+	Unmarshal(data []byte, v any) error
 }
 
-type UnmarshalerFunc func(data []byte) any
+type UnmarshalerFunc func(data []byte, v any) error
 
-func (f UnmarshalerFunc) Unmarshal(data []byte) any {
-	return f(data)
+func (f UnmarshalerFunc) Unmarshal(data []byte, v any) error {
+	return f(data, v)
 }
 
 type Encapsulator[M any] interface {
