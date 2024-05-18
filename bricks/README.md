@@ -38,6 +38,7 @@ Resolvers, Parsers
 Includes Abstract Data Types
 ### Trie
 ### Bag
+### Filter
 
 ## Wire
 Portable data

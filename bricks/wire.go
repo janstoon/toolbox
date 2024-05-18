@@ -13,3 +13,9 @@ var (
 	ErrInfrastructure = errors.New("infrastructure error")
 	ErrNotImplemented = errors.New("not implemented")
 )
+
+type MessageEnvelope struct {
+	Id string
+
+	Retried int
+}
