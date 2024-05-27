@@ -32,6 +32,7 @@ Resolvers, Parsers
 ### Network Operator
 
 ## Time
+### Timespan
 ### Jalali
 
 ## Technical
@@ -39,6 +40,7 @@ Includes Abstract Data Types
 ### Trie
 ### Bag
 ### Filter
+### Compensator
 
 ## Wire
 Portable data

@@ -5,13 +5,13 @@ import (
 )
 
 type Compensator interface {
-	Compensate(ctx context.Context) error
+	Compensate(ctx context.Context, err error) error
 }
 
-type CompensatorFunc func(ctx context.Context) error
+type CompensatorFunc func(ctx context.Context, err error) error
 
-func (cf CompensatorFunc) Compensate(ctx context.Context) error {
-	return cf(ctx)
+func (cf CompensatorFunc) Compensate(ctx context.Context, err error) error {
+	return cf(ctx, err)
 }
 
 type errorAndCompensator struct {

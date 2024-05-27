@@ -13,25 +13,26 @@ import (
 
 func TestCompensatorError(t *testing.T) {
 	var (
-		err1 = errors.New("err one")
-		err2 = errors.New("err two")
-		err3 = errors.New("err three")
+		errOrg = errors.New("original error")
+		err1   = errors.New("err one")
+		err2   = errors.New("err two")
+		err3   = errors.New("err three")
 
 		c      bricks.Compensator
 		buffer string
 	)
 
-	err := bricks.CompensatorAsError(bricks.CompensatorFunc(func(ctx context.Context) error {
+	err := bricks.CompensatorAsError(bricks.CompensatorFunc(func(ctx context.Context, err error) error {
 		buffer = "compensated 1"
 
 		return nil
 	}), err1)
 	require.ErrorAs(t, err, &c)
 	require.ErrorIs(t, err, err1)
-	require.NoError(t, c.Compensate(context.Background()))
+	require.NoError(t, c.Compensate(context.Background(), errOrg))
 	assert.Equal(t, "compensated 1", buffer)
 
-	err = bricks.CompensatorAsError(bricks.CompensatorFunc(func(ctx context.Context) error {
+	err = bricks.CompensatorAsError(bricks.CompensatorFunc(func(ctx context.Context, err error) error {
 		buffer = "compensated 2"
 
 		return nil
@@ -39,10 +40,10 @@ func TestCompensatorError(t *testing.T) {
 	require.ErrorAs(t, err, &c)
 	require.ErrorIs(t, err, err1)
 	require.ErrorIs(t, err, err2)
-	require.NoError(t, c.Compensate(context.Background()))
+	require.NoError(t, c.Compensate(context.Background(), errOrg))
 	assert.Equal(t, "compensated 2", buffer)
 
-	ece := errors.Join(err1, bricks.CompensatorAsError(bricks.CompensatorFunc(func(ctx context.Context) error {
+	ece := errors.Join(err1, bricks.CompensatorAsError(bricks.CompensatorFunc(func(ctx context.Context, err error) error {
 		buffer = "compensated 3"
 
 		return nil
@@ -51,6 +52,6 @@ func TestCompensatorError(t *testing.T) {
 	require.ErrorIs(t, ece, err1)
 	require.ErrorIs(t, ece, err2)
 	require.ErrorIs(t, ece, err3)
-	require.NoError(t, c.Compensate(context.Background()))
+	require.NoError(t, c.Compensate(context.Background(), errOrg))
 	assert.Equal(t, "compensated 3", buffer)
 }
