@@ -27,8 +27,7 @@ var (
 )
 
 type MessageEnvelope struct {
-	Id string
-
-	Retried int
+	Id      string
+	Retried uint
 	Note    []byte
 }
