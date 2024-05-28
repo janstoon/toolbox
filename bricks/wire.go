@@ -30,4 +30,5 @@ type MessageEnvelope struct {
 	Id string
 
 	Retried int
+	Note    []byte
 }
