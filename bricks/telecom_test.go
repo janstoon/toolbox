@@ -66,7 +66,7 @@ func TestParsePhoneNumber(t *testing.T) {
 				}, nil
 			}
 
-			return nil, errors.Join(bricks.ErrInvalidInput, bricks.ErrUnknownNetworkOperator)
+			return nil, errors.Join(bricks.ErrInvalidArgument, bricks.ErrUnknownNetworkOperator)
 		},
 	)
 
@@ -126,7 +126,7 @@ func TestParsePhoneNumber(t *testing.T) {
 	}
 	for _, number := range invalidNumbers {
 		pn, err := bricks.ParsePhoneNumber(number)
-		require.ErrorIs(t, err, bricks.ErrInvalidInput)
+		require.ErrorIs(t, err, bricks.ErrInvalidArgument)
 		assert.Nil(t, pn)
 
 		require.Panics(t, func() {

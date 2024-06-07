@@ -78,7 +78,7 @@ func ParseInternationalBankAccountNumber(iban string) (*InternationalBankAccount
 	)
 
 	if l := len(iban); l < ibanMinLength || l > ibanMaxLength {
-		return nil, errors.Join(ErrInvalidInput, ErrIbanIncorrectLength)
+		return nil, errors.Join(ErrInvalidArgument, ErrIbanIncorrectLength)
 	}
 
 	iban = strings.ToUpper(iban)
@@ -87,16 +87,16 @@ func ParseInternationalBankAccountNumber(iban string) (*InternationalBankAccount
 	bban := iban[ibanBasicBankAccountNumberStart:]
 
 	if err := validateIban(cc, cd, bban); err != nil {
-		return nil, errors.Join(ErrInvalidInput, err)
+		return nil, errors.Join(ErrInvalidArgument, err)
 	}
 
 	validator := bbanValidators.lookupByCountryCode(cc)
 	if validator == nil {
-		return nil, errors.Join(ErrInvalidInput, ErrIbanUnknownCountry)
+		return nil, errors.Join(ErrInvalidArgument, ErrIbanUnknownCountry)
 	}
 
 	if err := validator(bban); err != nil {
-		return nil, errors.Join(ErrInvalidInput, err)
+		return nil, errors.Join(ErrInvalidArgument, err)
 	}
 
 	return &InternationalBankAccountNumber{
@@ -162,7 +162,7 @@ func ParsePrimaryAccountNumber(pan string) (*PrimaryAccountNumber, error) {
 	)
 
 	if l := len(pan); l < panMinLength || l > panMaxLength {
-		return nil, errors.Join(ErrInvalidInput, ErrPanIncorrectLength)
+		return nil, errors.Join(ErrInvalidArgument, ErrPanIncorrectLength)
 	}
 
 	// todo: validate pan

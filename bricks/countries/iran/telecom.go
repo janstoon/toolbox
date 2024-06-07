@@ -65,12 +65,12 @@ func registerTelecom(ymlPolicy []byte) {
 	bricks.RegisterPhoneNumberResolver(Iran.Codes.Telephone,
 		func(localNumber string) (*bricks.PhoneNumberMetadata, error) {
 			if len(localNumber) != localNumberLength {
-				return nil, errors.Join(bricks.ErrInvalidInput, errors.New("local number length incorrect"))
+				return nil, errors.Join(bricks.ErrInvalidArgument, errors.New("local number length incorrect"))
 			}
 
 			meta := p2m.BestMatch(localNumber)
 			if meta == nil {
-				return nil, errors.Join(bricks.ErrInvalidInput, bricks.ErrUnknownNetworkOperator)
+				return nil, errors.Join(bricks.ErrInvalidArgument, bricks.ErrUnknownNetworkOperator)
 			}
 
 			return meta, nil

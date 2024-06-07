@@ -122,7 +122,7 @@ func ParsePhoneNumber(number string) (*PhoneNumber, error) {
 
 	var catalogue phoneNumberResolverCatalogue
 	if c := phoneNumberResolvers.matchByCountryTelCode(number); c == nil {
-		return nil, errors.Join(ErrInvalidInput, ErrPhoneNumberUnknownCountry)
+		return nil, errors.Join(ErrInvalidArgument, ErrPhoneNumberUnknownCountry)
 	} else {
 		catalogue = tricks.PtrVal(c)
 	}
@@ -130,7 +130,7 @@ func ParsePhoneNumber(number string) (*PhoneNumber, error) {
 	localNumber := strings.TrimPrefix(strings.TrimPrefix(number, catalogue.countryTelCode), "0")
 	meta, err := catalogue.resolver(localNumber)
 	if err != nil {
-		return nil, errors.Join(ErrInvalidInput, err)
+		return nil, errors.Join(ErrInvalidArgument, err)
 	}
 
 	return &PhoneNumber{
