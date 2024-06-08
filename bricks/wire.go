@@ -1,6 +1,10 @@
 package bricks
 
-import "errors"
+import (
+	"context"
+	"errors"
+	"os"
+)
 
 var (
 	ErrRetryable = errors.New("temporary issue")
@@ -50,6 +54,33 @@ var (
 		errors.New("operation is not implemented or not supported/enabled in this service"))
 	ErrUnavailable = errors.Join(ErrRetryable, ErrSupplierSide, errors.New("service is currently unavailable"))
 )
+
+func ParseError(err, unknown error) error {
+	if err == nil {
+		return nil
+	}
+
+	errCat := unknown
+	if errIsCanceled(err) {
+		errCat = ErrCanceled
+	} else if errIsTimeout(err) {
+		errCat = ErrDeadlineExceeded
+	}
+
+	return errors.Join(errCat, err)
+}
+
+func errIsTimeout(err error) bool {
+	var terr interface{ Timeout() bool }
+
+	return (errors.As(err, &terr) && terr.Timeout()) ||
+		errors.Is(err, os.ErrDeadlineExceeded) ||
+		errors.Is(err, context.DeadlineExceeded)
+}
+
+func errIsCanceled(err error) bool {
+	return errors.Is(err, context.Canceled)
+}
 
 type MessageEnvelope struct {
 	Id      string
