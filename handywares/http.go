@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"runtime/debug"
 	"strings"
 
@@ -200,6 +201,28 @@ func (hmw OtelHmw) spanName(opId string) string {
 }
 
 type HttpTripperwareStack = tricks.MiddlewareStack[http.RoundTripper]
+
+type BlindLoggerHttpTripperwareOpt = tricks.InPlaceOption[any]
+
+func HttpBlindLoggerTripperware(options ...BlindLoggerHttpTripperwareOpt) tricks.Middleware[http.RoundTripper] {
+	return func(next http.RoundTripper) http.RoundTripper {
+		return HttpRoundTripperFunc(func(req *http.Request) (*http.Response, error) {
+			bb, _ := httputil.DumpRequestOut(req, true)
+
+			rsp, err := next.RoundTrip(req)
+			if err != nil {
+				log.Printf("error occurred: %s\n", err)
+			} else {
+				bbRsp, _ := httputil.DumpResponse(rsp, true)
+				bb = append(bb, bbRsp...)
+			}
+
+			log.Printf("%s\n", bb)
+
+			return rsp, err
+		})
+	}
+}
 
 func HttpErrorMapperTripperware(
 	mapper func(*http.Response, error) (*http.Response, error),
