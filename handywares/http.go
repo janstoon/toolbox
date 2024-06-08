@@ -1,12 +1,14 @@
 package handywares
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"runtime/debug"
 	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/janstoon/toolbox/bricks"
 	"github.com/janstoon/toolbox/tricks"
 	"github.com/rs/cors"
 	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
@@ -217,4 +219,26 @@ func (stk *HttpMiddlewareStack) NotNil() middleware.Builder {
 	}
 
 	return middleware.Builder(*stk)
+}
+
+type HttpTripperwareStack = tricks.MiddlewareStack[http.RoundTripper]
+
+func HttpErrorMapperTripperware(
+	mapper func(*http.Response, error) (*http.Response, error),
+) tricks.Middleware[http.RoundTripper] {
+	if mapper == nil {
+		panic(errors.Join(bricks.ErrInvalidArgument, errors.New("empty error mapper")))
+	}
+
+	return func(next http.RoundTripper) http.RoundTripper {
+		return HttpRoundTripperFunc(func(req *http.Request) (*http.Response, error) {
+			return mapper(next.RoundTrip(req))
+		})
+	}
+}
+
+type HttpRoundTripperFunc func(*http.Request) (*http.Response, error)
+
+func (fn HttpRoundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return fn(req)
 }
