@@ -11,12 +11,12 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-type AsynqMiddlewareStack asynq.MiddlewareFunc
+type AsynqMiddlewareStack = tricks.MiddlewareStack[asynq.Handler]
 
 type PanicRecoverAsynqMiddlewareOpt = tricks.InPlaceOption[any]
 
-func (stk *AsynqMiddlewareStack) PushPanicRecover(options ...PanicRecoverAsynqMiddlewareOpt) *AsynqMiddlewareStack {
-	return stk.Push(func(next asynq.Handler) asynq.Handler {
+func AsynqPanicRecoverMiddleware(options ...PanicRecoverAsynqMiddlewareOpt) tricks.Middleware[asynq.Handler] {
+	return func(next asynq.Handler) asynq.Handler {
 		return asynq.HandlerFunc(func(ctx context.Context, task *asynq.Task) error {
 			defer func() {
 				if r := recover(); r != nil {
@@ -27,7 +27,7 @@ func (stk *AsynqMiddlewareStack) PushPanicRecover(options ...PanicRecoverAsynqMi
 
 			return next.ProcessTask(ctx, task)
 		})
-	})
+	}
 }
 
 type OtelAmw struct {
@@ -46,15 +46,15 @@ func OtelAsynqSpanNamePrefix(prefix string) OpenTelemetryAsynqMiddlewareOpt {
 	})
 }
 
-func (stk *AsynqMiddlewareStack) PushOpenTelemetry(
+func AsynqOpenTelemetryMiddleware(
 	tracer trace.Tracer, options ...OpenTelemetryAsynqMiddlewareOpt,
-) *AsynqMiddlewareStack {
+) tricks.Middleware[asynq.Handler] {
 	amw := &OtelAmw{
 		tracer: tracer,
 	}
 	amw = tricks.ApplyOptions(amw, options...)
 
-	return stk.Push(amw.builder)
+	return amw.builder
 }
 
 func (amw OtelAmw) builder(next asynq.Handler) asynq.Handler {
@@ -77,23 +77,4 @@ func (amw OtelAmw) spanName(opId string) string {
 	sb.WriteString(opId)
 
 	return sb.String()
-}
-
-func asynqPassthroughBuilder(handler asynq.Handler) asynq.Handler { return handler }
-
-func (stk *AsynqMiddlewareStack) Push(mw asynq.MiddlewareFunc) *AsynqMiddlewareStack {
-	current := *stk
-	if current == nil {
-		current = asynqPassthroughBuilder
-	}
-
-	*stk = func(next asynq.Handler) asynq.Handler {
-		return current(mw(next))
-	}
-
-	return stk
-}
-
-func (stk *AsynqMiddlewareStack) Cast() asynq.MiddlewareFunc {
-	return asynq.MiddlewareFunc(*stk)
 }

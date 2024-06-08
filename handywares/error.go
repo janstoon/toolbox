@@ -1,11 +1,9 @@
 package handywares
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/janstoon/toolbox/bricks"
 	"github.com/janstoon/toolbox/tricks"
@@ -35,28 +33,10 @@ func HttpToBricksErrorMapper(rsp *http.Response, err error) (*http.Response, err
 		return rsp, nil
 	}
 
-	errCat := bricks.ErrUnknown
-	if errIsCanceled(err) {
-		errCat = bricks.ErrCanceled
-	} else if errIsTimeout(err) {
-		errCat = bricks.ErrDeadlineExceeded
-	}
-
+	errCat := bricks.ParseError(err, bricks.ErrUnknown)
 	if berr, ok := httpStatusToBricksErr[code]; ok {
-		errCat = berr
+		errCat = errors.Join(berr, err)
 	}
 
-	return rsp, errors.Join(errCat, err, fmt.Errorf("http status (%d): %s", code, http.StatusText(code)))
-}
-
-func errIsTimeout(err error) bool {
-	var terr interface{ Timeout() bool }
-
-	return (errors.As(err, &terr) && terr.Timeout()) ||
-		errors.Is(err, os.ErrDeadlineExceeded) ||
-		errors.Is(err, context.DeadlineExceeded)
-}
-
-func errIsCanceled(err error) bool {
-	return errors.Is(err, context.Canceled)
+	return rsp, errors.Join(errCat, fmt.Errorf("http status (%d): %s", code, http.StatusText(code)))
 }

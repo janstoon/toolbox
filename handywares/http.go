@@ -15,33 +15,34 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-type HttpMiddlewareStack middleware.Builder
+type HttpMiddlewareStack = tricks.MiddlewareStack[http.Handler]
 
 type PanicRecoverHttpMiddlewareOpt = tricks.InPlaceOption[any]
 
-func (stk *HttpMiddlewareStack) PushPanicRecover(options ...PanicRecoverHttpMiddlewareOpt) *HttpMiddlewareStack {
-	return stk.Push(func(next http.Handler) http.Handler {
+func HttpPanicRecoverMiddleware(options ...PanicRecoverHttpMiddlewareOpt) tricks.Middleware[http.Handler] {
+	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			defer func() {
 				if r := recover(); r != nil {
 					log.Printf("paniced %+v\n", r)
 					debug.PrintStack()
 
+					// todo: translate to proper http status
 					rw.WriteHeader(http.StatusInternalServerError)
 				}
 			}()
 
 			next.ServeHTTP(rw, req)
 		})
-	})
+	}
 }
 
 type BlindLoggerHttpMiddlewareOpt = tricks.InPlaceOption[any]
 
-func (stk *HttpMiddlewareStack) PushBlindLogger(
+func HttpBlindLoggerMiddleware(
 	mctx *middleware.Context, options ...BlindLoggerHttpMiddlewareOpt,
-) *HttpMiddlewareStack {
-	return stk.Push(func(next http.Handler) http.Handler {
+) tricks.Middleware[http.Handler] {
+	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			log.Printf(
 				"HTTP|%s/%s %s [%s] %s %s %s\n",
@@ -56,21 +57,19 @@ func (stk *HttpMiddlewareStack) PushBlindLogger(
 
 			next.ServeHTTP(rw, req)
 		})
-	})
+	}
 }
 
 type CorsHttpMiddlewareOpt = tricks.InPlaceOption[cors.Options]
 
-func (stk *HttpMiddlewareStack) PushCrossOriginResourceSharingPolicy(
-	options ...CorsHttpMiddlewareOpt,
-) *HttpMiddlewareStack {
+func HttpCrossOriginResourceSharingPolicyMiddleware(options ...CorsHttpMiddlewareOpt) tricks.Middleware[http.Handler] {
 	cfg := cors.Options{}
 	cfg = tricks.PtrVal(tricks.ApplyOptions(&cfg,
 		tricks.Map(options, func(src CorsHttpMiddlewareOpt) tricks.Option[cors.Options] {
 			return src
 		})...))
 
-	return stk.Push(cors.New(cfg).Handler)
+	return cors.New(cfg).Handler
 }
 
 var CorsAllowOrigins = func(origins ...string) CorsHttpMiddlewareOpt {
@@ -151,16 +150,16 @@ func OtelHttpOperationIdException(oids ...string) OpenTelemetryHttpMiddlewareOpt
 	})
 }
 
-func (stk *HttpMiddlewareStack) PushOpenTelemetry(
+func HttpOpenTelemetryMiddleware(
 	tracer trace.Tracer, mctx *middleware.Context, options ...OpenTelemetryHttpMiddlewareOpt,
-) *HttpMiddlewareStack {
+) tricks.Middleware[http.Handler] {
 	hmw := &OtelHmw{
 		tracer: tracer,
 		mctx:   mctx,
 	}
 	hmw = tricks.ApplyOptions(hmw, options...)
 
-	return stk.Push(hmw.builder)
+	return hmw.builder
 }
 
 func (hmw OtelHmw) builder(next http.Handler) http.Handler {
@@ -198,27 +197,6 @@ func (hmw OtelHmw) spanName(opId string) string {
 	sb.WriteString(opId)
 
 	return sb.String()
-}
-
-func (stk *HttpMiddlewareStack) Push(mw middleware.Builder) *HttpMiddlewareStack {
-	current := *stk
-	if current == nil {
-		current = middleware.PassthroughBuilder
-	}
-
-	*stk = func(next http.Handler) http.Handler {
-		return current(mw(next))
-	}
-
-	return stk
-}
-
-func (stk *HttpMiddlewareStack) NotNil() middleware.Builder {
-	if *stk == nil {
-		return middleware.PassthroughBuilder
-	}
-
-	return middleware.Builder(*stk)
 }
 
 type HttpTripperwareStack = tricks.MiddlewareStack[http.RoundTripper]

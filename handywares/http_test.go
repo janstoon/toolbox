@@ -16,7 +16,7 @@ import (
 
 func TestHttpMiddlewareStackFunctionality(t *testing.T) {
 	var mws handywares.HttpMiddlewareStack
-	mws.
+	mws = mws.
 		Push(func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 				_, _ = rw.Write([]byte("top middleware."))
@@ -62,7 +62,7 @@ func TestHttpMiddlewareStackFunctionality(t *testing.T) {
 
 func TestHttpMiddlewarePanicRecover(t *testing.T) {
 	var mws handywares.HttpMiddlewareStack
-	mws.PushPanicRecover()
+	mws = mws.Push(handywares.HttpPanicRecoverMiddleware())
 
 	srv := httptest.NewServer(mws(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		panic("server panic")
