@@ -43,6 +43,31 @@ func HttpToBricksErrorMapper(rsp *http.Response, err error) (*http.Response, err
 	return rsp, errors.Join(errCat, fmt.Errorf("http status (%d): %s", code, http.StatusText(code)))
 }
 
+var bricksErrCodeToHttpStatus = map[int]int{
+	bricks.ErrCodeInvalidArgument:    http.StatusBadRequest,
+	bricks.ErrCodeUnauthenticated:    http.StatusUnauthorized,
+	bricks.ErrCodePermissionDenied:   http.StatusForbidden,
+	bricks.ErrCodeNotFound:           http.StatusNotFound,
+	bricks.ErrCodeAlreadyExists:      http.StatusConflict,
+	bricks.ErrCodeFailedPrecondition: http.StatusPreconditionFailed,
+	bricks.ErrCodeOutOfRange:         http.StatusRequestedRangeNotSatisfiable,
+
+	bricks.ErrCodeUnimplemented: http.StatusNotImplemented,
+	bricks.ErrCodeUnavailable:   http.StatusServiceUnavailable,
+}
+
+func BricksErrorToHttpStatusMapper(err error) int {
+	code := http.StatusInternalServerError
+	var coded bricks.Coded
+	if errors.As(err, &coded) {
+		if v, ok := bricksErrCodeToHttpStatus[coded.Code()]; ok {
+			code = v
+		}
+	}
+
+	return code
+}
+
 func BricksToGrpcErrorMapper(err error) error {
 	if err == nil {
 		return nil
