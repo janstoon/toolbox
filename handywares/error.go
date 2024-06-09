@@ -7,6 +7,8 @@ import (
 
 	"github.com/janstoon/toolbox/bricks"
 	"github.com/janstoon/toolbox/tricks"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var httpStatusToBricksErr = map[int]error{
@@ -39,4 +41,18 @@ func HttpToBricksErrorMapper(rsp *http.Response, err error) (*http.Response, err
 	}
 
 	return rsp, errors.Join(errCat, fmt.Errorf("http status (%d): %s", code, http.StatusText(code)))
+}
+
+func BricksToGrpcErrorMapper(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	code := codes.Unknown
+	var coded bricks.Coded
+	if errors.As(err, &coded) {
+		code = codes.Code(coded.Code())
+	}
+
+	return status.Error(code, err.Error())
 }
