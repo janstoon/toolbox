@@ -30,3 +30,29 @@ func GrpcUnaryServerErrorMapperMiddleware(mapper func(error) error) tricks.Middl
 		}
 	}
 }
+
+type GrpcUnaryClientMiddlewareStack = tricks.MiddlewareStack[grpc.UnaryClientInterceptor]
+
+func GrpcUnaryClientInvokerInterceptor(
+	ctx context.Context, method string, req, reply any,
+	cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption,
+) error {
+	return invoker(ctx, method, req, reply, cc, opts...)
+}
+
+func GrpcUnaryClientErrorMapperMiddleware(mapper func(error) error) tricks.Middleware[grpc.UnaryClientInterceptor] {
+	if mapper == nil {
+		panic(errors.Join(bricks.ErrInvalidArgument, errors.New("empty error mapper")))
+	}
+
+	return func(next grpc.UnaryClientInterceptor) grpc.UnaryClientInterceptor {
+		return func(
+			ctx context.Context, method string, req, reply any,
+			cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption,
+		) error {
+			err := next(ctx, method, req, reply, cc, invoker, opts...)
+
+			return mapper(err)
+		}
+	}
+}

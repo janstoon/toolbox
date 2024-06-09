@@ -81,3 +81,36 @@ func BricksToGrpcErrorMapper(err error) error {
 
 	return status.Error(code, err.Error())
 }
+
+var grpcCodeToBricksErr = map[codes.Code]error{
+	codes.Canceled:           bricks.ErrCanceled,
+	codes.Unknown:            bricks.ErrUnknown,
+	codes.InvalidArgument:    bricks.ErrInvalidArgument,
+	codes.DeadlineExceeded:   bricks.ErrDeadlineExceeded,
+	codes.NotFound:           bricks.ErrNotFound,
+	codes.AlreadyExists:      bricks.ErrAlreadyExists,
+	codes.PermissionDenied:   bricks.ErrPermissionDenied,
+	codes.ResourceExhausted:  bricks.ErrResourceExhausted,
+	codes.FailedPrecondition: bricks.ErrFailedPrecondition,
+	codes.Aborted:            bricks.ErrAborted,
+	codes.OutOfRange:         bricks.ErrOutOfRange,
+	codes.Unimplemented:      bricks.ErrUnimplemented,
+	codes.Internal:           bricks.ErrInternal,
+	codes.Unavailable:        bricks.ErrUnavailable,
+	codes.DataLoss:           bricks.ErrDataLoss,
+	codes.Unauthenticated:    bricks.ErrUnauthenticated,
+}
+
+func GrpcToBricksErrorMapper(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	berr := bricks.ErrUnknown
+	code := status.Code(err)
+	if v, ok := grpcCodeToBricksErr[code]; ok {
+		berr = v
+	}
+
+	return errors.Join(berr, err)
+}
