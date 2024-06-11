@@ -12,6 +12,7 @@ import (
 	"github.com/janstoon/toolbox/bricks"
 	"github.com/janstoon/toolbox/tricks"
 	"github.com/rs/cors"
+	"go.opentelemetry.io/otel/attribute"
 	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -207,17 +208,21 @@ type BlindLoggerHttpTripperwareOpt = tricks.InPlaceOption[any]
 func HttpBlindLoggerTripperware(options ...BlindLoggerHttpTripperwareOpt) tricks.Middleware[http.RoundTripper] {
 	return func(next http.RoundTripper) http.RoundTripper {
 		return HttpRoundTripperFunc(func(req *http.Request) (*http.Response, error) {
+			span := trace.SpanFromContext(req.Context())
+			attrs := make([]attribute.KeyValue, 0)
+			defer func() {
+				span.AddEvent("http request", trace.WithAttributes(attrs...))
+			}()
+
 			bb, _ := httputil.DumpRequestOut(req, true)
+			attrs = append(attrs, attribute.String("req", string(bb)))
 
 			rsp, err := next.RoundTrip(req)
-			if err != nil {
-				log.Printf("error occurred: %s\n", err)
-			} else {
-				bbRsp, _ := httputil.DumpResponse(rsp, true)
-				bb = append(bb, bbRsp...)
+			span.RecordError(err)
+			if err == nil {
+				bb, _ = httputil.DumpResponse(rsp, true)
+				attrs = append(attrs, attribute.String("rsp", string(bb)))
 			}
-
-			log.Printf("%s\n", bb)
 
 			return rsp, err
 		})
