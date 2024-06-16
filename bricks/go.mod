@@ -3,8 +3,8 @@ module github.com/janstoon/toolbox/bricks
 go 1.21.0
 
 require (
-	github.com/janstoon/toolbox/tricks v0.4.0
-	github.com/stretchr/testify v1.8.4
+	github.com/janstoon/toolbox/tricks v0.10.0
+	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
