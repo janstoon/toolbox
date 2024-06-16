@@ -93,10 +93,10 @@ github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+
 github.com/hibiken/asynq v0.24.1 h1:+5iIEAyA9K/lcSPvx3qoPtsKJeKI5u9aOIvUmSsazEw=
 github.com/hibiken/asynq v0.24.1/go.mod h1:u5qVeSbrnfT+vtG5Mq8ZPzQu/BmCKMHvTGb91uy9Tts=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
-github.com/janstoon/toolbox/bricks v0.7.1 h1:vuNNJcmfX480YM0p5EN+0uODDuLb3nS9WNelPr1n2FA=
-github.com/janstoon/toolbox/bricks v0.7.1/go.mod h1:wpAul9fxT0tGmoOGfTU4ub6RnbVIFQFC+1xNmZqXRKQ=
-github.com/janstoon/toolbox/tricks v0.9.0 h1:p7FzjZuzJhPdnwRwJ6ajJgcr/gIdCAm66uyAyxQTAio=
-github.com/janstoon/toolbox/tricks v0.9.0/go.mod h1:TB7Cn727lv+QerRLMzwl4Exz8ijPicFb9Uwmdh0dwWo=
+github.com/janstoon/toolbox/bricks v0.7.2 h1:5drp6r/r4zsxgnXpelDEGQ5rvAmOb0R+WGzY5FIrBvw=
+github.com/janstoon/toolbox/bricks v0.7.2/go.mod h1:02uthpHhEhIB9ThZTaKDesKRG4/O4TNr2r6Pd+XVD10=
+github.com/janstoon/toolbox/tricks v0.10.0 h1:cz+y7f6OWm7MU5alsd2s+jEtReDSPNbBG2o9cXaMUV4=
+github.com/janstoon/toolbox/tricks v0.10.0/go.mod h1:G5vKiYk5opiGDy9aYLmIVZ5pZYNwI5UGrw9gCtI7WlU=
 github.com/joho/godotenv v1.3.0/go.mod h1:7hK45KPybAkOC6peb+G5yklZfMxEjkZhHbwpqxOKXbg=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=
