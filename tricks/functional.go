@@ -47,6 +47,8 @@ func Find[T any](tt []T, match func(src T) bool) *T {
 	return nil
 }
 
+const IndexUnavailable = -1
+
 func FindIndex[T any](tt []T, match func(src T) bool) int {
 	for i, t := range tt {
 		if match(t) {
@@ -54,7 +56,7 @@ func FindIndex[T any](tt []T, match func(src T) bool) int {
 		}
 	}
 
-	return -1
+	return IndexUnavailable
 }
 
 func IndexOf[T comparable](expected T, tt []T) int {
