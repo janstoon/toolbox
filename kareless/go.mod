@@ -3,7 +3,7 @@ module github.com/janstoon/toolbox/kareless
 go 1.21.0
 
 require (
-	github.com/janstoon/toolbox/bricks v0.2.2
+	github.com/janstoon/toolbox/bricks v0.7.2
 	github.com/prometheus/client_golang v1.19.1
 	github.com/spf13/cast v1.5.1
 	github.com/spf13/viper v1.17.0
@@ -27,7 +27,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/janstoon/toolbox/tricks v0.4.0 // indirect
+	github.com/janstoon/toolbox/tricks v0.10.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
