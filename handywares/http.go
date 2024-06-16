@@ -2,6 +2,7 @@ package handywares
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -26,8 +27,11 @@ func HttpPanicRecoverMiddleware(options ...PanicRecoverHttpMiddlewareOpt) tricks
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			defer func() {
 				if r := recover(); r != nil {
-					log.Printf("paniced %+v\n", r)
-					debug.PrintStack()
+					span := trace.SpanFromContext(req.Context())
+					span.AddEvent("panic recovered", trace.WithAttributes(
+						oaPanicValue.String(fmt.Sprintf("%+v", r)),
+						oaDebugStack.String(string(debug.Stack())),
+					))
 
 					// todo: translate to proper http status
 					rw.WriteHeader(http.StatusInternalServerError)
@@ -215,13 +219,13 @@ func HttpBlindLoggerTripperware(options ...BlindLoggerHttpTripperwareOpt) tricks
 			}()
 
 			bb, _ := httputil.DumpRequestOut(req, true)
-			attrs = append(attrs, attribute.String("req", string(bb)))
+			attrs = append(attrs, oaHttpRequest.String(string(bb)))
 
 			rsp, err := next.RoundTrip(req)
 			span.RecordError(err)
 			if err == nil {
 				bb, _ = httputil.DumpResponse(rsp, true)
-				attrs = append(attrs, attribute.String("rsp", string(bb)))
+				attrs = append(attrs, oaHttpResponse.String(string(bb)))
 			}
 
 			return rsp, err
