@@ -223,7 +223,7 @@ func HttpBlindLoggerTripperware(options ...BlindLoggerHttpTripperwareOpt) tricks
 
 			rsp, err := next.RoundTrip(req)
 			span.RecordError(err)
-			if err == nil {
+			if rsp != nil {
 				bb, _ = httputil.DumpResponse(rsp, true)
 				attrs = append(attrs, oaHttpResponse.String(string(bb)))
 			}
