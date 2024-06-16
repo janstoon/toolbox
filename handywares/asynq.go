@@ -3,7 +3,7 @@ package handywares
 import (
 	"context"
 	"errors"
-	"log"
+	"fmt"
 	"runtime/debug"
 	"strings"
 
@@ -42,8 +42,11 @@ func AsynqPanicRecoverMiddleware(options ...PanicRecoverAsynqMiddlewareOpt) tric
 		return asynq.HandlerFunc(func(ctx context.Context, task *asynq.Task) error {
 			defer func() {
 				if r := recover(); r != nil {
-					log.Printf("paniced %+v\n", r)
-					debug.PrintStack()
+					span := trace.SpanFromContext(ctx)
+					span.AddEvent("panic recovered", trace.WithAttributes(
+						oaPanicValue.String(fmt.Sprintf("%+v", r)),
+						oaDebugStack.String(string(debug.Stack())),
+					))
 				}
 			}()
 

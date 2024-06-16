@@ -8,9 +8,9 @@ require (
 	github.com/janstoon/toolbox/bricks v0.7.1
 	github.com/janstoon/toolbox/tricks v0.9.0
 	github.com/rs/cors v1.10.1
-	github.com/stretchr/testify v1.8.4
-	go.opentelemetry.io/otel v1.24.0
-	go.opentelemetry.io/otel/trace v1.24.0
+	github.com/stretchr/testify v1.9.0
+	go.opentelemetry.io/otel v1.27.0
+	go.opentelemetry.io/otel/trace v1.27.0
 	google.golang.org/grpc v1.64.0
 )
 
