@@ -184,7 +184,7 @@ func (hmw OtelHmw) builder(next http.Handler) http.Handler {
 				semconv.ServerAddress(req.Host),
 				semconv.HTTPRoute(route.PathPattern),
 				semconv.ClientAddress(req.RemoteAddr),
-				attribute.Key("http.response.header.referer").String(req.Referer()),
+				attribute.Key("http.request.header.referer").String(req.Referer()),
 			)
 		}
 
