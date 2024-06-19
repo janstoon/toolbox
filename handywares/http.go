@@ -16,6 +16,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	semconv "go.opentelemetry.io/otel/semconv/v1.25.0"
 	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/trace/noop"
 )
 
 type HttpMiddlewareStack = tricks.MiddlewareStack[http.Handler]
@@ -170,34 +171,43 @@ func HttpOpenTelemetryMiddleware(
 
 func (hmw OtelHmw) builder(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		ctx := req.Context()
-		if route, match := hmw.match(req); match {
-			var span trace.Span
-			ctx, span = hmw.tracer.Start(req.Context(), hmw.spanName(route.Operation.ID))
-			defer span.End()
+		tracer := noop.NewTracerProvider().Tracer("")
 
-			span.SetAttributes(
-				semconv.HTTPRequestMethodKey.String(req.Method),
-				semconv.URLFull(req.URL.String()),
-				semconv.NetworkProtocolVersion(req.Proto),
-				semconv.UserAgentOriginal(req.UserAgent()),
-				semconv.ServerAddress(req.Host),
-				semconv.HTTPRoute(route.PathPattern),
-				semconv.ClientAddress(req.RemoteAddr),
-				attribute.Key("http.request.header.referer").String(req.Referer()),
-			)
+		route, matched := hmw.match(req)
+		if matched {
+			tracer = hmw.tracer
 		}
+
+		oid := "?"
+		attrs := []attribute.KeyValue{
+			semconv.HTTPRequestMethodKey.String(req.Method),
+			semconv.HTTPScheme(req.URL.Scheme),
+			semconv.URLFull(req.URL.String()),
+			semconv.NetworkProtocolVersion(req.Proto),
+			semconv.UserAgentOriginal(req.UserAgent()),
+			semconv.ServerAddress(req.Host),
+			semconv.ClientAddress(req.RemoteAddr),
+			attribute.Key("http.request.header.referer").String(req.Referer()),
+		}
+
+		if route != nil {
+			oid = route.Operation.ID
+			attrs = append(attrs, semconv.HTTPRoute(route.PathPattern))
+		}
+
+		ctx, span := tracer.Start(req.Context(), hmw.spanName(oid), trace.WithSpanKind(trace.SpanKindServer))
+		defer span.End()
+
+		span.SetAttributes(attrs...)
 
 		next.ServeHTTP(rw, req.WithContext(ctx))
 	})
 }
 
 func (hmw OtelHmw) match(req *http.Request) (*middleware.MatchedRoute, bool) {
-	if route, matched := hmw.mctx.LookupRoute(req); matched && hmw.routeTester(route) {
-		return route, true
-	}
+	route, matched := hmw.mctx.LookupRoute(req)
 
-	return nil, false
+	return route, matched && hmw.routeTester(route)
 }
 
 func (hmw OtelHmw) spanName(opId string) string {

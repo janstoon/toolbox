@@ -111,7 +111,7 @@ func AsynqOpenTelemetryMiddleware(
 func (amw OtelAmw) builder(next asynq.Handler) asynq.Handler {
 	return asynq.HandlerFunc(func(ctx context.Context, task *asynq.Task) error {
 		var span trace.Span
-		ctx, span = amw.tracer.Start(ctx, amw.spanName(task.Type()))
+		ctx, span = amw.tracer.Start(ctx, amw.spanName(task.Type()), trace.WithSpanKind(trace.SpanKindConsumer))
 		defer span.End()
 
 		return next.ProcessTask(ctx, task)
