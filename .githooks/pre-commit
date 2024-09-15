@@ -1,35 +1,53 @@
 #!/bin/bash
 
-check () {
-	root="${1}"
-
+jScan() {
 	# Check dependencies
-  go mod tidy -v || exit
-  go mod verify || exit
+	go mod tidy -v || exit
+	go mod verify || exit
 
-  # Check for errors and warnings
-  go vet ./... || exit
+	# Check for errors and warnings
+	go vet ./... || exit
+}
 
-  # Format your code
-  go fmt ./... || exit
+jFormat() {
+	# Format the code
+	go fmt ./... || exit
 
-  # Format the code
-  dirs=$(go list -f {{.Dir}} ./...)
-  for d in ${dirs}; do
-  	goimports -w "${d}"/*.go || exit
-  done
+	# Add missing imports
+	dirs=$(go list -f {{.Dir}} ./...)
+	for d in ${dirs}; do
+		goimports -w "${d}"/*.go || exit
+	done
+}
 
-  golangci-lint run -c "${root}"/.golangci.yml || exit
+jLint() {
+	local root="${1:-..}"
 
-  go test -v -cover -test.short -count=1 -race ./... || exit
+	golangci-lint run -c "${root}"/.golangci.yml || exit
+}
+
+jTest() {
+	local mode="${1:-short}"
+
+  local args="-count=1 -cover -covermode=atomic -race"
+  case ${mode} in
+  short)
+  	args="${args} -test.short"
+  	echo "short"
+    ;;
+  esac
+
+	go test ${args} ./... || exit
 }
 
 modules=$(find . -name "go.mod" -exec dirname {} \;)
-for module in ${modules}
-do
+for module in ${modules}; do
 	echo "${module}"
 	pwd=$(pwd)
 	cd "${module}" || exit
-	check "${pwd}"
+	jScan
+	jFormat
+	jLint "${pwd}"
+	jTest short
 	cd "${pwd}" || exit
 done
