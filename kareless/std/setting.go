@@ -39,8 +39,8 @@ func LocalEarlyLoadedSettingSource(name string, paths ...string) kareless.Settin
 
 	if len(paths) > 0 {
 		if err := v.ReadInConfig(); err != nil {
-			if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-				panic(errors.Join(bricks.ErrNotFound, err))
+			if !errors.As(err, &viper.ConfigFileNotFoundError{}) {
+				panic(err)
 			}
 		}
 	}

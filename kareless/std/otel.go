@@ -76,13 +76,13 @@ func OpenTelemetryDriverConstructor(serviceName string, attrs ...attribute.KeyVa
 }
 
 func (d otlp) Run(ctx context.Context) error {
-	traceExp, err := otlptrace.New(ctx, d.client)
+	te, err := otlptrace.New(ctx, d.client)
 	if err != nil {
 		return err
 	}
 
 	tp := trace.NewTracerProvider(
-		trace.WithBatcher(traceExp),
+		trace.WithBatcher(te),
 		trace.WithResource(
 			resource.NewWithAttributes(
 				semconv.SchemaURL,
@@ -92,19 +92,19 @@ func (d otlp) Run(ctx context.Context) error {
 	)
 	otel.SetTracerProvider(tp)
 
-	promRegistry := prom.NewRegistry()
-	promRegistry.MustRegister(
+	pr := prom.NewRegistry()
+	pr.MustRegister(
 		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
 	)
 
-	metricExp, err := prometheus.New(
-		prometheus.WithRegisterer(promRegistry),
+	me, err := prometheus.New(
+		prometheus.WithRegisterer(pr),
 	)
 	if err != nil {
 		return err
 	}
 
-	mp := metric.NewMeterProvider(metric.WithReader(metricExp))
+	mp := metric.NewMeterProvider(metric.WithReader(me))
 	otel.SetMeterProvider(mp)
 
 	<-ctx.Done()

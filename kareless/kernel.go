@@ -39,8 +39,14 @@ func Compile(oo ...Option) Kernel {
 func (k Kernel) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancelCause(ctx)
 	bindSignals(func(sig os.Signal) {
+		// todo: Do not cancel the driver.Run's context as a shutdown signal.
+		// Because drivers have to be able to continue finishing requests procedures to perform a graceful shutdown
+		// Instead call driver.Stop concurrently.
+		// Shutdown sequence:
+		//   1. Drivers: to eliminate new requests acceptance.
+		//   2. Applications: to finish in-progress jobs
 		cancel(fmt.Errorf("signal caught: %s. context canceled", sig))
-	}, syscall.SIGTERM, syscall.SIGINT) // todo: reload on interrupt
+	}, syscall.SIGTERM, syscall.SIGINT /* todo: Reload on interrupt */)
 
 	if err := k.ib.openCatalogues(k.ss); err != nil {
 		return err
