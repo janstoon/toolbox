@@ -14,7 +14,7 @@ import (
 	"github.com/janstoon/toolbox/tricks"
 	"github.com/rs/cors"
 	"go.opentelemetry.io/otel/attribute"
-	semconv "go.opentelemetry.io/otel/semconv/v1.25.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	"go.opentelemetry.io/otel/trace"
 	"go.opentelemetry.io/otel/trace/noop"
 )
@@ -181,7 +181,7 @@ func (hmw OtelHmw) builder(next http.Handler) http.Handler {
 		oid := "?"
 		attrs := []attribute.KeyValue{
 			semconv.HTTPRequestMethodKey.String(req.Method),
-			semconv.HTTPScheme(req.URL.Scheme),
+			semconv.URLScheme(req.URL.Scheme),
 			semconv.URLFull(req.URL.String()),
 			semconv.NetworkProtocolVersion(req.Proto),
 			semconv.UserAgentOriginal(req.UserAgent()),
