@@ -17,7 +17,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 
 	"github.com/janstoon/toolbox/kareless"
 )
@@ -94,6 +94,8 @@ func (d otlp) Run(ctx context.Context) error {
 
 	pr := prom.NewRegistry()
 	pr.MustRegister(
+		collectors.NewBuildInfoCollector(),
+		collectors.NewGoCollector(),
 		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
 	)
 
