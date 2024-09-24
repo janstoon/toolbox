@@ -1,6 +1,7 @@
 package tricks
 
 // Coalesce returns left-most non-zero value
+// It's like cmp.Or
 func Coalesce[T comparable](tt ...T) T {
 	var zero T
 	if len(tt) == 0 {
