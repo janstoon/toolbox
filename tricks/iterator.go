@@ -16,6 +16,7 @@ func NewSliceIterator[T comparable](s []T) *SliceIterator[T] {
 func (si *SliceIterator[T]) Next() (T, bool) {
 	if si.index >= len(si.slice) {
 		var dst T
+
 		return dst, false
 	}
 
@@ -31,6 +32,7 @@ func (si *SliceIterator[T]) Next() (T, bool) {
 // The extension is not reusable. If you need to iterate again, call Clone.
 func (si *SliceIterator[T]) Iter() iteratorExtension[T] {
 	si.index = 0
+
 	return iteratorExtension[T]{i: si}
 }
 
@@ -124,6 +126,7 @@ func (im iteratorExtension[T]) Find(f func(T) bool) (T, bool) {
 	}
 
 	var z T
+
 	return z, false
 }
 
@@ -337,6 +340,7 @@ func (im iteratorExtension[T]) ElementAt(index int) (T, bool) {
 	}
 
 	var dst T
+
 	return dst, false
 }
 
@@ -481,7 +485,7 @@ func (im iteratorExtension[T]) Take(n int) iteratorExtension[T] {
 func (im iteratorExtension[T]) TakeWhile(f func(T) bool) iteratorExtension[T] {
 	var d []T = make([]T, 0)
 
-	var indx = im.Clone().FindLastIndex(f)
+	indx := im.Clone().FindLastIndex(f)
 	if indx == -1 {
 		return NewSliceIterator(d).Iter()
 	}
@@ -500,7 +504,7 @@ func (im iteratorExtension[T]) TakeWhile(f func(T) bool) iteratorExtension[T] {
 
 // SkipWhile returns a new iterator with elements skipped while the predicate is true.
 func (im iteratorExtension[T]) SkipWhile(f func(T) bool) iteratorExtension[T] {
-	var indx = im.Clone().FindLastIndex(f)
+	indx := im.Clone().FindLastIndex(f)
 	if indx == -1 {
 		return NewSliceIterator([]T{}).Iter()
 	}
@@ -524,7 +528,7 @@ func (im iteratorExtension[T]) Extend(i []T) iteratorExtension[T] {
 
 // Clone returns a new iterator that is a clone of the current iterator.
 func (im *iteratorExtension[T]) Clone() iteratorExtension[T] {
-	var cur = im.Collect()
+	cur := im.Collect()
 	im.i = NewSliceIterator(cur)
 
 	return NewSliceIterator(cur).Iter()
@@ -589,6 +593,7 @@ func (ci *ChainIterator[T]) Next() (T, bool) {
 	}
 
 	var dst T
+
 	return dst, false
 }
 
@@ -606,10 +611,13 @@ func (ci *castIterator[T]) Next() (T, bool) {
 	v, ok := ci.i.Next()
 	if !ok {
 		var dst T
+
 		return dst, false
 	}
 
-	return v.(T), true
+	dst, _ := v.(T)
+
+	return dst, true
 }
 
 func (ci *castIterator[T]) Iter() iteratorExtension[T] {
