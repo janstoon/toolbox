@@ -15,7 +15,71 @@ import (
 	"github.com/janstoon/toolbox/kareless/std"
 )
 
-func TestLocalSettings_Get(t *testing.T) {
+func TestMapSettingSource_Get(t *testing.T) {
+	ctx := context.Background()
+
+	ss := std.MapSettingSource{
+		"c1": "v-c1",
+		"n1": map[string]map[string]string{
+			"a": {
+				"b": "v-n1ab",
+			},
+		},
+		"n1.w": "v-n1w",
+	}
+
+	v, err := ss.Get(ctx, "")
+	require.NoError(t, err)
+	assert.Equal(t, std.MapSettingSource{
+		"c1": "v-c1",
+		"n1": map[string]map[string]string{
+			"a": {
+				"b": "v-n1ab",
+			},
+		},
+		"n1.w": "v-n1w",
+	}, v)
+
+	v, err = ss.Get(ctx, "c1")
+	require.NoError(t, err)
+	assert.Equal(t, "v-c1", v)
+
+	v, err = ss.Get(ctx, "n1")
+	require.NoError(t, err)
+	assert.Equal(t, map[string]map[string]string{
+		"a": {
+			"b": "v-n1ab",
+		},
+	}, v)
+
+	v, err = ss.Get(ctx, "n1.a")
+	require.NoError(t, err)
+	assert.Equal(t, map[string]any{
+		"b": "v-n1ab",
+	}, v)
+
+	v, err = ss.Get(ctx, "n1.a.b")
+	require.NoError(t, err)
+	assert.Equal(t, "v-n1ab", v)
+
+	v, err = ss.Get(ctx, "n1.w")
+	require.NoError(t, err)
+	assert.Equal(t, "v-n1w", v)
+
+	v, err = ss.Get(ctx, "unknown")
+	require.ErrorIs(t, err, bricks.ErrNotFound)
+	assert.Empty(t, v)
+
+	v, err = ss.Get(ctx, "n1.unknown")
+	require.ErrorIs(t, err, bricks.ErrNotFound)
+	assert.Empty(t, v)
+
+	v, err = ss.Get(ctx, "n1.a.unknown")
+	require.ErrorIs(t, err, bricks.ErrNotFound)
+	assert.Empty(t, v)
+}
+
+func TestLocalEarlySettings_Get(t *testing.T) {
 	dir, err := os.MkdirTemp("", "kareless-std-local-settings-")
 	require.NoError(t, err)
 	defer func() { _ = os.RemoveAll(dir) }()
@@ -45,6 +109,12 @@ func TestLocalSettings_Get(t *testing.T) {
 	err = fh.Sync()
 	require.NoError(t, err)
 	ss = std.LocalEarlyLoadedSettingSource(fname, dir)
+	v, err = ss.Get(ctx, "")
+	assert.Equal(t, map[string]any{"c1": "Conf1ValueFromFile", "c2": "Conf2ValueFromFile"}, v)
+	require.NoError(t, err)
+	v, err = ss.Get(ctx, ".")
+	assert.Equal(t, map[string]any{"c1": "Conf1ValueFromFile", "c2": "Conf2ValueFromFile"}, v)
+	require.NoError(t, err)
 	v, err = ss.Get(ctx, "c1")
 	assert.Equal(t, "Conf1ValueFromFile", v)
 	require.NoError(t, err)

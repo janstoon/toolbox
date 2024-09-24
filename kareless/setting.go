@@ -2,6 +2,8 @@ package kareless
 
 import (
 	"context"
+	"encoding/json"
+	"strings"
 	"sync"
 	"time"
 
@@ -10,6 +12,12 @@ import (
 
 type SettingSource interface {
 	Get(ctx context.Context, key string) (any, error)
+}
+
+const SettingKeyDelimiter = "."
+
+func IsSettingRootKey(key string) bool {
+	return len(strings.TrimSpace(key)) == 0 || key == "."
 }
 
 type Settings struct {
@@ -43,6 +51,15 @@ func (ss *Settings) get(ctx context.Context, key string) any {
 	}
 
 	return nil
+}
+
+func (ss *Settings) UnmarshalJson(key string, valPtr any) error {
+	bb, err := json.Marshal(ss.get(context.Background(), key))
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(bb, valPtr)
 }
 
 func (ss *Settings) GetString(key string) string {
