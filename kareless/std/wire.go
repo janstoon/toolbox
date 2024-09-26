@@ -34,3 +34,17 @@ func NoopDecapsulator[M any]() kareless.Decapsulator[M] {
 		return nil, nil
 	})
 }
+
+// NewMuldem creates a simple kareless.Muldem[M] with IdentityRouter(0), Json Encoding (JsonMarshaler, JsonUnmarshaler)
+// and Noop Encapsulation (NoopEncapsulator[M], NoopDecapsulator[M]).
+func NewMuldem[M any]() kareless.Muldem[M] {
+	return kareless.Muldem[M]{
+		Router: IdentityRouter(0),
+
+		Marshaler:   JsonMarshaler,
+		Unmarshaler: JsonUnmarshaler,
+
+		Encapsulator: NoopEncapsulator[M](),
+		Decapsulator: NoopDecapsulator[M](),
+	}
+}
