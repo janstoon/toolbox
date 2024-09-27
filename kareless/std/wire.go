@@ -2,6 +2,10 @@ package std
 
 import (
 	"encoding/json"
+	"errors"
+
+	"github.com/janstoon/toolbox/bricks"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/janstoon/toolbox/kareless"
 )
@@ -22,6 +26,26 @@ var JsonMarshaler = kareless.MarshalerFunc(func(payload any) []byte {
 })
 
 var JsonUnmarshaler = kareless.UnmarshalerFunc(json.Unmarshal)
+
+var ProtobufMarshaler = kareless.MarshalerFunc(func(payload any) []byte {
+	msg, ok := payload.(proto.Message)
+	if !ok {
+		return nil
+	}
+
+	bb, _ := proto.Marshal(msg)
+
+	return bb
+})
+
+var ProtobufUnmarshaler = kareless.UnmarshalerFunc(func(bb []byte, v any) error {
+	msg, ok := v.(proto.Message)
+	if !ok {
+		return errors.Join(bricks.ErrInvalidArgument, errors.New("variable is not proto.Message"))
+	}
+
+	return proto.Unmarshal(bb, msg)
+})
 
 func NoopEncapsulator[M any]() kareless.Encapsulator[M] {
 	return kareless.EncapsulatorFunc[M](func(route kareless.Route, data []byte) (m M) {
