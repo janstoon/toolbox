@@ -29,18 +29,21 @@ var httpStatusToBricksErr = map[int]error{
 	http.StatusInsufficientStorage: bricks.ErrResourceExhausted,
 }
 
-func HttpToBricksErrorMapper(rsp *http.Response, err error) (*http.Response, error) {
-	code := tricks.PtrVal(rsp).StatusCode
+func HttpStatusToBricksError(code int, err error) error {
 	if err == nil && code < http.StatusBadRequest {
-		return rsp, nil
+		return nil
 	}
 
-	errCat := bricks.ParseError(err, bricks.ErrUnknown)
-	if berr, ok := httpStatusToBricksErr[code]; ok {
-		errCat = errors.Join(berr, err)
+	ferr := bricks.ParseError(err, bricks.ErrUnknown)
+	if errByCode, ok := httpStatusToBricksErr[code]; ok {
+		ferr = errors.Join(errByCode, err)
 	}
 
-	return rsp, errors.Join(errCat, fmt.Errorf("http status (%d): %s", code, http.StatusText(code)))
+	return errors.Join(ferr, fmt.Errorf("http status (%d): %s", code, http.StatusText(code)))
+}
+
+func HttpToBricksErrorMapper(rsp *http.Response, err error) (*http.Response, error) {
+	return rsp, HttpStatusToBricksError(tricks.PtrVal(rsp).StatusCode, err)
 }
 
 var bricksErrCodeToHttpStatus = map[int]int{
