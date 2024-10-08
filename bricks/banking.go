@@ -192,5 +192,3 @@ func NewBankAccount(name string) BankAccount {
 func (ba BankAccount) BankName() string {
 	return ba.bank
 }
-
-type Money any
