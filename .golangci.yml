@@ -1,8 +1,6 @@
 linters:
   enable-all: true
   disable:
-    - scopelint
-    - maligned
     - wsl
     - tparallel
     - gomnd
@@ -18,7 +16,6 @@ linters:
     - gci
     - forbidigo
     - ineffassign
-    - ifshort
     - wrapcheck
     - nonamedreturns
     - nosprintfhostport
@@ -26,18 +23,10 @@ linters:
     - varnamelen
     - stylecheck
     - ireturn
-    - goerr113
-    - exhaustivestruct
-    - golint
+    - err113
     - exhaustruct
     - depguard
     - contextcheck
-    - nosnakecase
-    - varcheck
-    - interfacer
-    - deadcode
-    - golint
-    - structcheck
     - exhaustive
     - revive
     - errorlint
@@ -49,4 +38,6 @@ linters:
     - gosec
     - thelper
     - makezero
+    - perfsprint
+    - mnd
   fast: false

@@ -56,8 +56,10 @@ func (f DecapsulatorFunc[M]) Decapsulate(msg M) ([]byte, error) {
 }
 
 // Muldem is a bidirectional multiplexer and demultiplexer which is able to:
-//  1. Marshal message using the Marshaler and encapsulate it for a specific address using the Encapsulator and Router to be put on the wire.
-//  2. Decapsulate message picked from the wire from a specific address using the Decapsulator and unmarshal it using the Unmarshaler.
+//  1. Marshal message using the Marshaler and encapsulate it for a specific address
+//     using the Encapsulator and Router to be put on the wire.
+//  2. Decapsulate message picked from the wire from a specific address
+//     using the Decapsulator and unmarshal it using the Unmarshaler.
 type Muldem[M any] struct {
 	Router Router
 

@@ -33,7 +33,8 @@ func TestValPtr(t *testing.T) {
 	str := "yalda"
 	assert.Exactly(t, &str, tricks.ValPtr(str))
 	assert.NotSame(t, &str, tricks.ValPtr(str))
-	assert.NotSame(t, tricks.ValPtr(str), tricks.ValPtr(str))
+	a, b := tricks.ValPtr(str), tricks.ValPtr(str)
+	assert.NotSame(t, a, b)
 
 	var iarr []int
 	assert.Nil(t, iarr)
