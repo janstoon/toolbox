@@ -58,6 +58,24 @@ func PrimeFactors(n int) []int {
 	return ff[:len(ff):len(ff)]
 }
 
+// CoprimesInRange returns list of all natural numbers in closed range [from, to]
+// which are coprime to the given number (n)
+func CoprimesInRange(n, from, to int) []int {
+	cpp := make([]int, 0, 10)
+	for i := from; i <= to; i++ {
+		if Gcd(n, i) == 1 {
+			cpp = append(cpp, i)
+		}
+	}
+
+	return cpp[:len(cpp):len(cpp)]
+}
+
+// MinorCoprimes returns list of all natural numbers which are less than the given number (n) and coprime to it
+func MinorCoprimes(n int) []int {
+	return CoprimesInRange(n, 1, n-1)
+}
+
 // NextPrime returns next prime number greater than the given number (n)
 func NextPrime(n int) int {
 	if n < 1 {

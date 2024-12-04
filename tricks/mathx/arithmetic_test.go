@@ -162,6 +162,16 @@ func TestPrimes(t *testing.T) {
 	assert.Equal(t, []int{}, mathx.PrimeFactors(-127))
 }
 
+func TestCoprimesInRange(t *testing.T) {
+	assert.Equal(t, []int{3, 7}, mathx.CoprimesInRange(10, 2, 7))
+	assert.Equal(t, []int{7, 9, 11, 13, 17, 19}, mathx.CoprimesInRange(10, 5, 20))
+}
+
+func TestMinorCoprimes(t *testing.T) {
+	assert.Equal(t, []int{1, 5}, mathx.MinorCoprimes(6))
+	assert.Equal(t, []int{1, 3, 7, 9}, mathx.MinorCoprimes(10))
+}
+
 func TestNextPrime(t *testing.T) {
 	assert.Equal(t, 2, mathx.NextPrime(0))
 	assert.Equal(t, 2, mathx.NextPrime(1))
