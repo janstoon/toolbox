@@ -310,3 +310,14 @@ func TestPrimitiveRootsWithRrs(t *testing.T) {
 		}
 	}
 }
+
+func TestOrderedReducedResidueSystem(t *testing.T) {
+	assert.Equal(t, []int{2, 4, 3, 1}, mathx.OrderedReducedResidueSystem(5, 2))
+	assert.Equal(t, []int{3, 4, 2, 1}, mathx.OrderedReducedResidueSystem(5, 3))
+	assert.Equal(t, []int{
+		63, 10, 95, 100, 94, 37, 84, 49, 91, 62, 54, 85, 5, 101, 50, 47, 72, 42, 78, 99, 31, 27, 96, 56, 104, 25, 77, 36,
+		21, 39, 103, 69, 67, 48, 28, 52, 66, 92, 18, 64, 73, 105, 88, 87, 24, 14, 26, 33, 46, 9, 32, 90, 106, 44, 97, 12,
+		7, 13, 70, 23, 58, 16, 45, 53, 22, 102, 6, 57, 60, 35, 65, 29, 8, 76, 80, 11, 51, 3, 82, 30, 71, 86, 68, 4, 38, 40,
+		59, 79, 55, 41, 15, 89, 43, 34, 2, 19, 20, 83, 93, 81, 74, 61, 98, 75, 17, 1,
+	}, mathx.OrderedReducedResidueSystem(107, 63))
+}

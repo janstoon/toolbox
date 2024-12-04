@@ -159,21 +159,41 @@ func PrimitiveRootsWithRrs(n int) map[int][]int {
 
 	prr := make(map[int][]int)
 	for _, cp := range cpp {
-		mm := make([]int, 0, len(cpp)+1)
-		m := 1
-		for i := 1; i < n; i++ {
-			m = (m * cp) % n
-			mm = append(mm, m)
-
-			if m == 1 {
-				break
-			}
-		}
-
+		mm := orderedReducedResidueSystem(n, cp, make([]int, 0, len(cpp)+1))
 		if len(mm) == len(cpp)+1 {
 			prr[cp] = mm[:len(mm):len(mm)]
 		}
 	}
 
 	return prr
+}
+
+// OrderedReducedResidueSystem returns reduced residue system modulo n
+// ordered by powers of g. If g is not a primitive root of n it returns nil
+func OrderedReducedResidueSystem(n, g int) []int {
+	if !IsPrimitiveRoot(n, g) {
+		return nil
+	}
+
+	return orderedReducedResidueSystem(n, g, make([]int, 0, EulerTotient(n)))
+}
+
+// orderedReducedResidueSystem returns reduced residue system modulo n
+// // ordered by powers of g which have to be a primitive root of n
+func orderedReducedResidueSystem(n, pr int, rrs []int) []int {
+	if rrs == nil {
+		rrs = make([]int, 0, 10)
+	}
+
+	m := 1
+	for i := 1; i < n; i++ {
+		m = (m * pr) % n
+		rrs = append(rrs, m)
+
+		if m == 1 {
+			break
+		}
+	}
+
+	return rrs[:len(rrs):len(rrs)]
 }
