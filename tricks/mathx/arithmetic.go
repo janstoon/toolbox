@@ -122,7 +122,7 @@ func IsPrimitiveRoot(n, g int) bool {
 	phi := EulerTotient(n)
 	pff := PrimeFactors(phi)
 	for _, pf := range pff {
-		if big.NewInt(int64(g)).Exp(bigG, big.NewInt(int64(phi/pf)), bigN).Int64() == 1 {
+		if big.NewInt(0).Exp(bigG, big.NewInt(int64(phi/pf)), bigN).Int64() == 1 {
 			return false
 		}
 	}
