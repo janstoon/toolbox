@@ -189,24 +189,90 @@ func TestMinorCoprimes(t *testing.T) {
 	assert.Equal(t, []int{1, 3, 7, 9}, mathx.MinorCoprimes(10))
 }
 
+func TestEulerTotient(t *testing.T) {
+	assert.Equal(t, 1, mathx.EulerTotient(1))
+	assert.Equal(t, 1, mathx.EulerTotient(2))
+	assert.Equal(t, 2, mathx.EulerTotient(3))
+	assert.Equal(t, 2, mathx.EulerTotient(4))
+	assert.Equal(t, 4, mathx.EulerTotient(5))
+	assert.Equal(t, 6, mathx.EulerTotient(7))
+	assert.Equal(t, 4, mathx.EulerTotient(10))
+	assert.Equal(t, 12, mathx.EulerTotient(13))
+}
+
+func TestIsPrimitiveRoot(t *testing.T) {
+	assert.True(t, mathx.IsPrimitiveRoot(2, 1))
+	assert.True(t, mathx.IsPrimitiveRoot(3, 2))
+	assert.True(t, mathx.IsPrimitiveRoot(7, 3))
+	assert.True(t, mathx.IsPrimitiveRoot(7, 5))
+	assert.True(t, mathx.IsPrimitiveRoot(10, 3))
+	assert.True(t, mathx.IsPrimitiveRoot(10, 7))
+	assert.True(t, mathx.IsPrimitiveRoot(50, 3))
+	assert.True(t, mathx.IsPrimitiveRoot(50, 13))
+	assert.True(t, mathx.IsPrimitiveRoot(50, 17))
+	assert.True(t, mathx.IsPrimitiveRoot(50, 23))
+	assert.True(t, mathx.IsPrimitiveRoot(50, 27))
+	assert.True(t, mathx.IsPrimitiveRoot(50, 33))
+	assert.True(t, mathx.IsPrimitiveRoot(50, 37))
+	assert.True(t, mathx.IsPrimitiveRoot(50, 47))
+
+	assert.False(t, mathx.IsPrimitiveRoot(2, 0))
+	assert.False(t, mathx.IsPrimitiveRoot(2, 2))
+	assert.False(t, mathx.IsPrimitiveRoot(2, 3))
+	assert.False(t, mathx.IsPrimitiveRoot(2, 5))
+	assert.False(t, mathx.IsPrimitiveRoot(3, 1))
+	assert.False(t, mathx.IsPrimitiveRoot(3, 3))
+	assert.False(t, mathx.IsPrimitiveRoot(3, 4))
+	assert.False(t, mathx.IsPrimitiveRoot(3, 5))
+	assert.False(t, mathx.IsPrimitiveRoot(7, 1))
+	assert.False(t, mathx.IsPrimitiveRoot(7, 2))
+	assert.False(t, mathx.IsPrimitiveRoot(7, 4))
+	assert.False(t, mathx.IsPrimitiveRoot(7, 6))
+	assert.False(t, mathx.IsPrimitiveRoot(7, 7))
+	assert.False(t, mathx.IsPrimitiveRoot(7, 8))
+	assert.False(t, mathx.IsPrimitiveRoot(7, 9))
+	assert.False(t, mathx.IsPrimitiveRoot(7, 10))
+	assert.False(t, mathx.IsPrimitiveRoot(50, 41))
+	assert.False(t, mathx.IsPrimitiveRoot(50, 42))
+	assert.False(t, mathx.IsPrimitiveRoot(50, 43))
+}
+
 func TestPrimitiveRoots(t *testing.T) {
+	assert.Equal(t, []int{1}, mathx.PrimitiveRoots(2))
+	assert.Equal(t, []int{2}, mathx.PrimitiveRoots(3))
+	assert.Equal(t, []int{3, 5}, mathx.PrimitiveRoots(7))
+	assert.Equal(t, []int{3, 7}, mathx.PrimitiveRoots(10))
+	assert.Equal(t, []int{3, 5, 6, 7, 10, 11, 12, 14}, mathx.PrimitiveRoots(17))
+
+	nn := []int{
+		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 25, 49, 50, 95, 96, 97, 98, 99, 100,
+	}
+	for _, n := range nn {
+		prr := mathx.PrimitiveRoots(n)
+		if len(prr) > 0 {
+			assert.Lenf(t, prr, mathx.EulerTotient(mathx.EulerTotient(n)), "number of primitive roots (%d) mismatch", n)
+		}
+	}
+}
+
+func TestPrimitiveRootsWithRrs(t *testing.T) {
 	assert.Equal(t, map[int][]int{
 		1: {1},
-	}, mathx.PrimitiveRoots(2))
+	}, mathx.PrimitiveRootsWithRrs(2))
 
 	assert.Equal(t, map[int][]int{
 		2: {2, 1},
-	}, mathx.PrimitiveRoots(3))
+	}, mathx.PrimitiveRootsWithRrs(3))
 
 	assert.Equal(t, map[int][]int{
 		3: {3, 2, 6, 4, 5, 1},
 		5: {5, 4, 6, 2, 3, 1},
-	}, mathx.PrimitiveRoots(7))
+	}, mathx.PrimitiveRootsWithRrs(7))
 
 	assert.Equal(t, map[int][]int{
 		3: {3, 9, 7, 1},
 		7: {7, 9, 3, 1},
-	}, mathx.PrimitiveRoots(10))
+	}, mathx.PrimitiveRootsWithRrs(10))
 
 	assert.Equal(t, map[int][]int{
 		3:  {3, 9, 10, 13, 5, 15, 11, 16, 14, 8, 7, 4, 12, 2, 6, 1},
@@ -217,12 +283,16 @@ func TestPrimitiveRoots(t *testing.T) {
 		11: {11, 2, 5, 4, 10, 8, 3, 16, 6, 15, 12, 13, 7, 9, 14, 1},
 		12: {12, 8, 11, 13, 3, 2, 7, 16, 5, 9, 6, 4, 14, 15, 10, 1},
 		14: {14, 9, 7, 13, 12, 15, 6, 16, 3, 8, 10, 4, 5, 2, 11, 1},
-	}, mathx.PrimitiveRoots(17))
+	}, mathx.PrimitiveRootsWithRrs(17))
 
-	prr49 := mathx.PrimitiveRoots(49)
-	for _, pra := range prr49 {
-		for _, prb := range prr49 {
-			assert.ElementsMatch(t, pra, prb)
+	nn := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 25, 49, 50, 100}
+	for _, n := range nn {
+		prr, phi := mathx.PrimitiveRootsWithRrs(n), mathx.EulerTotient(n)
+		for _, pra := range prr {
+			assert.Len(t, pra, phi)
+			for _, prb := range prr {
+				assert.ElementsMatch(t, pra, prb)
+			}
 		}
 	}
 }

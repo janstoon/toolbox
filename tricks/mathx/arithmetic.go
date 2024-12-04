@@ -1,6 +1,9 @@
 package mathx
 
-import "math"
+import (
+	"math"
+	"math/big"
+)
 
 // Gcd calculates the Greatest common divisor of multiple integers
 func Gcd(a int, bb ...int) int {
@@ -96,9 +99,59 @@ func MinorCoprimes(n int) []int {
 	return CoprimesInRange(n, 1, n-1)
 }
 
+// EulerTotient counts the positive integers up to the given number (n) that are relatively prime to (n)
+func EulerTotient(n int) int {
+	pff := PrimeFactors(n)
+
+	phi := float64(n)
+	for _, pf := range pff {
+		phi *= 1 - 1/float64(pf)
+	}
+
+	return int(phi)
+}
+
+// IsPrimitiveRoot check if (g) is a primitive root of (n)
+func IsPrimitiveRoot(n, g int) bool {
+	if g < 0 || g >= n || Gcd(g, n) != 1 {
+		return false
+	}
+
+	bigG, bigN := big.NewInt(int64(g)), big.NewInt(int64(n))
+
+	phi := EulerTotient(n)
+	pff := PrimeFactors(phi)
+	for _, pf := range pff {
+		if big.NewInt(int64(g)).Exp(bigG, big.NewInt(int64(phi/pf)), bigN).Int64() == 1 {
+			return false
+		}
+	}
+
+	return true
+}
+
 // PrimitiveRoots returns list of all natural numbers which are less than the given number (n) and
 // primitive root modulo (n)
-func PrimitiveRoots(n int) map[int][]int {
+func PrimitiveRoots(n int) []int {
+	cpp := CoprimesInRange(n, 2, n-1)
+	if len(cpp) == 0 {
+		return []int{1}
+	}
+
+	prr := make([]int, 0, len(cpp))
+	for _, cp := range cpp {
+		if IsPrimitiveRoot(n, cp) {
+			prr = append(prr, cp)
+		}
+	}
+
+	return prr[:len(prr):len(prr)]
+}
+
+// PrimitiveRootsWithRrs returns a map which keys are primitive roots of the given number (n) and values are
+// different permutations of least positive reduced residue system modulo (n).
+// Each rrs consists of powers of the key, which is a primitive root of (n), modulo (n) in order.
+func PrimitiveRootsWithRrs(n int) map[int][]int {
 	cpp := CoprimesInRange(n, 2, n-1)
 	if len(cpp) == 0 {
 		return map[int][]int{1: {1}}
