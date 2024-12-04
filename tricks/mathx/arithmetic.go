@@ -58,24 +58,6 @@ func PrimeFactors(n int) []int {
 	return ff[:len(ff):len(ff)]
 }
 
-// CoprimesInRange returns list of all natural numbers in closed range [from, to]
-// which are coprime to the given number (n)
-func CoprimesInRange(n, from, to int) []int {
-	cpp := make([]int, 0, 10)
-	for i := from; i <= to; i++ {
-		if Gcd(n, i) == 1 {
-			cpp = append(cpp, i)
-		}
-	}
-
-	return cpp[:len(cpp):len(cpp)]
-}
-
-// MinorCoprimes returns list of all natural numbers which are less than the given number (n) and coprime to it
-func MinorCoprimes(n int) []int {
-	return CoprimesInRange(n, 1, n-1)
-}
-
 // NextPrime returns next prime number greater than the given number (n)
 func NextPrime(n int) int {
 	if n < 1 {
@@ -94,4 +76,51 @@ func nextPrime(n int) int {
 			return n
 		}
 	}
+}
+
+// CoprimesInRange returns list of all natural numbers in closed range [from, to]
+// which are coprime to the given number (n)
+func CoprimesInRange(n, from, to int) []int {
+	cpp := make([]int, 0, 10)
+	for i := from; i <= to; i++ {
+		if Gcd(n, i) == 1 {
+			cpp = append(cpp, i)
+		}
+	}
+
+	return cpp[:len(cpp):len(cpp)]
+}
+
+// MinorCoprimes returns list of all natural numbers which are less than the given number (n) and coprime to it
+func MinorCoprimes(n int) []int {
+	return CoprimesInRange(n, 1, n-1)
+}
+
+// PrimitiveRoots returns list of all natural numbers which are less than the given number (n) and
+// primitive root modulo (n)
+func PrimitiveRoots(n int) map[int][]int {
+	cpp := CoprimesInRange(n, 2, n-1)
+	if len(cpp) == 0 {
+		return map[int][]int{1: {1}}
+	}
+
+	prr := make(map[int][]int)
+	for _, cp := range cpp {
+		mm := make([]int, 0, len(cpp)+1)
+		m := 1
+		for i := 1; i < n; i++ {
+			m = (m * cp) % n
+			mm = append(mm, m)
+
+			if m == 1 {
+				break
+			}
+		}
+
+		if len(mm) == len(cpp)+1 {
+			prr[cp] = mm[:len(mm):len(mm)]
+		}
+	}
+
+	return prr
 }

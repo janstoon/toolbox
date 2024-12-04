@@ -120,7 +120,7 @@ func TestIsPrime(t *testing.T) {
 	assert.False(t, mathx.IsPrime(-7))
 }
 
-func TestPrimes(t *testing.T) {
+func TestPrimeFactors(t *testing.T) {
 	assert.Equal(t, []int{2, 3}, mathx.PrimeFactors(6))
 	assert.Equal(t, []int{2, 5}, mathx.PrimeFactors(10))
 	assert.Equal(t, []int{2, 3, 5}, mathx.PrimeFactors(30))
@@ -162,16 +162,6 @@ func TestPrimes(t *testing.T) {
 	assert.Equal(t, []int{}, mathx.PrimeFactors(-127))
 }
 
-func TestCoprimesInRange(t *testing.T) {
-	assert.Equal(t, []int{3, 7}, mathx.CoprimesInRange(10, 2, 7))
-	assert.Equal(t, []int{7, 9, 11, 13, 17, 19}, mathx.CoprimesInRange(10, 5, 20))
-}
-
-func TestMinorCoprimes(t *testing.T) {
-	assert.Equal(t, []int{1, 5}, mathx.MinorCoprimes(6))
-	assert.Equal(t, []int{1, 3, 7, 9}, mathx.MinorCoprimes(10))
-}
-
 func TestNextPrime(t *testing.T) {
 	assert.Equal(t, 2, mathx.NextPrime(0))
 	assert.Equal(t, 2, mathx.NextPrime(1))
@@ -187,4 +177,52 @@ func TestNextPrime(t *testing.T) {
 	assert.Equal(t, 2, mathx.NextPrime(-4))
 	assert.Equal(t, 2, mathx.NextPrime(-5))
 	assert.Equal(t, 2, mathx.NextPrime(-100))
+}
+
+func TestCoprimesInRange(t *testing.T) {
+	assert.Equal(t, []int{3, 7}, mathx.CoprimesInRange(10, 2, 7))
+	assert.Equal(t, []int{7, 9, 11, 13, 17, 19}, mathx.CoprimesInRange(10, 5, 20))
+}
+
+func TestMinorCoprimes(t *testing.T) {
+	assert.Equal(t, []int{1, 5}, mathx.MinorCoprimes(6))
+	assert.Equal(t, []int{1, 3, 7, 9}, mathx.MinorCoprimes(10))
+}
+
+func TestPrimitiveRoots(t *testing.T) {
+	assert.Equal(t, map[int][]int{
+		1: {1},
+	}, mathx.PrimitiveRoots(2))
+
+	assert.Equal(t, map[int][]int{
+		2: {2, 1},
+	}, mathx.PrimitiveRoots(3))
+
+	assert.Equal(t, map[int][]int{
+		3: {3, 2, 6, 4, 5, 1},
+		5: {5, 4, 6, 2, 3, 1},
+	}, mathx.PrimitiveRoots(7))
+
+	assert.Equal(t, map[int][]int{
+		3: {3, 9, 7, 1},
+		7: {7, 9, 3, 1},
+	}, mathx.PrimitiveRoots(10))
+
+	assert.Equal(t, map[int][]int{
+		3:  {3, 9, 10, 13, 5, 15, 11, 16, 14, 8, 7, 4, 12, 2, 6, 1},
+		5:  {5, 8, 6, 13, 14, 2, 10, 16, 12, 9, 11, 4, 3, 15, 7, 1},
+		6:  {6, 2, 12, 4, 7, 8, 14, 16, 11, 15, 5, 13, 10, 9, 3, 1},
+		7:  {7, 15, 3, 4, 11, 9, 12, 16, 10, 2, 14, 13, 6, 8, 5, 1},
+		10: {10, 15, 14, 4, 6, 9, 5, 16, 7, 2, 3, 13, 11, 8, 12, 1},
+		11: {11, 2, 5, 4, 10, 8, 3, 16, 6, 15, 12, 13, 7, 9, 14, 1},
+		12: {12, 8, 11, 13, 3, 2, 7, 16, 5, 9, 6, 4, 14, 15, 10, 1},
+		14: {14, 9, 7, 13, 12, 15, 6, 16, 3, 8, 10, 4, 5, 2, 11, 1},
+	}, mathx.PrimitiveRoots(17))
+
+	prr49 := mathx.PrimitiveRoots(49)
+	for _, pra := range prr49 {
+		for _, prb := range prr49 {
+			assert.ElementsMatch(t, pra, prb)
+		}
+	}
 }
