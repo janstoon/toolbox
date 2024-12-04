@@ -99,7 +99,7 @@ func MinorCoprimes(n int) []int {
 	return CoprimesInRange(n, 1, n-1)
 }
 
-// EulerTotient counts the positive integers up to the given number (n) that are relatively prime to (n)
+// EulerTotient aka φ(n) counts the positive integers up to the given number (n) that are relatively prime to (n)
 func EulerTotient(n int) int {
 	pff := PrimeFactors(n)
 

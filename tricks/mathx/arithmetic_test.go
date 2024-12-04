@@ -265,6 +265,11 @@ func TestPrimitiveRootsWithRrs(t *testing.T) {
 	}, mathx.PrimitiveRootsWithRrs(3))
 
 	assert.Equal(t, map[int][]int{
+		2: {2, 4, 3, 1},
+		3: {3, 4, 2, 1},
+	}, mathx.PrimitiveRootsWithRrs(5))
+
+	assert.Equal(t, map[int][]int{
 		3: {3, 2, 6, 4, 5, 1},
 		5: {5, 4, 6, 2, 3, 1},
 	}, mathx.PrimitiveRootsWithRrs(7))
@@ -273,6 +278,13 @@ func TestPrimitiveRootsWithRrs(t *testing.T) {
 		3: {3, 9, 7, 1},
 		7: {7, 9, 3, 1},
 	}, mathx.PrimitiveRootsWithRrs(10))
+
+	assert.Equal(t, map[int][]int{
+		2: {2, 4, 8, 5, 10, 9, 7, 3, 6, 1},
+		6: {6, 3, 7, 9, 10, 5, 8, 4, 2, 1},
+		7: {7, 5, 2, 3, 10, 4, 6, 9, 8, 1},
+		8: {8, 9, 6, 4, 10, 3, 2, 5, 7, 1},
+	}, mathx.PrimitiveRootsWithRrs(11))
 
 	assert.Equal(t, map[int][]int{
 		3:  {3, 9, 10, 13, 5, 15, 11, 16, 14, 8, 7, 4, 12, 2, 6, 1},
@@ -285,7 +297,9 @@ func TestPrimitiveRootsWithRrs(t *testing.T) {
 		14: {14, 9, 7, 13, 12, 15, 6, 16, 3, 8, 10, 4, 5, 2, 11, 1},
 	}, mathx.PrimitiveRootsWithRrs(17))
 
-	nn := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 25, 49, 50, 100}
+	nn := []int{
+		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 25, 49, 50, 95, 96, 97, 98, 99, 100,
+	}
 	for _, n := range nn {
 		prr, phi := mathx.PrimitiveRootsWithRrs(n), mathx.EulerTotient(n)
 		for _, pra := range prr {
