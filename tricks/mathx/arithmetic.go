@@ -1,5 +1,7 @@
 package mathx
 
+import "math"
+
 // Gcd calculates the Greatest common divisor of multiple integers
 func Gcd(a int, bb ...int) int {
 	if len(bb) == 0 {
@@ -20,4 +22,58 @@ func Lcm(a int, bb ...int) int {
 	}
 
 	return Lcm(a*bb[0]/Gcd(a, bb[0]), bb[1:]...)
+}
+
+// IsPrime checks if the given number (a) is a prime number
+func IsPrime(n int) bool {
+	for i := 2; i <= int(math.Sqrt(float64(n))); i++ {
+		if n%i == 0 {
+			return false
+		}
+	}
+
+	return n > 1
+}
+
+// PrimeFactors find prime factors of the given number (n)
+func PrimeFactors(n int) []int {
+	ff := make([]int, 0, 10)
+
+	divisor := 1
+	for {
+		if n <= 1 {
+			break
+		}
+
+		divisor = nextPrime(divisor)
+		if n%divisor == 0 {
+			ff = append(ff, divisor)
+
+			for n%divisor == 0 {
+				n /= divisor
+			}
+		}
+	}
+
+	return ff[:len(ff):len(ff)]
+}
+
+// NextPrime returns next prime number greater than the given number (n)
+func NextPrime(n int) int {
+	if n < 1 {
+		n = 1
+	}
+
+	return nextPrime(n)
+}
+
+// nextPrime returns next prime number greater than the given number (n)
+func nextPrime(n int) int {
+	for {
+		n++
+
+		if IsPrime(n) {
+			return n
+		}
+	}
 }
