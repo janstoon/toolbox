@@ -7,7 +7,7 @@ import (
 )
 
 type Registry[T any] struct {
-	sync.RWMutex
+	l sync.RWMutex
 
 	tt map[string]T
 }
@@ -18,20 +18,22 @@ func NewRegistry[T any]() *Registry[T] {
 	}
 }
 
-func (reg *Registry[T]) Register(name string, entry T) {
-	reg.Lock()
-	defer reg.Unlock()
+func (reg *Registry[T]) Register(name string, entry T) error {
+	reg.l.Lock()
+	defer reg.l.Unlock()
 
 	if _, ok := reg.tt[name]; ok {
-		panic(errors.Join(fmt.Errorf("entry `%s` has been already registered", name), ErrAlreadyExists))
+		return errors.Join(fmt.Errorf("entry `%s` has been already registered", name), ErrAlreadyExists)
 	}
 
 	reg.tt[name] = entry
+
+	return nil
 }
 
 func (reg *Registry[T]) Get(name string) (T, error) {
-	reg.RLock()
-	defer reg.RUnlock()
+	reg.l.RLock()
+	defer reg.l.RUnlock()
 
 	t, ok := reg.tt[name]
 	if !ok {
