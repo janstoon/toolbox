@@ -9,7 +9,119 @@ import (
 	"github.com/janstoon/toolbox/bricks"
 )
 
-func TestTreeRetrieval(t *testing.T) {
+func TestGraph_Get(t *testing.T) {
+	iran := iranCities()
+
+	assert.Nil(t, iran["IRUNK"])
+	assert.Equal(t, "Tehran", iran["Tehran"].Value)
+	assert.Equal(t, "Karaj", iran["Karaj"].Value)
+	assert.Equal(t, "Rasht", iran["Rasht"].Value)
+}
+
+func TestGraph_BFS(t *testing.T) {
+	iran := iranCities()
+
+	// Gorgan to Bandare Parsian
+	assert.Equal(t,
+		[]string{"Gorgan", "Sari", "Tehran", "Qom", "Isfahan", "Yasuj", "Shiraz", "Bandare Parsian"},
+		iran.BreadthFirstSearch("Gorgan", "Bandare Parsian"),
+	)
+}
+
+func iranCities() bricks.Graph[string, int, string] {
+	g := make(bricks.Graph[string, int, string])
+	g.Add("Tehran", "Tehran")
+	g.Add("Karaj", "Karaj")
+	g.Add("Qazvin", "Qazvin")
+	g.Add("Qom", "Qom")
+	g.Add("Zanjan", "Zanjan")
+	g.Add("Rasht", "Rasht")
+	g.Add("Ardabil", "Ardabil")
+	g.Add("Tabriz", "Tabriz")
+	g.Add("Urmia", "Urmia")
+	g.Add("Gorgan", "Gorgan")
+	g.Add("Sari", "Sari")
+	g.Add("Mashad", "Mashad")
+	g.Add("Hamadan", "Hamadan")
+	g.Add("Saqqez", "Saqqez")
+	g.Add("Sanandaj", "Sanandaj")
+	g.Add("Kermanshah", "Kermanshah")
+	g.Add("Khorramabad", "Khorramabad")
+	g.Add("Kashan", "Kashan")
+	g.Add("Isfahan", "Isfahan")
+	g.Add("Shahr-e Kord", "Shahr-e Kord")
+	g.Add("Garmsar", "Garmsar")
+	g.Add("Semnan", "Semnan")
+	g.Add("Damghan", "Damghan")
+	g.Add("Shahrud", "Shahrud")
+	g.Add("Sabzevar", "Sabzevar")
+	g.Add("Neyshabur", "Neyshabur")
+	g.Add("Ardestan", "Ardestan")
+	g.Add("Naeen", "Naeen")
+	g.Add("Yazd", "Yazd")
+	g.Add("Arak", "Arak")
+	g.Add("Yasuj", "Yasuj")
+	g.Add("Kazerun", "Kazerun")
+	g.Add("Shiraz", "Shiraz")
+	g.Add("Abadan", "Abadan")
+	g.Add("Ahwaz", "Ahwaz")
+	g.Add("Dezful", "Dezful")
+	g.Add("Kerman", "Kerman")
+	g.Add("Sirjan", "Sirjan")
+	g.Add("Bushehr", "Bushehr")
+	g.Add("Bandar Abbas", "Bandar Abbas")
+	g.Add("Bandare Parsian", "Bandare Parsian")
+
+	g.Connect("Tehran", "Karaj", "Qom", "Garmsar", "Sari")
+
+	// North
+	g.Connect("Rasht", "Ardabil", "Sari")
+	g.Connect("Sari", "Semnan", "Gorgan")
+	g.Connect("Gorgan", "Damghan")
+
+	// West
+	g.Connect("Karaj", "Qazvin")
+	g.Connect("Qazvin", "Zanjan", "Rasht")
+	g.Connect("Zanjan", "Tabriz", "Sanandaj")
+	g.Connect("Tabriz", "Ardabil", "Urmia", "Saqqez")
+	g.Connect("Urmia", "Saqqez")
+	g.Connect("Saqqez", "Sanandaj")
+	g.Connect("Sanandaj", "Kermanshah")
+	g.Connect("Hamadan", "Sanandaj", "Kermanshah")
+	g.Connect("Kermanshah", "Khorramabad")
+	g.Connect("Khorramabad", "Dezful")
+	g.Connect("Dezful", "Ahwaz")
+	g.Connect("Ahwaz", "Abadan")
+	g.Connect("Abadan", "Bushehr")
+
+	// East
+	g.Connect("Garmsar", "Semnan")
+	g.Connect("Semnan", "Damghan")
+	g.Connect("Damghan", "Shahrud")
+	g.Connect("Shahrud", "Sabzevar")
+	g.Connect("Sabzevar", "Mashad")
+
+	// South
+	g.Connect("Qom", "Arak", "Kashan", "Isfahan")
+	g.Connect("Arak", "Hamadan", "Khorramabad")
+	g.Connect("Kashan", "Isfahan", "Ardestan")
+	g.Connect("Ardestan", "Naeen")
+	g.Connect("Naeen", "Isfahan", "Yazd")
+	g.Connect("Yazd", "Kerman", "Sirjan")
+	g.Connect("Sirjan", "Bandar Abbas")
+	g.Connect("Isfahan", "Shahr-e Kord", "Yasuj")
+	g.Connect("Shahr-e Kord", "Yasuj", "Khorramabad")
+	g.Connect("Yasuj", "Kazerun", "Shiraz")
+	g.Connect("Kazerun", "Shiraz", "Bushehr")
+	g.Connect("Shiraz", "Bushehr", "Bandare Parsian", "Bandar Abbas", "Sirjan")
+	g.Connect("Kerman", "Sirjan")
+	g.Connect("Bushehr", "Bandare Parsian")
+	g.Connect("Bandar Abbas", "Bandare Parsian")
+
+	return g
+}
+
+func TestTrie_Get(t *testing.T) {
 	trie := bricks.Trie[string, rune, string](tricks.StringToRunes)
 
 	assert.Nil(t, trie.Get("1"))

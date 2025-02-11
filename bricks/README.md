@@ -37,7 +37,7 @@ Resolvers, Parsers
 
 ## Technical
 Includes Abstract Data Types
-### Trie
+### Graph, Tree, Heap, Treap, Trie
 ### Bag
 ### Filter
 ### Compensator
