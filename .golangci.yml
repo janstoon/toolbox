@@ -1,43 +1,62 @@
+version: "2"
 linters:
-  enable-all: true
+  default: all
   disable:
-    - wsl
-    - tparallel
-    - gomnd
-    - tagliatelle
+    - containedctx
+    - contextcheck
+    - depguard
     - dupl
-    - godox
-    - gochecknoglobals
-    - paralleltest
-    - gochecknoinits
-    - nakedret
-    - funlen
-    - godot
-    - gci
+    - err113
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - exhaustruct
     - forbidigo
+    - funlen
+    - gochecknoglobals
+    - gochecknoinits
+    - godot
+    - godox
+    - gosec
     - ineffassign
-    - wrapcheck
+    - ireturn
+    - makezero
+    - mnd
+    - nakedret
     - nonamedreturns
     - nosprintfhostport
-    - containedctx
-    - varnamelen
-    - stylecheck
-    - ireturn
-    - err113
-    - exhaustruct
-    - depguard
-    - contextcheck
-    - exhaustive
-    - revive
-    - errorlint
-    - errname
-    - unused
-    - errchkjson
-    - unparam
-    - tagalign
-    - gosec
-    - thelper
-    - makezero
+    - paralleltest
     - perfsprint
-    - mnd
-  fast: false
+    - revive
+    - tagalign
+    - tagliatelle
+    - thelper
+    - tparallel
+    - unparam
+    - unused
+    - varnamelen
+    - wrapcheck
+    - wsl
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
