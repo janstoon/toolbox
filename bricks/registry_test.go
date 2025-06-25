@@ -15,7 +15,7 @@ func TestRegistry(t *testing.T) {
 	ii := bricks.NewRegistry[int]()
 
 	wg := errgroup.Group{}
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		func(value int) {
 			wg.Go(func() error {
 				return ii.Register(fmt.Sprintf("I#%d", value+1), value)

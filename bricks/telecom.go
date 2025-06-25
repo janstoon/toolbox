@@ -25,6 +25,40 @@ type PhoneNumber struct {
 	DefaultOperator NetworkOperator
 }
 
+func ParsePhoneNumber(number string) (*PhoneNumber, error) {
+	number = sanitizePhoneNumber(number)
+
+	var catalogue phoneNumberResolverCatalogue
+	if c := phoneNumberResolvers.matchByCountryTelCode(number); c == nil {
+		return nil, errors.Join(ErrInvalidArgument, ErrPhoneNumberUnknownCountry)
+	} else {
+		catalogue = tricks.PtrVal(c)
+	}
+
+	localNumber := strings.TrimPrefix(strings.TrimPrefix(number, catalogue.countryTelCode), "0")
+	meta, err := catalogue.resolver(localNumber)
+	if err != nil {
+		return nil, errors.Join(ErrInvalidArgument, err)
+	}
+
+	return &PhoneNumber{
+		full:            fmt.Sprintf("%s%s", catalogue.countryTelCode, localNumber),
+		Country:         LookupCountryByTelephoneCode(catalogue.countryTelCode),
+		Mobile:          meta.Mobile,
+		Prepaid:         meta.Prepaid,
+		DefaultOperator: meta.Operator,
+	}, nil
+}
+
+func MustParsePhoneNumber(number string) PhoneNumber {
+	pn, err := ParsePhoneNumber(number)
+	if err != nil {
+		panic(err)
+	}
+
+	return tricks.PtrVal(pn)
+}
+
 func (pn PhoneNumber) String() string {
 	return fmt.Sprintf("+%s", pn.full)
 }
@@ -115,40 +149,6 @@ var phoneNumberResolvers = phoneNumberResolverBank{
 	byCountryTelCode: Trie[string, rune, phoneNumberResolverCatalogue](func(s string) []rune {
 		return []rune(s)
 	}),
-}
-
-func ParsePhoneNumber(number string) (*PhoneNumber, error) {
-	number = sanitizePhoneNumber(number)
-
-	var catalogue phoneNumberResolverCatalogue
-	if c := phoneNumberResolvers.matchByCountryTelCode(number); c == nil {
-		return nil, errors.Join(ErrInvalidArgument, ErrPhoneNumberUnknownCountry)
-	} else {
-		catalogue = tricks.PtrVal(c)
-	}
-
-	localNumber := strings.TrimPrefix(strings.TrimPrefix(number, catalogue.countryTelCode), "0")
-	meta, err := catalogue.resolver(localNumber)
-	if err != nil {
-		return nil, errors.Join(ErrInvalidArgument, err)
-	}
-
-	return &PhoneNumber{
-		full:            fmt.Sprintf("%s%s", catalogue.countryTelCode, localNumber),
-		Country:         LookupCountryByTelephoneCode(catalogue.countryTelCode),
-		Mobile:          meta.Mobile,
-		Prepaid:         meta.Prepaid,
-		DefaultOperator: meta.Operator,
-	}, nil
-}
-
-func MustParsePhoneNumber(number string) PhoneNumber {
-	pn, err := ParsePhoneNumber(number)
-	if err != nil {
-		panic(err)
-	}
-
-	return tricks.PtrVal(pn)
 }
 
 var ptnNonDigits = regexp.MustCompile(`\D`)

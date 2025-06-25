@@ -130,7 +130,7 @@ func validateIban(cc, cd, bban string) error {
 	value := new(big.Int)
 	value.SetString(numeric.String(), 10)
 
-	if 1 == value.Mod(value, big.NewInt(97)).Int64() {
+	if value.Mod(value, big.NewInt(97)).Int64() == 1 {
 		return nil
 	}
 
