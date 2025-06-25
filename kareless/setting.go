@@ -39,20 +39,6 @@ func (ss *Settings) Append(source SettingSource) {
 	ss.rr = append(ss.rr, source)
 }
 
-func (ss *Settings) get(ctx context.Context, key string) any {
-	ss.lock.RLock()
-	defer ss.lock.RUnlock()
-
-	for _, r := range ss.rr {
-		v, err := r.Get(ctx, key)
-		if err == nil && v != nil {
-			return v
-		}
-	}
-
-	return nil
-}
-
 func (ss *Settings) UnmarshalJson(key string, valPtr any) error {
 	bb, err := json.Marshal(ss.get(context.Background(), key))
 	if err != nil {
@@ -108,6 +94,20 @@ func (ss *Settings) Children(key string) []string {
 		}
 
 		return kk
+	}
+
+	return nil
+}
+
+func (ss *Settings) get(ctx context.Context, key string) any {
+	ss.lock.RLock()
+	defer ss.lock.RUnlock()
+
+	for _, r := range ss.rr {
+		v, err := r.Get(ctx, key)
+		if err == nil && v != nil {
+			return v
+		}
 	}
 
 	return nil

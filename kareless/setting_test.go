@@ -31,9 +31,7 @@ func TestSettings_UnmarshalJson(t *testing.T) {
 		}
 	)
 
-	dir, err := os.MkdirTemp("", "kareless-unmarshal-json-settings-")
-	require.NoError(t, err)
-	defer func() { _ = os.RemoveAll(dir) }()
+	dir := t.TempDir()
 
 	fname := "tconf"
 	fh, err := os.Create(path.Join(dir, fmt.Sprintf("%s.json", fname)))
@@ -103,7 +101,7 @@ func TestSettings_UnmarshalJson(t *testing.T) {
 
 	err = ss.UnmarshalJson("unknown", &iUnknown)
 	require.NoError(t, err)
-	assert.Equal(t, "", iUnknown)
+	assert.Empty(t, iUnknown)
 
 	ss.Prepend(std.MapSettingSource{
 		"name": "Pouyan",
@@ -158,7 +156,7 @@ func TestSettings_UnmarshalJson(t *testing.T) {
 
 	err = ss.UnmarshalJson("unknown", &iUnknown)
 	require.NoError(t, err)
-	assert.Equal(t, "", iUnknown)
+	assert.Empty(t, iUnknown)
 
 	ss.Append(std.MapSettingSource{
 		"macPerson": true,

@@ -46,6 +46,19 @@ type InstrumentBank struct {
 	settings *Settings
 }
 
+func (ib *InstrumentBank) Resolve(name string, tester func(v any) bool) Instrument {
+	ins := ib.resolve(name)
+	if ins == nil {
+		panic(errors.Join(ErrUnresolvedDependency, fmt.Errorf("no instrument provided: %s", name)))
+	}
+
+	if !tester(ins) {
+		panic(errors.Join(ErrUnacceptableDependency, fmt.Errorf("test failed for instrument(%s): %T", name, ins)))
+	}
+
+	return ins
+}
+
 func newInstrumentBank(ss *Settings) *InstrumentBank {
 	return &InstrumentBank{
 		factories: make(map[string]*instrumentFactory),
@@ -94,19 +107,6 @@ func (ib *InstrumentBank) resolve(name string) Instrument {
 	}
 
 	return fkt.create(ib.settings, ib)
-}
-
-func (ib *InstrumentBank) Resolve(name string, tester func(v any) bool) Instrument {
-	ins := ib.resolve(name)
-	if ins == nil {
-		panic(errors.Join(ErrUnresolvedDependency, fmt.Errorf("no instrument provided: %s", name)))
-	}
-
-	if !tester(ins) {
-		panic(errors.Join(ErrUnacceptableDependency, fmt.Errorf("test failed dor instrument(%s): %T", name, ins)))
-	}
-
-	return ins
 }
 
 func ResolveInstrumentByType[T any](ib *InstrumentBank, name string) T {

@@ -80,9 +80,7 @@ func TestMapSettingSource_Get(t *testing.T) {
 }
 
 func TestLocalEarlySettings_Get(t *testing.T) {
-	dir, err := os.MkdirTemp("", "kareless-std-local-settings-")
-	require.NoError(t, err)
-	defer func() { _ = os.RemoveAll(dir) }()
+	dir := t.TempDir()
 
 	fname := "tconf"
 	fh, err := os.Create(path.Join(dir, fmt.Sprintf("%s.json", fname)))
