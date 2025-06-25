@@ -43,11 +43,7 @@ func PrimeFactors(n int) []int {
 	ff := make([]int, 0, 10)
 
 	divisor := 1
-	for {
-		if n <= 1 {
-			break
-		}
-
+	for n > 1 {
 		divisor = nextPrime(divisor)
 		if n%divisor == 0 {
 			ff = append(ff, divisor)

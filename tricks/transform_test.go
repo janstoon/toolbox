@@ -11,13 +11,13 @@ import (
 
 func TestPtrVal(t *testing.T) {
 	assert.Zero(t, tricks.PtrVal[int](nil))
-	assert.Zero(t, tricks.PtrVal[string](nil))
+	assert.Empty(t, tricks.PtrVal[string](nil))
 	assert.Zero(t, tricks.PtrVal[bool](nil))
 	assert.Zero(t, tricks.PtrVal[[]int](nil))
 	assert.Zero(t, tricks.PtrVal[map[string]int](nil))
 
 	assert.Equal(t, 0, tricks.PtrVal[int](nil))
-	assert.Equal(t, "", tricks.PtrVal[string](nil))
+	assert.Empty(t, tricks.PtrVal[string](nil))
 	assert.False(t, tricks.PtrVal[bool](nil))
 	assert.Nil(t, tricks.PtrVal[[]int](nil))
 	assert.Nil(t, tricks.PtrVal[map[string]int](nil))
