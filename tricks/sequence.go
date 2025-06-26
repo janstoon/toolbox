@@ -318,7 +318,7 @@ func SliceDistinctBy[Slice ~[]E, E any, K comparable](s Slice, transformer Trans
 
 // Distinct returns a new seq with distinct elements.
 func Distinct[E comparable](seq iter.Seq[E]) iter.Seq[E] {
-	return DistinctBy(seq, IdentityMiddleware)
+	return DistinctBy(seq, Identity)
 }
 
 // SliceDistinct performs Distinct on slice

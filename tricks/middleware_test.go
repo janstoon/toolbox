@@ -50,13 +50,13 @@ func TestMathMiddleware(t *testing.T) {
 	var mw tricks.MiddlewareStack[arithmetic]
 
 	// 9 + 10
-	assert.Equal(t, 19, mw.Push(tricks.IdentityMiddleware[arithmetic])(adder)(9, 10))
+	assert.Equal(t, 19, mw.Push(tricks.Identity[arithmetic])(adder)(9, 10))
 
 	// 5 + 2 - 2 + 10
 	assert.Equal(t, 15, mw.Push(addOp0By(2)).Push(subOp0By(2))(adder)(5, 10))
 
 	// 9 * 3 / 2 + 10
-	assert.Equal(t, 19, mw.Push(mulOp0By(3)).Push(divOp0By(3))(adder)(9, 10))
+	assert.Equal(t, 23, mw.Push(mulOp0By(3)).Push(divOp0By(2))(adder)(9, 10))
 
 	// 5 + 2 * 3 + 10
 	assert.Equal(t, 31, mw.Push(addOp0By(2)).Push(mulOp0By(3))(adder)(5, 10))

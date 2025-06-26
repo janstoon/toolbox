@@ -25,8 +25,8 @@ func TestSliceFilter(t *testing.T) {
 }
 
 func TestSliceMap(t *testing.T) {
-	assert.Nil(t, tricks.SliceMap[[]any, []any](nil, tricks.IdentityMiddleware[any]))
-	assert.Nil(t, tricks.SliceMap[[]int, []int]([]int{}, tricks.IdentityMiddleware[int]))
+	assert.Nil(t, tricks.SliceMap[[]any, []any](nil, tricks.Identity[any]))
+	assert.Nil(t, tricks.SliceMap[[]int, []int]([]int{}, tricks.Identity[int]))
 
 	assert.Equal(t, []int{2, 4, 6, 8, 10, 12}, tricks.SliceMap[[]int, []int]([]int{1, 2, 3, 4, 5, 6},
 		func(src int) int {
