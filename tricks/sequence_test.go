@@ -24,6 +24,18 @@ func TestSliceFilter(t *testing.T) {
 	))
 }
 
+func BenchmarkSliceFilter(b *testing.B) {
+	for range b.N {
+		tricks.SliceFilter([]int{1, 3, 4, 5}, tricks.MatchGreaterThan(3))
+	}
+}
+
+func BenchmarkOrganicSliceFilter(b *testing.B) {
+	for range b.N {
+		tricks.OrganicSliceFilter([]int{1, 3, 4, 5}, tricks.MatchGreaterThan(3))
+	}
+}
+
 func TestSliceMap(t *testing.T) {
 	assert.Nil(t, tricks.SliceMap[[]any, []any](nil, tricks.Identity[any]))
 	assert.Nil(t, tricks.SliceMap[[]int, []int]([]int{}, tricks.Identity[int]))
@@ -39,6 +51,22 @@ func TestSliceMap(t *testing.T) {
 			return fmt.Sprintf("value: %d", src)
 		}),
 	)
+}
+
+func BenchmarkSliceMap(b *testing.B) {
+	for range b.N {
+		tricks.SliceMap[[]int, []int]([]int{2, 8, 1, 4, 6, 9, 0, 22, 40}, func(src int) int {
+			return src * 3 / 5
+		})
+	}
+}
+
+func BenchmarkOrganicSliceMap(b *testing.B) {
+	for range b.N {
+		tricks.OrganicSliceMap[[]int, []int]([]int{2, 8, 1, 4, 6, 9, 0, 22, 40}, func(src int) int {
+			return src * 3 / 5
+		})
+	}
 }
 
 func TestSliceReduce(t *testing.T) {

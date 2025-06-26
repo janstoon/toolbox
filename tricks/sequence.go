@@ -186,7 +186,8 @@ func SliceFilter[Slice ~[]E, E any](s Slice, matcher Matcher[E]) Slice {
 	return slices.Collect(Filter(slices.Values(s), matcher))
 }
 
-func oldSliceFilter[Slice ~[]E, E any](s Slice, matcher Matcher[E]) Slice {
+// OrganicSliceFilter is like SliceFilter with more performance as it's implemented organic.
+func OrganicSliceFilter[Slice ~[]E, E any](s Slice, matcher Matcher[E]) Slice {
 	filtered := make(Slice, 0, len(s))
 	for _, e := range s {
 		if matcher.Match(e) {
@@ -219,7 +220,8 @@ func SliceMap[SS ~[]S, DD ~[]D, S, D any](ss SS, transformer Transformer[S, D]) 
 	return slices.Collect(Map(slices.Values(ss), transformer))
 }
 
-func oldSliceMap[SS ~[]S, DD ~[]D, S, D any](ss SS, transformer Transformer[S, D]) DD {
+// OrganicSliceMap is like SliceMap with more performance as it's implemented organic.
+func OrganicSliceMap[SS ~[]S, DD ~[]D, S, D any](ss SS, transformer Transformer[S, D]) DD {
 	if ss == nil {
 		return nil
 	}
