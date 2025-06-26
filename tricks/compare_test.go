@@ -8,14 +8,7 @@ import (
 	"github.com/janstoon/toolbox/tricks"
 )
 
-func TestStringToRunes(t *testing.T) {
-	assert.Equal(t, []rune{'a'}, tricks.StringToRunes("a"))
-	assert.Equal(t, []rune{'a', 'b', 'c', 'd'}, tricks.StringToRunes("abcd"))
-	assert.Equal(t, []rune{'a', 'b', ' ', 'c', 'd'}, tricks.StringToRunes("ab cd"))
-	assert.Equal(t, []rune{'a', 'b', 'b', 'a'}, tricks.StringToRunes("abba"))
-}
-
-func TestIsEmptyString(t *testing.T) {
+func TestMatchEmptyString(t *testing.T) {
 	tcc := []struct {
 		s      string
 		result bool
@@ -32,7 +25,7 @@ func TestIsEmptyString(t *testing.T) {
 	}
 
 	for k, tc := range tcc {
-		result := tricks.IsEmptyString(tc.s)
+		result := tricks.MatchEmptyString().Match(tc.s)
 		assert.Equalf(t, tc.result, result, "test case #%d '%s': expected %v, got %v", k, tc.s, tc.result, result)
 	}
 }

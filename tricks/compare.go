@@ -1,6 +1,9 @@
 package tricks
 
-import "cmp"
+import (
+	"cmp"
+	"strings"
+)
 
 // Matcher performs matching against value of type T. It's usable in filtering, searching and checking tasks which need
 // a predicator to check each individual element.
@@ -37,5 +40,12 @@ func MatchGreaterThan[T cmp.Ordered](expected T) Matcher[T] {
 func MatchLesserThan[T cmp.Ordered](expected T) Matcher[T] {
 	return MatcherFunc[T](func(actual T) bool {
 		return actual < expected
+	})
+}
+
+// MatchEmptyString matches actual if it's empty string ignoring whitespaces
+func MatchEmptyString() Matcher[string] {
+	return MatcherFunc[string](func(actual string) bool {
+		return len(strings.TrimSpace(actual)) == 0
 	})
 }

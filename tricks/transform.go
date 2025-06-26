@@ -51,3 +51,8 @@ func FromAny[T any](src any) T {
 
 	return dst
 }
+
+// StringToRunes casts string into slice of underlying rune(s)
+func StringToRunes(src string) []rune {
+	return []rune(src)
+}
