@@ -38,7 +38,7 @@ func TestApplyOptions(t *testing.T) {
 	assert.Equal(t, 4, mv.number)
 }
 
-func ExampleApplyOptions() {
+func ExampleApplyOptions_basic() {
 	type configuration struct {
 		scope         string
 		verbose       bool

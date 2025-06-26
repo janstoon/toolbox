@@ -8,7 +8,7 @@ import (
 	"github.com/janstoon/toolbox/tricks"
 )
 
-func TestMathMiddleware(t *testing.T) {
+func TestMiddlewareStack(t *testing.T) {
 	type arithmetic func(a, b int) int
 
 	var (

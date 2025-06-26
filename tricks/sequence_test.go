@@ -30,6 +30,13 @@ func BenchmarkSliceFilter(b *testing.B) {
 	}
 }
 
+func ExampleSliceFilter_gt() {
+	out := tricks.SliceFilter([]int{1, 3, 4, 5}, tricks.MatchGreaterThan(2))
+
+	fmt.Println(out)
+	// Output: [3 4 5]
+}
+
 func BenchmarkOrganicSliceFilter(b *testing.B) {
 	for range b.N {
 		tricks.OrganicSliceFilter([]int{1, 3, 4, 5}, tricks.MatchGreaterThan(3))
@@ -61,6 +68,15 @@ func BenchmarkSliceMap(b *testing.B) {
 	}
 }
 
+func ExampleSliceMap_multiply() {
+	out := tricks.SliceMap[[]int, []int]([]int{1, 3, 4, 5}, func(src int) int {
+		return src * 2
+	})
+
+	fmt.Println(out)
+	// Output: [2 6 8 10]
+}
+
 func BenchmarkOrganicSliceMap(b *testing.B) {
 	for range b.N {
 		tricks.OrganicSliceMap[[]int, []int]([]int{2, 8, 1, 4, 6, 9, 0, 22, 40}, func(src int) int {
@@ -85,6 +101,13 @@ func TestSliceReduce(t *testing.T) {
 		}), 0))
 
 	assert.Equal(t, 15, tricks.SliceReduce([]int{1, 2, 3, 4, 5}, tricks.ReduceSum[int](), 0))
+}
+
+func ExampleSliceReduce_sum() {
+	out := tricks.SliceReduce([]int{1, 3, 4, 5}, tricks.ReduceSum[int](), 0)
+
+	fmt.Println(out)
+	// Output: 13
 }
 
 func TestSliceFind(t *testing.T) {
