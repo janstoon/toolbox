@@ -17,7 +17,7 @@ type NatsMsgHandler func(ctx context.Context, msg *nats.Msg) error
 
 type NatsMiddlewareStack = tricks.MiddlewareStack[NatsMsgHandler]
 
-type PanicRecoverNatsMiddlewareOpt = tricks.InPlaceOption[any]
+type PanicRecoverNatsMiddlewareOpt = tricks.MutableOption[any]
 
 func NatsPanicRecoverMiddleware(options ...PanicRecoverAsynqMiddlewareOpt) tricks.Middleware[NatsMsgHandler] {
 	return func(next NatsMsgHandler) NatsMsgHandler {
@@ -37,7 +37,7 @@ func NatsPanicRecoverMiddleware(options ...PanicRecoverAsynqMiddlewareOpt) trick
 	}
 }
 
-type CompensatorNatsMiddlewareOpt = tricks.InPlaceOption[any]
+type CompensatorNatsMiddlewareOpt = tricks.MutableOption[any]
 
 // NatsCompensatorMiddleware tries to compensate the task if error is not bricks.ErrRetryable.
 // It searches for a bricks.Compensator in returned error by msg handler and runs the first one.
@@ -70,7 +70,7 @@ type OtelNmw struct {
 type OpenTelemetryNatsMiddlewareOpt = tricks.Option[OtelNmw]
 
 func OtelNatsSpanNamePrefix(prefix string) OpenTelemetryNatsMiddlewareOpt {
-	return tricks.OutOfPlaceOption[OtelNmw](func(nmw OtelNmw) OtelNmw {
+	return tricks.ImmutableOption[OtelNmw](func(nmw OtelNmw) OtelNmw {
 		nmw.namePrefix = prefix
 
 		return nmw

@@ -21,7 +21,7 @@ import (
 
 type HttpMiddlewareStack = tricks.MiddlewareStack[http.Handler]
 
-type PanicRecoverHttpMiddlewareOpt = tricks.InPlaceOption[any]
+type PanicRecoverHttpMiddlewareOpt = tricks.MutableOption[any]
 
 func HttpPanicRecoverMiddleware(options ...PanicRecoverHttpMiddlewareOpt) tricks.Middleware[http.Handler] {
 	return func(next http.Handler) http.Handler {
@@ -44,7 +44,7 @@ func HttpPanicRecoverMiddleware(options ...PanicRecoverHttpMiddlewareOpt) tricks
 	}
 }
 
-type BlindLoggerHttpMiddlewareOpt = tricks.InPlaceOption[any]
+type BlindLoggerHttpMiddlewareOpt = tricks.MutableOption[any]
 
 func HttpBlindLoggerMiddleware(
 	mctx *middleware.Context, options ...BlindLoggerHttpMiddlewareOpt,
@@ -67,14 +67,16 @@ func HttpBlindLoggerMiddleware(
 	}
 }
 
-type CorsHttpMiddlewareOpt = tricks.InPlaceOption[cors.Options]
+type CorsHttpMiddlewareOpt = tricks.MutableOption[cors.Options]
 
 func HttpCrossOriginResourceSharingPolicyMiddleware(options ...CorsHttpMiddlewareOpt) tricks.Middleware[http.Handler] {
 	cfg := cors.Options{}
 	cfg = tricks.PtrVal(tricks.ApplyOptions(&cfg,
-		tricks.Map(options, func(src CorsHttpMiddlewareOpt) tricks.Option[cors.Options] {
-			return src
-		})...))
+		tricks.SliceMap[[]CorsHttpMiddlewareOpt, []tricks.Option[cors.Options]](options,
+			func(src CorsHttpMiddlewareOpt) tricks.Option[cors.Options] {
+				return src
+			},
+		)...))
 
 	return cors.New(cfg).Handler
 }
@@ -136,7 +138,7 @@ type OtelHmw struct {
 type OpenTelemetryHttpMiddlewareOpt = tricks.Option[OtelHmw]
 
 func OtelHttpSpanNamePrefix(prefix string) OpenTelemetryHttpMiddlewareOpt {
-	return tricks.OutOfPlaceOption[OtelHmw](func(hmw OtelHmw) OtelHmw {
+	return tricks.ImmutableOption[OtelHmw](func(hmw OtelHmw) OtelHmw {
 		hmw.namePrefix = prefix
 
 		return hmw
@@ -144,7 +146,7 @@ func OtelHttpSpanNamePrefix(prefix string) OpenTelemetryHttpMiddlewareOpt {
 }
 
 func OtelHttpRouteTester(tester HttpRouteTester) OpenTelemetryHttpMiddlewareOpt {
-	return tricks.OutOfPlaceOption[OtelHmw](func(hmw OtelHmw) OtelHmw {
+	return tricks.ImmutableOption[OtelHmw](func(hmw OtelHmw) OtelHmw {
 		hmw.routeTester = tester
 
 		return hmw
@@ -153,7 +155,7 @@ func OtelHttpRouteTester(tester HttpRouteTester) OpenTelemetryHttpMiddlewareOpt 
 
 func OtelHttpOperationIdException(oids ...string) OpenTelemetryHttpMiddlewareOpt {
 	return OtelHttpRouteTester(func(route *middleware.MatchedRoute) bool {
-		return tricks.IndexOf(route.Operation.ID, oids) < 0
+		return tricks.SliceIndexOf(route.Operation.ID, oids) < 0
 	})
 }
 
@@ -224,7 +226,7 @@ func (hmw OtelHmw) spanName(opId string) string {
 
 type HttpTripperwareStack = tricks.MiddlewareStack[http.RoundTripper]
 
-type BlindLoggerHttpTripperwareOpt = tricks.InPlaceOption[any]
+type BlindLoggerHttpTripperwareOpt = tricks.MutableOption[any]
 
 func HttpBlindLoggerTripperware(options ...BlindLoggerHttpTripperwareOpt) tricks.Middleware[http.RoundTripper] {
 	return func(next http.RoundTripper) http.RoundTripper {

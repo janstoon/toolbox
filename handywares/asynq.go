@@ -15,7 +15,7 @@ import (
 
 type AsynqMiddlewareStack = tricks.MiddlewareStack[asynq.Handler]
 
-type ErrorDecoratorAsynqMiddlewareOpt = tricks.InPlaceOption[any]
+type ErrorDecoratorAsynqMiddlewareOpt = tricks.MutableOption[any]
 
 // AsynqErrorDecoratorMiddleware skip asynq retry except that error is bricks.ErrRetryable
 func AsynqErrorDecoratorMiddleware(options ...ErrorDecoratorAsynqMiddlewareOpt) tricks.Middleware[asynq.Handler] {
@@ -35,7 +35,7 @@ func AsynqErrorDecoratorMiddleware(options ...ErrorDecoratorAsynqMiddlewareOpt) 
 	}
 }
 
-type PanicRecoverAsynqMiddlewareOpt = tricks.InPlaceOption[any]
+type PanicRecoverAsynqMiddlewareOpt = tricks.MutableOption[any]
 
 func AsynqPanicRecoverMiddleware(options ...PanicRecoverAsynqMiddlewareOpt) tricks.Middleware[asynq.Handler] {
 	return func(next asynq.Handler) asynq.Handler {
@@ -55,7 +55,7 @@ func AsynqPanicRecoverMiddleware(options ...PanicRecoverAsynqMiddlewareOpt) tric
 	}
 }
 
-type CompensatorAsynqMiddlewareOpt = tricks.InPlaceOption[any]
+type CompensatorAsynqMiddlewareOpt = tricks.MutableOption[any]
 
 // AsynqCompensatorMiddleware tries to compensate the task if max retries reached or error is not bricks.ErrRetryable.
 // It searches for a bricks.Compensator in returned error by task handler and runs the first one.
@@ -90,7 +90,7 @@ type OtelAmw struct {
 type OpenTelemetryAsynqMiddlewareOpt = tricks.Option[OtelAmw]
 
 func OtelAsynqSpanNamePrefix(prefix string) OpenTelemetryAsynqMiddlewareOpt {
-	return tricks.OutOfPlaceOption[OtelAmw](func(amw OtelAmw) OtelAmw {
+	return tricks.ImmutableOption[OtelAmw](func(amw OtelAmw) OtelAmw {
 		amw.namePrefix = prefix
 
 		return amw

@@ -22,7 +22,7 @@ func (stk MsgMiddlewareStack[M]) Push(mw tricks.Middleware[MsgHandler[M]]) MsgMi
 	return MsgMiddlewareStack[M](tricks.MiddlewareStack[MsgHandler[M]](stk).Push(mw))
 }
 
-type PanicRecoverMsgMiddlewareOpt = tricks.InPlaceOption[any]
+type PanicRecoverMsgMiddlewareOpt = tricks.MutableOption[any]
 
 func MsgPanicRecoverMiddleware[M any](options ...PanicRecoverMsgMiddlewareOpt) tricks.Middleware[MsgHandler[M]] {
 	return func(next MsgHandler[M]) MsgHandler[M] {
@@ -42,7 +42,7 @@ func MsgPanicRecoverMiddleware[M any](options ...PanicRecoverMsgMiddlewareOpt) t
 	}
 }
 
-type CompensatorMsgMiddlewareOpt = tricks.InPlaceOption[any]
+type CompensatorMsgMiddlewareOpt = tricks.MutableOption[any]
 
 // MsgCompensatorMiddleware tries to compensate the task if error is not bricks.ErrRetryable.
 // It searches for a bricks.Compensator in returned error by msg handler and runs the first one.
@@ -76,7 +76,7 @@ type OtelMmw[M any] struct {
 type OpenTelemetryMsgMiddlewareOpt[M any] tricks.Option[OtelMmw[M]]
 
 func OtelMsgSpanNamePrefix[M any](prefix string) OpenTelemetryMsgMiddlewareOpt[M] {
-	return tricks.OutOfPlaceOption[OtelMmw[M]](func(nmw OtelMmw[M]) OtelMmw[M] {
+	return tricks.ImmutableOption[OtelMmw[M]](func(nmw OtelMmw[M]) OtelMmw[M] {
 		nmw.namePrefix = prefix
 
 		return nmw
@@ -84,7 +84,7 @@ func OtelMsgSpanNamePrefix[M any](prefix string) OpenTelemetryMsgMiddlewareOpt[M
 }
 
 func OtelMsgSubjectExporter[M any](exp func(msg M) string) OpenTelemetryMsgMiddlewareOpt[M] {
-	return tricks.OutOfPlaceOption[OtelMmw[M]](func(mmw OtelMmw[M]) OtelMmw[M] {
+	return tricks.ImmutableOption[OtelMmw[M]](func(mmw OtelMmw[M]) OtelMmw[M] {
 		mmw.subjExporter = exp
 
 		return mmw
@@ -101,7 +101,7 @@ func MsgOpenTelemetryMiddleware[M any](
 			return "unknown"
 		},
 	}
-	amw = tricks.ApplyOptions(amw, tricks.Map[OpenTelemetryMsgMiddlewareOpt[M], tricks.Option[OtelMmw[M]]](
+	amw = tricks.ApplyOptions(amw, tricks.SliceMap[[]OpenTelemetryMsgMiddlewareOpt[M], []tricks.Option[OtelMmw[M]]](
 		options,
 		func(src OpenTelemetryMsgMiddlewareOpt[M]) tricks.Option[OtelMmw[M]] {
 			return src

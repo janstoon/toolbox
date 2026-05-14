@@ -1,17 +1,15 @@
 module github.com/janstoon/toolbox/handywares
 
-go 1.22
-
-toolchain go1.22.3
+go 1.23
 
 require (
 	github.com/go-openapi/runtime v0.28.0
 	github.com/hibiken/asynq v0.24.1
-	github.com/janstoon/toolbox/bricks v0.7.2
-	github.com/janstoon/toolbox/tricks v0.10.0
+	github.com/janstoon/toolbox/bricks v0.8.1
+	github.com/janstoon/toolbox/tricks v1.1.0
 	github.com/nats-io/nats.go v1.37.0
 	github.com/rs/cors v1.11.1
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	go.opentelemetry.io/otel v1.29.0
 	go.opentelemetry.io/otel/trace v1.29.0
 	google.golang.org/grpc v1.66.2
@@ -43,11 +41,12 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/redis/go-redis/v9 v9.6.1 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
+	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
 	go.mongodb.org/mongo-driver v1.16.1 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/net v0.29.0 // indirect
-	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
 	golang.org/x/time v0.6.0 // indirect

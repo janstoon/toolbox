@@ -15,7 +15,7 @@ import (
 
 type GrpcUnaryServerMiddlewareStack = tricks.MiddlewareStack[grpc.UnaryServerInterceptor]
 
-type PanicRecoverGrpcMiddlewareOpt = tricks.InPlaceOption[any]
+type PanicRecoverGrpcMiddlewareOpt = tricks.MutableOption[any]
 
 func GrpcPanicRecoverMiddleware(
 	options ...PanicRecoverGrpcMiddlewareOpt,
@@ -48,7 +48,7 @@ type OtelGmw struct {
 type OpenTelemetryGrpcMiddlewareOpt = tricks.Option[OtelGmw]
 
 func OtelGrpcSpanNamePrefix(prefix string) OpenTelemetryGrpcMiddlewareOpt {
-	return tricks.OutOfPlaceOption[OtelGmw](func(gmw OtelGmw) OtelGmw {
+	return tricks.ImmutableOption[OtelGmw](func(gmw OtelGmw) OtelGmw {
 		gmw.namePrefix = prefix
 
 		return gmw
