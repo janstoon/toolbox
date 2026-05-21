@@ -81,7 +81,9 @@ func TestParsePhoneNumber(t *testing.T) {
 		"999(123) 456 789",
 	}
 	for _, number := range validNumbers {
-		pn, err := bricks.ParsePhoneNumber(number)
+		pn, err := bricks.ParsePhoneNumber(number,
+			bricks.ParsePhoneNumberWithDefaultCountry(bricks.LookupCountryByIsoAlphaTwoCode(otherland.Codes.IsoAlphaTwo)),
+		)
 		require.NoError(t, err)
 		assert.NotNil(t, pn)
 		assert.Equal(t, "+999123456789", pn.String())
@@ -91,7 +93,9 @@ func TestParsePhoneNumber(t *testing.T) {
 		assert.False(t, pn.DefaultOperator.Virtual)
 		assert.Equal(t, "NeverTel", pn.DefaultOperator.Name)
 
-		assert.Equal(t, tricks.PtrVal(pn), bricks.MustParsePhoneNumber(number))
+		assert.Equal(t, tricks.PtrVal(pn), bricks.MustParsePhoneNumber(number,
+			bricks.ParsePhoneNumberWithDefaultCountry(bricks.LookupCountryByIsoAlphaTwoCode(otherland.Codes.IsoAlphaTwo)),
+		))
 	}
 
 	unregisteredNumbers := []string{
@@ -132,5 +136,27 @@ func TestParsePhoneNumber(t *testing.T) {
 		require.Panics(t, func() {
 			bricks.MustParsePhoneNumber(number)
 		})
+	}
+
+	localNumbers := []string{
+		"123456789",
+		"0123456789",
+	}
+	for _, number := range localNumbers {
+		pn, err := bricks.ParsePhoneNumber(number,
+			bricks.ParsePhoneNumberWithDefaultCountry(bricks.LookupCountryByIsoAlphaTwoCode(neverland.Codes.IsoAlphaTwo)),
+		)
+		require.NoError(t, err)
+		assert.NotNil(t, pn)
+		assert.Equal(t, "+999123456789", pn.String())
+		assert.Equal(t, bricks.LookupCountryByIsoAlphaTwoCode(neverland.Codes.IsoAlphaTwo), pn.Country)
+		assert.True(t, pn.Mobile)
+		assert.False(t, pn.Prepaid)
+		assert.False(t, pn.DefaultOperator.Virtual)
+		assert.Equal(t, "NeverTel", pn.DefaultOperator.Name)
+
+		assert.Equal(t, tricks.PtrVal(pn), bricks.MustParsePhoneNumber(number,
+			bricks.ParsePhoneNumberWithDefaultCountry(bricks.LookupCountryByIsoAlphaTwoCode(neverland.Codes.IsoAlphaTwo)),
+		))
 	}
 }

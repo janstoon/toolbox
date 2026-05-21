@@ -49,9 +49,9 @@ func (g Graph[Key, Weight, Value]) BreadthFirstSearch(from, to Key) []Key {
 	}
 
 	var nn Queue[[]Key]
-	nn.Enqueue(tricks.Map(slices.Collect(maps.Keys(origin.neighbors)), func(k Key) []Key {
+	nn.Enqueue(slices.Collect(tricks.Map(maps.Keys(origin.neighbors), func(k Key) []Key {
 		return []Key{from, k}
-	})...)
+	}))...)
 	visited := make(map[Key]bool)
 
 	for path := range nn.All() {
@@ -72,12 +72,12 @@ func (g Graph[Key, Weight, Value]) BreadthFirstSearch(from, to Key) []Key {
 			panic("alien key")
 		}
 
-		nn.Enqueue(tricks.Map(slices.Collect(maps.Keys(n.neighbors)), func(k Key) []Key {
+		nn.Enqueue(slices.Collect(tricks.Map(maps.Keys(n.neighbors), func(k Key) []Key {
 			kk := make([]Key, len(path))
 			copy(kk, path)
 
 			return append(kk, k)
-		})...)
+		}))...)
 	}
 
 	return nil

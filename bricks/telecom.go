@@ -25,33 +25,12 @@ type PhoneNumber struct {
 	DefaultOperator NetworkOperator
 }
 
-func ParsePhoneNumber(number string) (*PhoneNumber, error) {
-	number = sanitizePhoneNumber(number)
-
-	var catalogue phoneNumberResolverCatalogue
-	if c := phoneNumberResolvers.matchByCountryTelCode(number); c == nil {
-		return nil, errors.Join(ErrInvalidArgument, ErrPhoneNumberUnknownCountry)
-	} else {
-		catalogue = tricks.PtrVal(c)
-	}
-
-	localNumber := strings.TrimPrefix(strings.TrimPrefix(number, catalogue.countryTelCode), "0")
-	meta, err := catalogue.resolver(localNumber)
-	if err != nil {
-		return nil, errors.Join(ErrInvalidArgument, err)
-	}
-
-	return &PhoneNumber{
-		full:            fmt.Sprintf("%s%s", catalogue.countryTelCode, localNumber),
-		Country:         LookupCountryByTelephoneCode(catalogue.countryTelCode),
-		Mobile:          meta.Mobile,
-		Prepaid:         meta.Prepaid,
-		DefaultOperator: meta.Operator,
-	}, nil
+func ParsePhoneNumber(number string, oo ...ParsePhoneNumberOption) (*PhoneNumber, error) {
+	return tricks.ApplyOptions(new(phoneNumberParser), oo...).parse(number)
 }
 
-func MustParsePhoneNumber(number string) PhoneNumber {
-	pn, err := ParsePhoneNumber(number)
+func MustParsePhoneNumber(number string, oo ...ParsePhoneNumberOption) PhoneNumber {
+	pn, err := ParsePhoneNumber(number, oo...)
 	if err != nil {
 		panic(err)
 	}
@@ -152,6 +131,44 @@ var phoneNumberResolvers = phoneNumberResolverBank{
 }
 
 var ptnNonDigits = regexp.MustCompile(`\D`)
+
+type ParsePhoneNumberOption = tricks.Option[phoneNumberParser]
+type phoneNumberParser struct {
+	catalogue *phoneNumberResolverCatalogue
+}
+
+func (parser *phoneNumberParser) parse(number string) (*PhoneNumber, error) {
+	number = sanitizePhoneNumber(number)
+
+	if c := phoneNumberResolvers.matchByCountryTelCode(number); c != nil {
+		parser.catalogue = c
+		number = strings.TrimPrefix(number, parser.catalogue.countryTelCode)
+	}
+
+	if parser.catalogue == nil {
+		return nil, errors.Join(ErrInvalidArgument, ErrPhoneNumberUnknownCountry)
+	}
+
+	localNumber := strings.TrimPrefix(number, "0")
+	meta, err := parser.catalogue.resolver(localNumber)
+	if err != nil {
+		return nil, errors.Join(ErrInvalidArgument, err)
+	}
+
+	return &PhoneNumber{
+		full:            fmt.Sprintf("%s%s", parser.catalogue.countryTelCode, localNumber),
+		Country:         LookupCountryByTelephoneCode(parser.catalogue.countryTelCode),
+		Mobile:          meta.Mobile,
+		Prepaid:         meta.Prepaid,
+		DefaultOperator: meta.Operator,
+	}, nil
+}
+
+func ParsePhoneNumberWithDefaultCountry(country *Country) ParsePhoneNumberOption {
+	return tricks.MutableOption[phoneNumberParser](func(s *phoneNumberParser) {
+		s.catalogue = phoneNumberResolvers.matchByCountryTelCode(country.Codes.Telephone)
+	})
+}
 
 func sanitizePhoneNumber(src string) string {
 	return strings.TrimPrefix(ptnNonDigits.ReplaceAllString(src, ""), "00")
