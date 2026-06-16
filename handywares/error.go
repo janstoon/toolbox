@@ -7,6 +7,7 @@ import (
 
 	"github.com/janstoon/toolbox/bricks"
 	"github.com/janstoon/toolbox/tricks"
+	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -116,4 +117,23 @@ func GrpcToBricksErrorMapper(err error) error {
 	}
 
 	return errors.Join(berr, err)
+}
+
+func RedisToBricksError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	errW := bricks.ErrUnknown
+	if errors.Is(err, redis.Nil) {
+		errW = errors.Join(bricks.ErrNotFound, err)
+	} else if errors.Is(err, redis.ErrClosed) {
+		errW = errors.Join(bricks.ErrUnavailable, err)
+	} else if errors.Is(err, redis.TxFailedErr) {
+		errW = errors.Join(bricks.ErrInternal, err)
+	} else {
+		errW = bricks.ParseError(err, bricks.ErrUnknown)
+	}
+
+	return errW
 }

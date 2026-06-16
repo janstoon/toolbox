@@ -8,6 +8,7 @@ require (
 	github.com/janstoon/toolbox/bricks v0.8.1
 	github.com/janstoon/toolbox/tricks v1.1.0
 	github.com/nats-io/nats.go v1.37.0
+	github.com/redis/go-redis/v9 v9.6.1
 	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.10.0
 	go.opentelemetry.io/otel v1.29.0
@@ -39,7 +40,6 @@ require (
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/redis/go-redis/v9 v9.6.1 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
