@@ -1,3 +1,6 @@
+// Package iran registers Iran (ISO 3166-1 alpha-2 IR) with bricks.
+// Importing the package registers the country, its IBAN BBAN validator, phone-number resolver,
+// and national identity number parser.
 package iran
 
 import "github.com/janstoon/toolbox/bricks"

@@ -8,7 +8,7 @@ which are implemented for specific use-cases while can become implemented and ex
 This repository is a monorepo which consists of some (go) modules, each providing related functionalities:
 
 ## [Bricks][mod-bricks] [![Coverage Badge][bdg-cov-bricks]][action-tests]
-Models of real world basic entities like phone number and iban.
+Models of real world basic entities like phone number, national identity number, and iban.
 
 ## [Tricks][mod-tricks] [![Coverage Badge][bdg-cov-tricks]][action-tests]
 Frequent low-level functionalities like conversions or functional paradigm missing utilities.
