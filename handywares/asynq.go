@@ -13,8 +13,10 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
+// AsynqMiddlewareStack chains Asynq task handlers. The first Push runs first.
 type AsynqMiddlewareStack = tricks.MiddlewareStack[asynq.Handler]
 
+// ErrorDecoratorAsynqMiddlewareOpt configures AsynqErrorDecoratorMiddleware. No options are defined yet.
 type ErrorDecoratorAsynqMiddlewareOpt = tricks.MutableOption[any]
 
 // AsynqErrorDecoratorMiddleware skip asynq retry except that error is bricks.ErrRetryable
@@ -35,8 +37,11 @@ func AsynqErrorDecoratorMiddleware(options ...ErrorDecoratorAsynqMiddlewareOpt) 
 	}
 }
 
+// PanicRecoverAsynqMiddlewareOpt configures AsynqPanicRecoverMiddleware. No options are defined yet.
 type PanicRecoverAsynqMiddlewareOpt = tricks.MutableOption[any]
 
+// AsynqPanicRecoverMiddleware recovers a panic in the next handler and records it on the current span.
+// The recovered task returns a nil error.
 func AsynqPanicRecoverMiddleware(options ...PanicRecoverAsynqMiddlewareOpt) tricks.Middleware[asynq.Handler] {
 	return func(next asynq.Handler) asynq.Handler {
 		return asynq.HandlerFunc(func(ctx context.Context, task *asynq.Task) error {
@@ -55,6 +60,7 @@ func AsynqPanicRecoverMiddleware(options ...PanicRecoverAsynqMiddlewareOpt) tric
 	}
 }
 
+// CompensatorAsynqMiddlewareOpt configures AsynqCompensatorMiddleware. No options are defined yet.
 type CompensatorAsynqMiddlewareOpt = tricks.MutableOption[any]
 
 // AsynqCompensatorMiddleware tries to compensate the task if max retries reached or error is not bricks.ErrRetryable.
@@ -81,14 +87,17 @@ func AsynqCompensatorMiddleware(options ...CompensatorAsynqMiddlewareOpt) tricks
 	}
 }
 
+// OtelAmw is the OpenTelemetry Asynq middleware built by AsynqOpenTelemetryMiddleware.
 type OtelAmw struct {
 	tracer trace.Tracer
 
 	namePrefix string
 }
 
+// OpenTelemetryAsynqMiddlewareOpt configures AsynqOpenTelemetryMiddleware.
 type OpenTelemetryAsynqMiddlewareOpt = tricks.Option[OtelAmw]
 
+// OtelAsynqSpanNamePrefix sets the text written before the task type in the span name.
 func OtelAsynqSpanNamePrefix(prefix string) OpenTelemetryAsynqMiddlewareOpt {
 	return tricks.ImmutableOption[OtelAmw](func(amw OtelAmw) OtelAmw {
 		amw.namePrefix = prefix
@@ -97,6 +106,7 @@ func OtelAsynqSpanNamePrefix(prefix string) OpenTelemetryAsynqMiddlewareOpt {
 	})
 }
 
+// AsynqOpenTelemetryMiddleware starts a consumer span named after the task type.
 func AsynqOpenTelemetryMiddleware(
 	tracer trace.Tracer, options ...OpenTelemetryAsynqMiddlewareOpt,
 ) tricks.Middleware[asynq.Handler] {

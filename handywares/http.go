@@ -19,10 +19,14 @@ import (
 	"go.opentelemetry.io/otel/trace/noop"
 )
 
+// HttpMiddlewareStack chains HTTP server middleware. The first Push runs first.
 type HttpMiddlewareStack = tricks.MiddlewareStack[http.Handler]
 
+// PanicRecoverHttpMiddlewareOpt configures HttpPanicRecoverMiddleware. No options are defined yet.
 type PanicRecoverHttpMiddlewareOpt = tricks.MutableOption[any]
 
+// HttpPanicRecoverMiddleware recovers a panic in the next handler, records it on the current span,
+// and writes HTTP 500.
 func HttpPanicRecoverMiddleware(options ...PanicRecoverHttpMiddlewareOpt) tricks.Middleware[http.Handler] {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
@@ -44,8 +48,11 @@ func HttpPanicRecoverMiddleware(options ...PanicRecoverHttpMiddlewareOpt) tricks
 	}
 }
 
+// BlindLoggerHttpMiddlewareOpt configures HttpBlindLoggerMiddleware. No options are defined yet.
 type BlindLoggerHttpMiddlewareOpt = tricks.MutableOption[any]
 
+// HttpBlindLoggerMiddleware logs the request line before calling the next handler.
+// mctx is accepted for symmetry with other HTTP middleware and is not read.
 func HttpBlindLoggerMiddleware(
 	mctx *middleware.Context, options ...BlindLoggerHttpMiddlewareOpt,
 ) tricks.Middleware[http.Handler] {
@@ -67,8 +74,10 @@ func HttpBlindLoggerMiddleware(
 	}
 }
 
+// CorsHttpMiddlewareOpt changes the CORS policy used by HttpCrossOriginResourceSharingPolicyMiddleware.
 type CorsHttpMiddlewareOpt = tricks.MutableOption[cors.Options]
 
+// HttpCrossOriginResourceSharingPolicyMiddleware applies a CORS policy built from options.
 func HttpCrossOriginResourceSharingPolicyMiddleware(options ...CorsHttpMiddlewareOpt) tricks.Middleware[http.Handler] {
 	cfg := cors.Options{}
 	cfg = tricks.PtrVal(tricks.ApplyOptions(&cfg,
@@ -81,38 +90,46 @@ func HttpCrossOriginResourceSharingPolicyMiddleware(options ...CorsHttpMiddlewar
 	return cors.New(cfg).Handler
 }
 
+// CorsAllowOrigins sets the origins the CORS policy accepts.
 var CorsAllowOrigins = func(origins ...string) CorsHttpMiddlewareOpt {
 	return func(s *cors.Options) {
 		s.AllowedOrigins = origins
 	}
 }
 
+// CorsAllowMethods sets the methods the CORS policy accepts.
 var CorsAllowMethods = func(methods ...string) CorsHttpMiddlewareOpt {
 	return func(s *cors.Options) {
 		s.AllowedMethods = methods
 	}
 }
 
+// CorsAllowHeaders sets the headers the CORS policy accepts.
 var CorsAllowHeaders = func(headers ...string) CorsHttpMiddlewareOpt {
 	return func(s *cors.Options) {
 		s.AllowedHeaders = headers
 	}
 }
 
+// CorsDebug turns CORS debug logging on or off.
 var CorsDebug = func(debug bool) CorsHttpMiddlewareOpt {
 	return func(s *cors.Options) {
 		s.Debug = debug
 	}
 }
 
+// HttpRouteTester reports whether a matched OpenAPI route should be handled specially.
 type HttpRouteTester func(route *middleware.MatchedRoute) bool
 
+// PassthroughHttpRouteTester returns a tester that ignores the route and always returns success.
 func PassthroughHttpRouteTester(success bool) HttpRouteTester {
 	return func(_ *middleware.MatchedRoute) bool {
 		return success
 	}
 }
 
+// CombineHttpRouteTesters returns a tester that succeeds only when every tester succeeds.
+// No testers means every route succeeds. One tester is returned unchanged.
 func CombineHttpRouteTesters(tt ...HttpRouteTester) HttpRouteTester {
 	switch len(tt) {
 	case 1:
@@ -127,6 +144,7 @@ func CombineHttpRouteTesters(tt ...HttpRouteTester) HttpRouteTester {
 	}
 }
 
+// OtelHmw is the OpenTelemetry HTTP server middleware built by HttpOpenTelemetryMiddleware.
 type OtelHmw struct {
 	tracer trace.Tracer
 	mctx   *middleware.Context
@@ -135,8 +153,10 @@ type OtelHmw struct {
 	routeTester HttpRouteTester
 }
 
+// OpenTelemetryHttpMiddlewareOpt configures HttpOpenTelemetryMiddleware.
 type OpenTelemetryHttpMiddlewareOpt = tricks.Option[OtelHmw]
 
+// OtelHttpSpanNamePrefix sets the text written before the operation id in the span name.
 func OtelHttpSpanNamePrefix(prefix string) OpenTelemetryHttpMiddlewareOpt {
 	return tricks.ImmutableOption[OtelHmw](func(hmw OtelHmw) OtelHmw {
 		hmw.namePrefix = prefix
@@ -145,6 +165,8 @@ func OtelHttpSpanNamePrefix(prefix string) OpenTelemetryHttpMiddlewareOpt {
 	})
 }
 
+// OtelHttpRouteTester selects which matched routes receive a real span.
+// Routes the tester rejects are traced with a no-op tracer.
 func OtelHttpRouteTester(tester HttpRouteTester) OpenTelemetryHttpMiddlewareOpt {
 	return tricks.ImmutableOption[OtelHmw](func(hmw OtelHmw) OtelHmw {
 		hmw.routeTester = tester
@@ -153,12 +175,15 @@ func OtelHttpRouteTester(tester HttpRouteTester) OpenTelemetryHttpMiddlewareOpt 
 	})
 }
 
+// OtelHttpOperationIdException traces every matched route except the named operation ids.
 func OtelHttpOperationIdException(oids ...string) OpenTelemetryHttpMiddlewareOpt {
 	return OtelHttpRouteTester(func(route *middleware.MatchedRoute) bool {
 		return tricks.SliceIndexOf(route.Operation.ID, oids) < 0
 	})
 }
 
+// HttpOpenTelemetryMiddleware starts a server span for requests whose route passes the tester.
+// Unmatched requests, and matched requests the tester rejects, use a no-op tracer.
 func HttpOpenTelemetryMiddleware(
 	tracer trace.Tracer, mctx *middleware.Context, options ...OpenTelemetryHttpMiddlewareOpt,
 ) tricks.Middleware[http.Handler] {
@@ -224,10 +249,13 @@ func (hmw OtelHmw) spanName(opId string) string {
 	return sb.String()
 }
 
+// HttpTripperwareStack chains HTTP client middleware. The first Push runs first.
 type HttpTripperwareStack = tricks.MiddlewareStack[http.RoundTripper]
 
+// BlindLoggerHttpTripperwareOpt configures HttpBlindLoggerTripperware. No options are defined yet.
 type BlindLoggerHttpTripperwareOpt = tricks.MutableOption[any]
 
+// HttpBlindLoggerTripperware records the dumped request and response on the current span.
 func HttpBlindLoggerTripperware(options ...BlindLoggerHttpTripperwareOpt) tricks.Middleware[http.RoundTripper] {
 	return func(next http.RoundTripper) http.RoundTripper {
 		return HttpRoundTripperFunc(func(req *http.Request) (*http.Response, error) {
@@ -252,6 +280,8 @@ func HttpBlindLoggerTripperware(options ...BlindLoggerHttpTripperwareOpt) tricks
 	}
 }
 
+// HttpErrorMapperTripperware passes the next round trip's response and error through mapper.
+// It panics when mapper is nil.
 func HttpErrorMapperTripperware(
 	mapper func(*http.Response, error) (*http.Response, error),
 ) tricks.Middleware[http.RoundTripper] {
@@ -266,8 +296,10 @@ func HttpErrorMapperTripperware(
 	}
 }
 
+// HttpRoundTripperFunc adapts a function to http.RoundTripper.
 type HttpRoundTripperFunc func(*http.Request) (*http.Response, error)
 
+// RoundTrip calls fn.
 func (fn HttpRoundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return fn(req)
 }

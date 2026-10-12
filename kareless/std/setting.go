@@ -12,8 +12,12 @@ import (
 	"github.com/janstoon/toolbox/kareless"
 )
 
+// MapSettingSource reads settings from a map.
+// A dotted key walks into nested maps, which are JSON-round-tripped into another MapSettingSource.
 type MapSettingSource map[string]any
 
+// Get returns the value at key. The root key returns the whole map.
+// A missing key returns bricks.ErrNotFound.
 func (ss MapSettingSource) Get(ctx context.Context, key string) (any, error) {
 	if kareless.IsSettingRootKey(key) {
 		return ss, nil
@@ -79,6 +83,8 @@ func LocalEarlyLoadedSettingSource(name string, paths ...string) kareless.Settin
 	}
 }
 
+// Get returns the value viper stored at key. The root key returns every setting.
+// A missing key returns bricks.ErrNotFound.
 func (ss localEarlySettings) Get(_ context.Context, key string) (any, error) {
 	if kareless.IsSettingRootKey(key) {
 		return ss.v.AllSettings(), nil

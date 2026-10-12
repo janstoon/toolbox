@@ -23,7 +23,10 @@ import (
 )
 
 const (
-	TelemetryCollectorOtlpHostSettingKey  = "telemetry.collector.otlp.host"
+	// TelemetryCollectorOtlpHostSettingKey is the settings key for the OTLP collector host.
+	TelemetryCollectorOtlpHostSettingKey = "telemetry.collector.otlp.host"
+	// TelemetryCollectorOtlpPortsSettingKey is the settings key prefix for OTLP collector ports.
+	// The gRPC port is read from TelemetryCollectorOtlpPortsSettingKey + ".grpc".
 	TelemetryCollectorOtlpPortsSettingKey = "telemetry.collector.otlp.ports"
 )
 
@@ -51,6 +54,10 @@ type otlp struct {
 	client otlptrace.Client
 }
 
+// OpenTelemetryDriverConstructor returns a driver that exports traces to the OTLP/gRPC
+// endpoint in settings and exposes a Prometheus meter provider.
+// The host comes from TelemetryCollectorOtlpHostSettingKey and the port from
+// TelemetryCollectorOtlpPortsSettingKey + ".grpc". The client dials without TLS.
 func OpenTelemetryDriverConstructor(serviceName string, attrs ...attribute.KeyValue) kareless.DriverConstructor {
 	return func(ss *kareless.Settings, _ *kareless.InstrumentBank, _ []kareless.Application) kareless.Driver {
 		client := otlptracegrpc.NewClient(
@@ -75,6 +82,7 @@ func OpenTelemetryDriverConstructor(serviceName string, attrs ...attribute.KeyVa
 	}
 }
 
+// Run installs the tracer and meter providers and blocks until ctx is canceled, then shuts them down.
 func (d otlp) Run(ctx context.Context) error {
 	te, err := otlptrace.New(ctx, d.client)
 	if err != nil {

@@ -7,19 +7,28 @@ import (
 )
 
 var (
+	// ErrAlreadyRegisteredInstrument is returned when two catalogues use the same name.
 	ErrAlreadyRegisteredInstrument = errors.New("instrument already registered")
-	ErrUnresolvedDependency        = errors.New("dependency not resolved")
-	ErrUnacceptableDependency      = errors.New("dependency not acceptable")
+	// ErrUnresolvedDependency is the panic value when Resolve is asked for a missing name.
+	ErrUnresolvedDependency = errors.New("dependency not resolved")
+	// ErrUnacceptableDependency is the panic value when the tester rejects the resolved value.
+	ErrUnacceptableDependency = errors.New("dependency not acceptable")
 )
 
 type (
-	InstrumentInjector  func(ss *Settings) []InstrumentCatalogue
+	// InstrumentInjector lists the instruments one module contributes. Equip calls it while opening catalogues.
+	InstrumentInjector func(ss *Settings) []InstrumentCatalogue
+	// InstrumentCatalogue publishes one instrument under one or more names.
 	InstrumentCatalogue struct {
-		Names   []string
+		// Names are the lookup keys. Each name must be unique across the bank.
+		Names []string
+		// Builder constructs the instrument the first time a name is resolved.
 		Builder InstrumentConstructor
 	}
+	// InstrumentConstructor builds an instrument. The result is cached for every name in the catalogue.
 	InstrumentConstructor func(ss *Settings, ib *InstrumentBank) Instrument
-	Instrument            interface{}
+	// Instrument is any dependency a constructor returns. Callers assert the concrete type.
+	Instrument interface{}
 )
 
 type instrumentFactory struct {
@@ -38,6 +47,7 @@ func (fkt *instrumentFactory) create(ss *Settings, ib *InstrumentBank) Instrumen
 	return fkt.cached
 }
 
+// InstrumentBank resolves named dependencies. Each name is built at most once.
 type InstrumentBank struct {
 	lock      sync.RWMutex
 	injectors []InstrumentInjector
@@ -46,6 +56,10 @@ type InstrumentBank struct {
 	settings *Settings
 }
 
+// Resolve returns the instrument stored under name.
+// tester reports whether the concrete value is acceptable.
+// Resolve panics with ErrUnresolvedDependency when name is missing and with
+// ErrUnacceptableDependency when tester returns false.
 func (ib *InstrumentBank) Resolve(name string, tester func(v any) bool) Instrument {
 	ins := ib.resolve(name)
 	if ins == nil {
@@ -109,12 +123,15 @@ func (ib *InstrumentBank) resolve(name string) Instrument {
 	return fkt.create(ib.settings, ib)
 }
 
+// ResolveInstrumentByType returns the instrument named name asserted to T.
+// It panics when the name is missing or the value is not a T.
 func ResolveInstrumentByType[T any](ib *InstrumentBank, name string) T {
 	i, _ := ib.Resolve(name, InstrumentTesterByTypeAssertion[T]).(T)
 
 	return i
 }
 
+// InstrumentTesterByTypeAssertion reports whether v has type T.
 func InstrumentTesterByTypeAssertion[T any](v any) bool {
 	_, ok := v.(T)
 

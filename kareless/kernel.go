@@ -11,6 +11,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// Kernel is the assembled runtime: settings, instruments, applications, drivers, and hooks.
 type Kernel struct {
 	ss *Settings
 	ib *InstrumentBank
@@ -20,8 +21,11 @@ type Kernel struct {
 	postHooks        []Hook
 }
 
+// Option changes a Kernel. Feeder, Equipment, Installer, Connector, and PostHook return options
+// for Compile. The methods Feed, Equip, Install, Connect, and AfterStart do the same work directly.
 type Option func(k Kernel) Kernel
 
+// Compile returns a Kernel with empty settings and applies oo in order.
 func Compile(oo ...Option) Kernel {
 	k := Kernel{
 		ss: new(Settings),
@@ -91,6 +95,7 @@ func bindSignals(fn func(sig os.Signal), ss ...os.Signal) {
 	}()
 }
 
+// Feeder is the Compile option form of Kernel.Feed.
 func Feeder(ss ...SettingSource) Option {
 	return func(k Kernel) Kernel {
 		return k.Feed(ss...)
@@ -106,6 +111,7 @@ func (k Kernel) Feed(ss ...SettingSource) Kernel {
 	return k
 }
 
+// Equipment is the Compile option form of Kernel.Equip.
 func Equipment(cc ...InstrumentInjector) Option {
 	return func(k Kernel) Kernel {
 		return k.Equip(cc...)
@@ -119,6 +125,7 @@ func (k Kernel) Equip(cc ...InstrumentInjector) Kernel {
 	return k
 }
 
+// Installer is the Compile option form of Kernel.Install.
 func Installer(cc ...ApplicationConstructor) Option {
 	return func(k Kernel) Kernel {
 		return k.Install(cc...)
@@ -132,6 +139,7 @@ func (k Kernel) Install(cc ...ApplicationConstructor) Kernel {
 	return k
 }
 
+// Connector is the Compile option form of Kernel.Connect.
 func Connector(cc ...DriverConstructor) Option {
 	return func(k Kernel) Kernel {
 		return k.Connect(cc...)
@@ -145,14 +153,17 @@ func (k Kernel) Connect(cc ...DriverConstructor) Kernel {
 	return k
 }
 
+// Hook runs after every driver constructor has returned and the drivers have started.
 type Hook func(ctx context.Context, ss *Settings, ib *InstrumentBank, apps []Application) error
 
+// PostHook is the Compile option form of Kernel.AfterStart.
 func PostHook(hh ...Hook) Option {
 	return func(k Kernel) Kernel {
 		return k.AfterStart(hh...)
 	}
 }
 
+// AfterStart appends hooks that run once every connected driver has been constructed.
 func (k Kernel) AfterStart(hh ...Hook) Kernel {
 	k.postHooks = append(k.postHooks, hh...)
 

@@ -12,8 +12,10 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
+// MsgHandler handles one message of type M.
 type MsgHandler[M any] func(ctx context.Context, msg M) error
 
+// MsgMiddlewareStack chains message handlers. The first Push runs first.
 type MsgMiddlewareStack[M any] tricks.MiddlewareStack[MsgHandler[M]]
 
 // Push is a hack to provide underlying tricks.MiddlewareStack.Push
@@ -22,8 +24,11 @@ func (stk MsgMiddlewareStack[M]) Push(mw tricks.Middleware[MsgHandler[M]]) MsgMi
 	return MsgMiddlewareStack[M](tricks.MiddlewareStack[MsgHandler[M]](stk).Push(mw))
 }
 
+// PanicRecoverMsgMiddlewareOpt configures MsgPanicRecoverMiddleware. No options are defined yet.
 type PanicRecoverMsgMiddlewareOpt = tricks.MutableOption[any]
 
+// MsgPanicRecoverMiddleware recovers a panic in the next handler and records it on the current span.
+// The recovered call returns a nil error.
 func MsgPanicRecoverMiddleware[M any](options ...PanicRecoverMsgMiddlewareOpt) tricks.Middleware[MsgHandler[M]] {
 	return func(next MsgHandler[M]) MsgHandler[M] {
 		return func(ctx context.Context, msg M) error {
@@ -42,6 +47,7 @@ func MsgPanicRecoverMiddleware[M any](options ...PanicRecoverMsgMiddlewareOpt) t
 	}
 }
 
+// CompensatorMsgMiddlewareOpt configures MsgCompensatorMiddleware. No options are defined yet.
 type CompensatorMsgMiddlewareOpt = tricks.MutableOption[any]
 
 // MsgCompensatorMiddleware tries to compensate the task if error is not bricks.ErrRetryable.
@@ -66,6 +72,7 @@ func MsgCompensatorMiddleware[M any](options ...CompensatorMsgMiddlewareOpt) tri
 	}
 }
 
+// OtelMmw is the OpenTelemetry message middleware built by MsgOpenTelemetryMiddleware.
 type OtelMmw[M any] struct {
 	tracer trace.Tracer
 
@@ -73,8 +80,10 @@ type OtelMmw[M any] struct {
 	subjExporter func(msg M) string
 }
 
+// OpenTelemetryMsgMiddlewareOpt configures MsgOpenTelemetryMiddleware.
 type OpenTelemetryMsgMiddlewareOpt[M any] tricks.Option[OtelMmw[M]]
 
+// OtelMsgSpanNamePrefix sets the text written before the subject in the span name.
 func OtelMsgSpanNamePrefix[M any](prefix string) OpenTelemetryMsgMiddlewareOpt[M] {
 	return tricks.ImmutableOption[OtelMmw[M]](func(nmw OtelMmw[M]) OtelMmw[M] {
 		nmw.namePrefix = prefix
@@ -83,6 +92,8 @@ func OtelMsgSpanNamePrefix[M any](prefix string) OpenTelemetryMsgMiddlewareOpt[M
 	})
 }
 
+// OtelMsgSubjectExporter sets the function that names the span from the message.
+// The default name is "unknown".
 func OtelMsgSubjectExporter[M any](exp func(msg M) string) OpenTelemetryMsgMiddlewareOpt[M] {
 	return tricks.ImmutableOption[OtelMmw[M]](func(mmw OtelMmw[M]) OtelMmw[M] {
 		mmw.subjExporter = exp
@@ -91,6 +102,7 @@ func OtelMsgSubjectExporter[M any](exp func(msg M) string) OpenTelemetryMsgMiddl
 	})
 }
 
+// MsgOpenTelemetryMiddleware starts a consumer span named by the subject exporter.
 func MsgOpenTelemetryMiddleware[M any](
 	tracer trace.Tracer, options ...OpenTelemetryMsgMiddlewareOpt[M],
 ) tricks.Middleware[MsgHandler[M]] {

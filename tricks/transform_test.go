@@ -50,6 +50,12 @@ func TestPtrPtr(t *testing.T) {
 	}))
 }
 
+func TestToAnyFromAny(t *testing.T) {
+	assert.Equal(t, any(3), tricks.ToAny(3))
+	assert.Equal(t, 3, tricks.FromAny[int](any(3)))
+	assert.Zero(t, tricks.FromAny[int]("nope"))
+}
+
 func TestStringToRunes(t *testing.T) {
 	assert.Equal(t, []rune{'a'}, tricks.StringToRunes("a"))
 	assert.Equal(t, []rune{'a', 'b', 'c', 'd'}, tricks.StringToRunes("abcd"))

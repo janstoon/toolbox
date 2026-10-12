@@ -10,26 +10,34 @@ type Collection[T any] interface {
 	Contains(e T) bool
 }
 
-type ClosedInterval[T cmp.Ordered] [2]T // [min, max]
+// ClosedInterval is the inclusive range [min, max]. Index 0 is the lower bound and index 1 is the upper bound.
+type ClosedInterval[T cmp.Ordered] [2]T
 
+// Contains reports whether e is inside the closed interval.
 func (tt ClosedInterval[T]) Contains(e T) bool {
 	return e >= tt[0] && e <= tt[1]
 }
 
-type OpenInterval[T cmp.Ordered] [2]T // (min, max)
+// OpenInterval is the exclusive range (min, max). Index 0 is the lower bound and index 1 is the upper bound.
+type OpenInterval[T cmp.Ordered] [2]T
 
+// Contains reports whether e is inside the open interval.
 func (tt OpenInterval[T]) Contains(e T) bool {
 	return e > tt[0] && e < tt[1]
 }
 
-type LeftOpenInterval[T cmp.Ordered] [2]T // (min, max]
+// LeftOpenInterval is the range (min, max]. Index 0 is the lower bound and index 1 is the upper bound.
+type LeftOpenInterval[T cmp.Ordered] [2]T
 
+// Contains reports whether e is inside the left-open interval.
 func (tt LeftOpenInterval[T]) Contains(e T) bool {
 	return e > tt[0] && e <= tt[1]
 }
 
-type RightOpenInterval[T cmp.Ordered] [2]T // [min, max)
+// RightOpenInterval is the range [min, max). Index 0 is the lower bound and index 1 is the upper bound.
+type RightOpenInterval[T cmp.Ordered] [2]T
 
+// Contains reports whether e is inside the right-open interval.
 func (tt RightOpenInterval[T]) Contains(e T) bool {
 	return e >= tt[0] && e < tt[1]
 }

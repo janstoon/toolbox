@@ -40,6 +40,15 @@ func ExampleParseNationalIdentityNumber() {
 	// true
 }
 
+func TestParseNationalIdentityNumberArabicIndicDigits(t *testing.T) {
+	country := bricks.LookupCountryByIsoAlphaTwoCode("IR")
+	nin, err := bricks.ParseNationalIdentityNumber("٠٤٩٩٣٧٠٨٩٩",
+		bricks.ParseNationalIdentityNumberWithDefaultCountry(country),
+	)
+	require.NoError(t, err)
+	assert.Equal(t, "0499370899", nin.String())
+}
+
 func TestParseNationalIdentityNumberUnknownCountry(t *testing.T) {
 	nin, err := bricks.ParseNationalIdentityNumber("0499370899")
 	require.ErrorIs(t, err, bricks.ErrInvalidArgument)

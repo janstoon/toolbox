@@ -63,4 +63,17 @@ func TestParsePan(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, pan)
 	assert.Equal(t, panStr, pan.String())
+
+	pan, err = bricks.ParsePrimaryAccountNumber("1234567")
+	require.ErrorIs(t, err, bricks.ErrPanIncorrectLength)
+	assert.Nil(t, pan)
+
+	pan, err = bricks.ParsePrimaryAccountNumber("12345678901234567890")
+	require.ErrorIs(t, err, bricks.ErrPanIncorrectLength)
+	assert.Nil(t, pan)
+}
+
+func TestNewBankAccount(t *testing.T) {
+	account := bricks.NewBankAccount("operating")
+	assert.Empty(t, account.BankName())
 }

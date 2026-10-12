@@ -248,6 +248,7 @@ func FlatMap[S, D any](seq iter.Seq[S], transformer Transformer[S, iter.Seq[D]])
 	}
 }
 
+// SliceFlatMap applies transformer to each element and concatenates the resulting slices.
 func SliceFlatMap[SS ~[]S, DD ~[]D, S, D any](ss SS, transformer Transformer[S, DD]) DD {
 	return slices.Collect(FlatMap(slices.Values(ss), func(src S) iter.Seq[D] {
 		return func(yield func(D) bool) {

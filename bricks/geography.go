@@ -7,17 +7,24 @@ import (
 	"github.com/janstoon/toolbox/tricks"
 )
 
-// Country
-// useful links: http://download.geonames.org/export/dump/countryInfo.txt,
-// https://github.com/mledoze/countries/blob/master/countries.json
+// Country is a country known to LookupCountryByIsoAlphaTwoCode and LookupCountryByTelephoneCode.
+// Country records are published by RegisterCountry, usually from a country subpackage's init.
+//
+// Reference data: http://download.geonames.org/export/dump/countryInfo.txt
+// and https://github.com/mledoze/countries/blob/master/countries.json
 type Country struct {
+	// EnglishName is the country's English short and official names.
 	EnglishName CountryName
-	Codes       CountryCode
+	// Codes holds the identifiers used to look the country up.
+	Codes CountryCode
 }
 
+// CountryName is a country's English names.
 type CountryName struct {
+	// Short is the common name, such as "Iran".
 	Short string
-	Full  string
+	// Full is the official name, such as "The Islamic Republic of Iran".
+	Full string
 }
 
 // CountryCode contains country unique codes in different standards
@@ -79,14 +86,20 @@ var countries = countryBank{
 	byTelephoneCode:   make(map[string]*Country),
 }
 
+// LookupCountryByIsoAlphaTwoCode returns the country registered for an ISO 3166-1 alpha-2 code.
+// The match is case-insensitive. It returns nil when no country is registered for code.
 func LookupCountryByIsoAlphaTwoCode(code string) *Country {
 	return countries.lookupByIsoAlphaTwoCode(code)
 }
 
+// LookupCountryByTelephoneCode returns the country registered for a calling code without a leading plus.
+// It returns nil when no country is registered for code.
 func LookupCountryByTelephoneCode(code string) *Country {
 	return countries.lookupByTelephoneCode(code)
 }
 
+// RegisterCountry stores c so it can be looked up by ISO alpha-2 and telephone code.
+// Registering the same ISO alpha-2 or telephone code twice keeps the first record.
 func RegisterCountry(c Country) {
 	countries.push(c)
 }

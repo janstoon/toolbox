@@ -28,6 +28,7 @@ var EmptyNationalIdentityNumber = NationalIdentityNumber{}
 type NationalIdentityNumber struct {
 	full string
 
+	// Country is the country the caller selected. It is not inferred from the number.
 	Country *Country
 }
 

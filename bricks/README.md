@@ -40,44 +40,52 @@ mapped to Latin digits. A number whose digits are all the same, or whose check d
 Calling `ParseNationalIdentityNumber` without a country returns `ErrNationalIdentityNumberUnknownCountry`.
 
 ## Utils
-Resolvers, Parsers
+
+Country packages register parsers and validators from `init`. Callers look values up with
+`LookupCountryByIsoAlphaTwoCode` and `LookupCountryByTelephoneCode`.
 
 # Types
 
 ## Banking
-### International Bank Account Number
-### Primary Account Number
-### Bank Account
-### Money
+
+`ParseInternationalBankAccountNumber` checks length, the mod-97 checksum, and a BBAN validator
+registered for the country code. `ParsePrimaryAccountNumber` accepts 8 to 19 characters.
+`MoneyAmount` pairs a `decimal.Decimal` with a currency code.
 
 ## Geography
-### Country
+
+`Country` stores English names and ISO, IOC, and telephone codes. `RegisterCountry` publishes one.
 
 ## Internet
-### Email
+
+`Email` is a placeholder for an email address.
 
 ## Society
-### National Identity Number
+
+`NationalIdentityNumber` is documented above.
 
 ## Telecom
-### Phone Number
-### Network Operator
+
+`ParsePhoneNumber` strips punctuation and a leading `00`, then asks the resolver registered for
+the calling code to classify the local number. `RegisterNetworkOperators` lists operators for a
+country that is already registered.
 
 ## Time
-### Timespan
-### Jalali
+
+`Timespan.Contains` reports whether an instant is strictly inside the span.
 
 ## Technical
-Includes Abstract Data Types
-### Graph, Tree, Heap, Treap, Trie
-### Bag
-### Filter
-### Compensator
+
+`Graph` is an adjacency map with breadth-first search. `Trie` stores values by a caller-supplied
+key splitter and can return the longest stored prefix. `Queue` is a goroutine-safe FIFO.
+`Registry` is a name-to-value map that rejects duplicates. `Bag` pulls items until nothing remains.
+`Compensator` undoes a failed step; `CompensatorAsError` carries one inside an error.
 
 ## Wire
-Portable data
-### Error
-### Number
+
+Coded errors use the same numbering as gRPC status codes. `ErrorWithCode` attaches a code.
+`ParseError` classifies cancellations and timeouts. `MessageEnvelope` carries an id, a retry count,
+and a body.
 
 [action-tests]: https://github.com/janstoon/toolbox/actions?query=branch%3Amaster+workflow%3Atests
 [bdg-cov-bricks]: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pouyanh/69229998008a13b9b87590ebe50ecded/raw/janstoon_toolbox_bricks_refs_heads_master.json

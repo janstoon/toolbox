@@ -164,10 +164,33 @@ func (d gateway) Run(ctx context.Context) error {
 # Concepts
 
 ## Setting Source
+
+A `SettingSource` returns the value stored at a key. `Settings` walks sources from front to
+back and keeps the first non-nil value. `Feed` appends a source as a fallback. `Prepend`
+inserts one that wins over sources already present. `std.MapSettingSource` reads a map, and
+`std.LocalEarlyLoadedSettingSource` reads a config file through viper.
+
 ## Instrument
-## Driver
+
+An instrument is a named dependency. `Equip` registers catalogues. The first `Resolve` builds
+the value and caches it. `ResolveInstrumentByType` asserts that value to the type the caller asked for.
+
 ## Application
+
+An application is a use-case. It has no required methods, so each application exposes its own API.
+`Install` records constructors. `Run` calls them after instruments are opened and passes the
+resulting slice to every driver.
+
+## Driver
+
+A driver runs an application, for example an HTTP server. `Connect` records constructors.
+`Run` starts every driver and cancels them when the process receives SIGINT or SIGTERM.
+
 ## Kernel
+
+`Compile` builds a `Kernel`. `Feeder`, `Equipment`, `Installer`, `Connector`, and `PostHook`
+are the option forms of `Feed`, `Equip`, `Install`, `Connect`, and `AfterStart`.
+`AfterStart` hooks run once every driver constructor has returned.
 
 [action-tests]: https://github.com/janstoon/toolbox/actions?query=branch%3Amaster+workflow%3Atests
 [bdg-cov-kareless]: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/pouyanh/69229998008a13b9b87590ebe50ecded/raw/janstoon_toolbox_kareless_refs_heads_master.json

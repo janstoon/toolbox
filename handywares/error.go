@@ -30,6 +30,9 @@ var httpStatusToBricksErr = map[int]error{
 	http.StatusInsufficientStorage: bricks.ErrResourceExhausted,
 }
 
+// HttpStatusToBricksError maps an HTTP status to a bricks error and joins it with err.
+// A nil err and a status below 400 return nil. An unmapped status joins bricks.ErrUnknown
+// when err does not already carry a category from bricks.ParseError.
 func HttpStatusToBricksError(code int, err error) error {
 	if err == nil && code < http.StatusBadRequest {
 		return nil
@@ -43,6 +46,8 @@ func HttpStatusToBricksError(code int, err error) error {
 	return errors.Join(ferr, fmt.Errorf("http status (%d): %s", code, http.StatusText(code)))
 }
 
+// HttpToBricksErrorMapper is an HTTP tripperware mapper. It returns rsp unchanged and
+// replaces err with the bricks error for rsp.StatusCode.
 func HttpToBricksErrorMapper(rsp *http.Response, err error) (*http.Response, error) {
 	return rsp, HttpStatusToBricksError(tricks.PtrVal(rsp).StatusCode, err)
 }
@@ -60,6 +65,8 @@ var bricksErrCodeToHttpStatus = map[int]int{
 	bricks.ErrCodeUnavailable:   http.StatusServiceUnavailable,
 }
 
+// BricksErrorToHttpStatusMapper returns the HTTP status for a bricks error.
+// An error without a known code maps to 500.
 func BricksErrorToHttpStatusMapper(err error) int {
 	code := http.StatusInternalServerError
 	var coded bricks.Coded
@@ -72,6 +79,8 @@ func BricksErrorToHttpStatusMapper(err error) int {
 	return code
 }
 
+// BricksToGrpcErrorMapper returns a gRPC status error whose code is the bricks code.
+// A nil err returns nil. An error without a code uses codes.Unknown.
 func BricksToGrpcErrorMapper(err error) error {
 	if err == nil {
 		return nil
@@ -105,6 +114,8 @@ var grpcCodeToBricksErr = map[codes.Code]error{
 	codes.Unauthenticated:    bricks.ErrUnauthenticated,
 }
 
+// GrpcToBricksErrorMapper joins the bricks error for the gRPC status code with err.
+// A nil err returns nil.
 func GrpcToBricksErrorMapper(err error) error {
 	if err == nil {
 		return nil
@@ -119,6 +130,9 @@ func GrpcToBricksErrorMapper(err error) error {
 	return errors.Join(berr, err)
 }
 
+// RedisToBricksError maps redis.Nil to ErrNotFound, redis.ErrClosed to ErrUnavailable,
+// and redis.TxFailedErr to ErrInternal. Other errors go through bricks.ParseError.
+// A nil err returns nil.
 func RedisToBricksError(err error) error {
 	if err == nil {
 		return nil

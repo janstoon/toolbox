@@ -8,6 +8,12 @@ import (
 	"github.com/janstoon/toolbox/tricks"
 )
 
+func TestMatchTrueFalse(t *testing.T) {
+	assert.True(t, tricks.MatchTrue[int]().Match(0))
+	assert.False(t, tricks.MatchFalse[string]().Match("x"))
+	assert.False(t, tricks.MatchXor[int]().Match(1))
+}
+
 func TestMatchNot(t *testing.T) {
 	tcc := []struct {
 		v      int

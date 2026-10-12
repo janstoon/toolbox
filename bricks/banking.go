@@ -11,28 +11,38 @@ import (
 )
 
 var (
+	// ErrIbanIncorrectLength is returned when an IBAN is shorter than 5 or longer than 34 characters.
 	ErrIbanIncorrectLength = errors.New("iban length incorrect")
-	ErrIbanUnknownCountry  = errors.New("iban country unknown")
-	ErrIbanCheckFailure    = errors.New("iban check failure")
-	ErrIbanInvalidBban     = errors.New("iban invalid bban")
+	// ErrIbanUnknownCountry is returned when no BBAN validator is registered for the IBAN country code.
+	ErrIbanUnknownCountry = errors.New("iban country unknown")
+	// ErrIbanCheckFailure is returned when the IBAN mod-97 check digits do not match.
+	ErrIbanCheckFailure = errors.New("iban check failure")
+	// ErrIbanInvalidBban is returned when the registered country validator rejects the BBAN.
+	ErrIbanInvalidBban = errors.New("iban invalid bban")
 
+	// ErrPanIncorrectLength is returned when a primary account number is shorter than 8 or longer than 19 characters.
 	ErrPanIncorrectLength = errors.New("pan length incorrect")
 )
 
+// InternationalBankAccountNumber is an ISO 13616 IBAN in uppercase, without spaces.
 type InternationalBankAccountNumber struct {
 	full                   string
 	countryCode            string
 	checkDigits            string
 	basicBankAccountNumber string
 
+	// Country is the country registered for the IBAN's ISO alpha-2 code, or nil when that country is unknown.
 	Country *Country
 }
 
+// String returns the compact uppercase IBAN.
 func (iban InternationalBankAccountNumber) String() string {
 	return iban.full
 }
 
 type (
+	// BbanValidator checks the basic bank account number of one country.
+	// Register it with RegisterBbanValidator.
 	BbanValidator          func(bban string) error
 	bbanValidatorCatalogue struct {
 		countryCode string
@@ -66,6 +76,9 @@ var bbanValidators = bbanValidatorBank{
 	normCountryCode: strings.ToUpper,
 }
 
+// ParseInternationalBankAccountNumber parses a compact IBAN.
+// The country code must have a validator registered with RegisterBbanValidator.
+// On failure the error wraps ErrInvalidArgument and one of the ErrIban errors.
 func ParseInternationalBankAccountNumber(iban string) (*InternationalBankAccountNumber, error) {
 	const (
 		ibanMinLength                   = 5
@@ -137,6 +150,8 @@ func validateIban(cc, cd, bban string) error {
 	return ErrIbanCheckFailure
 }
 
+// RegisterBbanValidator registers validator for an ISO 3166-1 alpha-2 country code.
+// The match is case-insensitive. Registering the same country twice keeps the first validator.
 func RegisterBbanValidator(countryCode string, validator BbanValidator) {
 	bbanValidators.push(bbanValidatorCatalogue{
 		countryCode: countryCode,
@@ -144,6 +159,8 @@ func RegisterBbanValidator(countryCode string, validator BbanValidator) {
 	})
 }
 
+// PrimaryAccountNumber is a payment-card number of 8 to 19 characters.
+// Check-digit validation is not applied yet.
 type PrimaryAccountNumber struct {
 	full                       string
 	issuerIdentificationNumber string
@@ -151,10 +168,13 @@ type PrimaryAccountNumber struct {
 	checkDigit                 string
 }
 
+// String returns the digits passed to ParsePrimaryAccountNumber.
 func (pan PrimaryAccountNumber) String() string {
 	return pan.full
 }
 
+// ParsePrimaryAccountNumber accepts a primary account number of 8 to 19 characters.
+// It returns an error that wraps ErrInvalidArgument and ErrPanIncorrectLength when the length is outside that range.
 func ParsePrimaryAccountNumber(pan string) (*PrimaryAccountNumber, error) {
 	const (
 		panMinLength = 8
@@ -175,6 +195,8 @@ func ParsePrimaryAccountNumber(pan string) (*PrimaryAccountNumber, error) {
 	}, nil
 }
 
+// BankAccount names an account at a bank. NewBankAccount records the account name.
+// BankName returns the bank identifier, which stays empty until a later setter stores it.
 type BankAccount struct {
 	bank string
 	name string
@@ -183,12 +205,14 @@ type BankAccount struct {
 	pan  PrimaryAccountNumber
 }
 
+// NewBankAccount returns an account labeled with name.
 func NewBankAccount(name string) BankAccount {
 	return BankAccount{
 		name: name,
 	}
 }
 
+// BankName returns the bank identifier stored on the account.
 func (ba BankAccount) BankName() string {
 	return ba.bank
 }

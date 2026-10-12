@@ -13,10 +13,14 @@ import (
 	"google.golang.org/grpc"
 )
 
+// GrpcUnaryServerMiddlewareStack chains unary server interceptors. The first Push runs first.
 type GrpcUnaryServerMiddlewareStack = tricks.MiddlewareStack[grpc.UnaryServerInterceptor]
 
+// PanicRecoverGrpcMiddlewareOpt configures GrpcPanicRecoverMiddleware. No options are defined yet.
 type PanicRecoverGrpcMiddlewareOpt = tricks.MutableOption[any]
 
+// GrpcPanicRecoverMiddleware recovers a panic in the next interceptor and records it on the current span.
+// The recovered call returns a nil response and a nil error.
 func GrpcPanicRecoverMiddleware(
 	options ...PanicRecoverGrpcMiddlewareOpt,
 ) tricks.Middleware[grpc.UnaryServerInterceptor] {
@@ -39,14 +43,17 @@ func GrpcPanicRecoverMiddleware(
 	}
 }
 
+// OtelGmw is the OpenTelemetry gRPC server middleware built by GrpcOpenTelemetryMiddleware.
 type OtelGmw struct {
 	tracer trace.Tracer
 
 	namePrefix string
 }
 
+// OpenTelemetryGrpcMiddlewareOpt configures GrpcOpenTelemetryMiddleware.
 type OpenTelemetryGrpcMiddlewareOpt = tricks.Option[OtelGmw]
 
+// OtelGrpcSpanNamePrefix sets the text written before the full method name in the span name.
 func OtelGrpcSpanNamePrefix(prefix string) OpenTelemetryGrpcMiddlewareOpt {
 	return tricks.ImmutableOption[OtelGmw](func(gmw OtelGmw) OtelGmw {
 		gmw.namePrefix = prefix
@@ -55,6 +62,7 @@ func OtelGrpcSpanNamePrefix(prefix string) OpenTelemetryGrpcMiddlewareOpt {
 	})
 }
 
+// GrpcOpenTelemetryMiddleware starts a server span named after the full method.
 func GrpcOpenTelemetryMiddleware(
 	tracer trace.Tracer, options ...OpenTelemetryGrpcMiddlewareOpt,
 ) tricks.Middleware[grpc.UnaryServerInterceptor] {
@@ -88,12 +96,16 @@ func (gmw OtelGmw) spanName(opId string) string {
 	return sb.String()
 }
 
+// GrpcUnaryServerInvokeHandlerInterceptor calls handler. Put it at the end of a server stack
+// so earlier interceptors wrap the handler invocation.
 func GrpcUnaryServerInvokeHandlerInterceptor(
 	ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler,
 ) (any, error) {
 	return handler(ctx, req)
 }
 
+// GrpcUnaryServerErrorMapperMiddleware passes the next interceptor's error through mapper.
+// It panics when mapper is nil.
 func GrpcUnaryServerErrorMapperMiddleware(mapper func(error) error) tricks.Middleware[grpc.UnaryServerInterceptor] {
 	if mapper == nil {
 		panic(errors.Join(bricks.ErrInvalidArgument, errors.New("empty error mapper")))
@@ -108,8 +120,10 @@ func GrpcUnaryServerErrorMapperMiddleware(mapper func(error) error) tricks.Middl
 	}
 }
 
+// GrpcUnaryClientMiddlewareStack chains unary client interceptors. The first Push runs first.
 type GrpcUnaryClientMiddlewareStack = tricks.MiddlewareStack[grpc.UnaryClientInterceptor]
 
+// GrpcUnaryClientInvokerInterceptor calls invoker. Put it at the end of a client stack.
 func GrpcUnaryClientInvokerInterceptor(
 	ctx context.Context, method string, req, reply any,
 	cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption,
@@ -117,6 +131,8 @@ func GrpcUnaryClientInvokerInterceptor(
 	return invoker(ctx, method, req, reply, cc, opts...)
 }
 
+// GrpcUnaryClientErrorMapperMiddleware passes the next interceptor's error through mapper.
+// It panics when mapper is nil.
 func GrpcUnaryClientErrorMapperMiddleware(mapper func(error) error) tricks.Middleware[grpc.UnaryClientInterceptor] {
 	if mapper == nil {
 		panic(errors.Join(bricks.ErrInvalidArgument, errors.New("empty error mapper")))

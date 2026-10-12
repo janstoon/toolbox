@@ -5,6 +5,7 @@ package iran
 
 import "github.com/janstoon/toolbox/bricks"
 
+// Iran is the Islamic Republic of Iran (ISO 3166-1 alpha-2 IR).
 var Iran = bricks.Country{
 	EnglishName: bricks.CountryName{
 		Short: "Iran",

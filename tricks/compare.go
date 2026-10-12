@@ -15,16 +15,19 @@ type Matcher[T any] interface {
 // MatcherFunc creates a Matcher from a function which takes value of type T and tells if it meets the criteria or not.
 type MatcherFunc[T any] func(actual T) bool
 
+// Match reports whether actual meets the criteria.
 func (f MatcherFunc[T]) Match(actual T) bool {
 	return f(actual)
 }
 
+// MatchTrue returns a matcher that accepts every value.
 func MatchTrue[T any]() Matcher[T] {
 	return MatcherFunc[T](func(actual T) bool {
 		return true
 	})
 }
 
+// MatchFalse returns a matcher that rejects every value.
 func MatchFalse[T any]() Matcher[T] {
 	return MatcherFunc[T](func(actual T) bool {
 		return false

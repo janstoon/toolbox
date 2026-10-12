@@ -13,12 +13,17 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
+// NatsMsgHandler handles one NATS message.
 type NatsMsgHandler func(ctx context.Context, msg *nats.Msg) error
 
+// NatsMiddlewareStack chains NATS handlers. The first Push runs first.
 type NatsMiddlewareStack = tricks.MiddlewareStack[NatsMsgHandler]
 
+// PanicRecoverNatsMiddlewareOpt configures NatsPanicRecoverMiddleware. No options are defined yet.
 type PanicRecoverNatsMiddlewareOpt = tricks.MutableOption[any]
 
+// NatsPanicRecoverMiddleware recovers a panic in the next handler and records it on the current span.
+// The recovered call returns a nil error.
 func NatsPanicRecoverMiddleware(options ...PanicRecoverAsynqMiddlewareOpt) tricks.Middleware[NatsMsgHandler] {
 	return func(next NatsMsgHandler) NatsMsgHandler {
 		return func(ctx context.Context, msg *nats.Msg) error {
@@ -37,6 +42,7 @@ func NatsPanicRecoverMiddleware(options ...PanicRecoverAsynqMiddlewareOpt) trick
 	}
 }
 
+// CompensatorNatsMiddlewareOpt configures NatsCompensatorMiddleware. No options are defined yet.
 type CompensatorNatsMiddlewareOpt = tricks.MutableOption[any]
 
 // NatsCompensatorMiddleware tries to compensate the task if error is not bricks.ErrRetryable.
@@ -61,14 +67,17 @@ func NatsCompensatorMiddleware(options ...CompensatorNatsMiddlewareOpt) tricks.M
 	}
 }
 
+// OtelNmw is the OpenTelemetry NATS middleware built by NatsOpenTelemetryMiddleware.
 type OtelNmw struct {
 	tracer trace.Tracer
 
 	namePrefix string
 }
 
+// OpenTelemetryNatsMiddlewareOpt configures NatsOpenTelemetryMiddleware.
 type OpenTelemetryNatsMiddlewareOpt = tricks.Option[OtelNmw]
 
+// OtelNatsSpanNamePrefix sets the text written before the subject in the span name.
 func OtelNatsSpanNamePrefix(prefix string) OpenTelemetryNatsMiddlewareOpt {
 	return tricks.ImmutableOption[OtelNmw](func(nmw OtelNmw) OtelNmw {
 		nmw.namePrefix = prefix
@@ -77,6 +86,7 @@ func OtelNatsSpanNamePrefix(prefix string) OpenTelemetryNatsMiddlewareOpt {
 	})
 }
 
+// NatsOpenTelemetryMiddleware starts a consumer span named after the message subject.
 func NatsOpenTelemetryMiddleware(
 	tracer trace.Tracer, options ...OpenTelemetryNatsMiddlewareOpt,
 ) tricks.Middleware[NatsMsgHandler] {

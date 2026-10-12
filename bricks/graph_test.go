@@ -18,6 +18,19 @@ func TestGraph_Get(t *testing.T) {
 	assert.Equal(t, "Rasht", iran["Rasht"].Value)
 }
 
+func TestGraph_ConnectMissingNode(t *testing.T) {
+	g := make(bricks.Graph[string, int, string])
+	g.Add("a", "a")
+
+	assert.Panics(t, func() {
+		g.Connect("missing", "a")
+	})
+	assert.Panics(t, func() {
+		g.Connect("a", "missing")
+	})
+	assert.Nil(t, g.BreadthFirstSearch("missing", "a"))
+}
+
 func TestGraph_BFS(t *testing.T) {
 	iran := iranCities()
 

@@ -69,6 +69,7 @@ type Option[S any] interface {
 // MutableOption takes S reference and modifies it directly.
 type MutableOption[S any] func(s *S)
 
+// Apply updates s in place and returns it.
 func (o MutableOption[S]) Apply(s *S) *S {
 	o(s)
 
@@ -78,6 +79,7 @@ func (o MutableOption[S]) Apply(s *S) *S {
 // ImmutableOption takes a copy of S and returns the modified copy of it.
 type ImmutableOption[S any] func(s S) S
 
+// Apply returns a pointer to the modified copy. The caller's value is left unchanged.
 func (o ImmutableOption[S]) Apply(s *S) *S {
 	return ValPtr(o(*s))
 }
